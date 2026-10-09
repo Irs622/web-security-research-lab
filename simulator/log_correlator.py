@@ -1,0 +1,73 @@
+"""ModSecurity audit log parser and correlation engine."""
+from __future__ import annotations
+import json
+import subprocess
+from typing import Dict, List, Optional, Tuple
+
+
+class WafLogCorrelator:
+    """Fetches and correlates ModSecurity audit logs from the WAF container."""
+
+    def __init__(self, container_name: str = "waflab-modsecurity"):
+        self.container_name = container_name
+
+    def fetch_recent_logs(self, tail_lines: int = 200) -> List[Dict]:
+        """Fetches the latest JSON audit log transactions from the ModSecurity container."""
+        try:
+            res = subprocess.run(
+                ["docker", "logs", f"--tail={tail_lines}", self.container_name],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=5,
+            )
+        except Exception:
+            return []
+
+        transactions = []
+        raw_output = (res.stdout or "") + "\n" + (res.stderr or "")
+        for line in raw_output.splitlines():
+            line = line.strip()
+            if line.startswith('{"transaction":'):
+                try:
+                    data = json.loads(line)
+                    if "transaction" in data:
+                        transactions.append(data["transaction"])
+                except Exception:
+                    continue
+        return transactions
+
+    def correlate_request(
+        self,
+        method: str,
+        path_with_query: str,
+        transactions: Optional[List[Dict]] = None,
+    ) -> Tuple[List[str], bool, Optional[int]]:
+        """Matches a sent request to a ModSecurity audit transaction.
+
+        Returns:
+            Tuple of (rule_ids_list, was_interrupted, http_code)
+        """
+        if transactions is None:
+            transactions = self.fetch_recent_logs(tail_lines=100)
+
+        # Iterate in reverse order (most recent first)
+        for tx in reversed(transactions):
+            req = tx.get("request", {})
+            tx_method = req.get("method", "").upper()
+            tx_uri = req.get("uri", "")
+
+            # Exact or normalized prefix matching
+            if tx_method == method.upper() and (tx_uri == path_with_query or path_with_query.startswith(tx_uri.split("?")[0])):
+                rule_ids = []
+                for msg in tx.get("messages", []):
+                    details = msg.get("details", {})
+                    rid = str(details.get("ruleId", "")).strip()
+                    if rid and rid not in rule_ids:
+                        rule_ids.append(rid)
+
+                is_interrupted = bool(tx.get("is_interrupted", False))
+                http_code = tx.get("response", {}).get("http_code")
+                return rule_ids, is_interrupted, http_code
+
+        return [], False, None

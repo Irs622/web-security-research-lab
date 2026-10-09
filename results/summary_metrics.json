@@ -1,0 +1,49 @@
+{
+  "sample_count": 40,
+  "confusion_matrix": {
+    "TP": 27,
+    "FP": 0,
+    "TN": 12,
+    "FN": 1
+  },
+  "detection_rate_recall": 0.9643,
+  "precision": 1.0,
+  "false_positive_rate": 0.0,
+  "f1_score": 0.9818,
+  "blocking_rate": 0.9643,
+  "malicious_blocked": 27,
+  "total_malicious": 28,
+  "latency_waf": {
+    "mean_ms": 21.55,
+    "p50_ms": 18.29,
+    "p95_ms": 44.52
+  },
+  "latency_baseline": {
+    "mean_ms": 18.47,
+    "p50_ms": 14.43,
+    "p95_ms": 47.89
+  },
+  "latency_overhead_mean_ms": 3.07,
+  "category_breakdown": {
+    "BENIGN": {
+      "total": 12,
+      "detected": 0,
+      "blocked": 0
+    },
+    "SQLI": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "XSS": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "TRAV": {
+      "total": 8,
+      "detected": 7,
+      "blocked": 7
+    }
+  }
+}

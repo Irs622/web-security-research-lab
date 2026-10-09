@@ -1,0 +1,86 @@
+name: waf-research-lab
+
+services:
+  juice-shop:
+    image: bkimminich/juice-shop:v17.1.1
+    container_name: waflab-juice-shop
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1024M
+    ports:
+      # Loopback only: Baseline direct access strictly isolated from public interfaces.
+      - "127.0.0.1:3001:3000"
+    healthcheck:
+      # Distroless container without /bin/sh; direct invocation of node binary is required.
+      test: ["CMD", "/nodejs/bin/node", "-e", "require('http').get('http://127.0.0.1:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - lab
+
+  waf:
+    image: owasp/modsecurity-crs:4.25.2-nginx-alpine-lts
+    container_name: waflab-modsecurity
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 512M
+    depends_on:
+      juice-shop:
+        condition: service_healthy
+    environment:
+      BACKEND: "http://juice-shop:3000"
+      PORT: "8080"
+      MODSEC_RULE_ENGINE: "On"
+      PARANOIA: "1"
+      ANOMALY_INBOUND: "5"
+      ANOMALY_OUTBOUND: "4"
+      MODSEC_AUDIT_ENGINE: "RelevantOnly"
+      MODSEC_AUDIT_LOG_FORMAT: "JSON"
+    ports:
+      # Loopback only: Protected WAF endpoint accessible locally or via SSH tunnel.
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/local/bin/healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - lab
+
+  zap-baseline:
+    image: ghcr.io/zaproxy/zaproxy:2.16.0
+    container_name: waflab-zap-baseline
+    profiles: ["scan"]
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1024M
+    depends_on:
+      waf:
+        condition: service_healthy
+    command: ["zap-baseline.py", "-t", "http://waf:8080", "-m", "1", "-I", "-J", "zap-report.json", "-r", "zap-report.html"]
+    volumes:
+      - ./results:/zap/wrk:rw
+    networks:
+      - lab
+
+networks:
+  lab:
+    name: waflab-internal
+    driver: bridge

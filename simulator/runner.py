@@ -1,0 +1,170 @@
+"""Controlled security test runner for baseline and WAF lab evaluation."""
+from __future__ import annotations
+import csv
+import json
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from simulator.target_validator import StrictNoRedirectHandler, validate_target_url
+from simulator.log_correlator import WafLogCorrelator
+
+CSV_FIELDS = [
+    "run_id",
+    "test_id",
+    "mode",
+    "timestamp_utc",
+    "method",
+    "path",
+    "http_status",
+    "latency_ms",
+    "response_size_bytes",
+    "transport_error",
+    "waf_rule_ids",
+    "waf_intervention",
+    "expected_class",
+    "observed_outcome",
+]
+
+
+class ExperimentRunner:
+    """Executes controlled test requests against the lab environment."""
+
+    def __init__(
+        self,
+        base_url: str,
+        mode: str,
+        delay_seconds: float = 0.25,
+        timeout_seconds: float = 5.0,
+        enable_log_correlation: bool = True,
+    ):
+        self.mode = mode
+        self.base_url = validate_target_url(base_url, expected_mode=mode)
+        self.delay = max(0.1, delay_seconds)
+        self.timeout = timeout_seconds
+        self.enable_log_correlation = enable_log_correlation and (mode == "waf")
+        self.correlator = WafLogCorrelator() if self.enable_log_correlation else None
+
+        # Build custom opener with strict redirect blocking
+        self.opener = urllib.request.build_opener(StrictNoRedirectHandler())
+
+    def execute_test(self, case: Dict[str, Any], run_id: str) -> Dict[str, Any]:
+        """Executes a single test case and captures metrics."""
+        method = case.get("method", "GET").upper()
+        path = case.get("path", "/")
+        params = case.get("params", {})
+        headers = dict(case.get("headers", {}))
+        body = case.get("body")
+        expected_class = case.get("expected_class", "unknown")
+
+        headers.setdefault("User-Agent", "WAF-Research-Lab-Simulator/2.0")
+
+        query_str = urllib.parse.urlencode(params, doseq=True) if params else ""
+        full_path = path + (f"?{query_str}" if query_str else "")
+        target_url = self.base_url + full_path
+
+        data_bytes: Optional[bytes] = None
+        if body:
+            data_bytes = body.encode("utf-8") if isinstance(body, str) else json.dumps(body).encode("utf-8")
+            if "Content-Type" not in headers:
+                headers["Content-Type"] = "application/json"
+
+        req = urllib.request.Request(
+            url=target_url,
+            data=data_bytes,
+            headers=headers,
+            method=method,
+        )
+
+        started = time.perf_counter()
+        status: Optional[int] = None
+        response_bytes = 0
+        transport_error = ""
+
+        try:
+            with self.opener.open(req, timeout=self.timeout) as resp:
+                status = resp.status
+                body_content = resp.read(65536)
+                response_bytes = len(body_content)
+        except urllib.error.HTTPError as http_err:
+            status = http_err.code
+            try:
+                body_content = http_err.read(65536)
+                response_bytes = len(body_content)
+            except Exception:
+                pass
+        except Exception as exc:
+            transport_error = f"{type(exc).__name__}: {exc}"
+
+        latency_ms = round((time.perf_counter() - started) * 1000, 2)
+
+        # Correlate with ModSecurity logs if in WAF mode
+        waf_rules: List[str] = []
+        waf_intervention = False
+        if self.mode == "waf" and self.correlator and status is not None:
+            # Short sleep to allow container stdout flush
+            time.sleep(0.05)
+            r_ids, interrupted, _ = self.correlator.correlate_request(method, full_path)
+            waf_rules = r_ids
+            # Intervention is confirmed if status is 403 or interrupted flag was raised
+            waf_intervention = interrupted or (status in {403, 406})
+
+        # Determine observed outcome
+        if transport_error:
+            observed_outcome = "transport_error"
+        elif self.mode == "baseline":
+            observed_outcome = "allowed_baseline"
+        else:
+            if waf_intervention:
+                observed_outcome = "blocked_by_waf"
+            elif waf_rules:
+                observed_outcome = "detected_alert_only"
+            else:
+                observed_outcome = "passed_clean"
+
+        return {
+            "run_id": run_id,
+            "test_id": case.get("test_id", "UNKNOWN"),
+            "mode": self.mode,
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "method": method,
+            "path": full_path,
+            "http_status": status if status is not None else "",
+            "latency_ms": latency_ms,
+            "response_size_bytes": response_bytes,
+            "transport_error": transport_error,
+            "waf_rule_ids": ";".join(waf_rules) if waf_rules else "",
+            "waf_intervention": waf_intervention if self.mode == "waf" else "",
+            "expected_class": expected_class,
+            "observed_outcome": observed_outcome,
+        }
+
+    def run_suite(self, cases: List[Dict[str, Any]], output_path: Path) -> List[Dict[str, Any]]:
+        """Runs the entire test suite and persists results to CSV."""
+        run_id = f"run_{self.mode}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+        results = []
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+            writer.writeheader()
+
+            for idx, case in enumerate(cases, 1):
+                res = self.execute_test(case, run_id=run_id)
+                writer.writerow(res)
+                results.append(res)
+
+                rule_info = f" [Rules: {res['waf_rule_ids']}]" if res.get("waf_rule_ids") else ""
+                err_info = f" [ERR: {res['transport_error']}]" if res.get("transport_error") else ""
+                print(
+                    f"[{idx:02d}/{len(cases):02d}] {res['test_id']} ({res['expected_class']}) "
+                    f"HTTP {res['http_status']} ({res['latency_ms']} ms) -> {res['observed_outcome']}"
+                    f"{rule_info}{err_info}"
+                )
+                time.sleep(self.delay)
+
+        return results
