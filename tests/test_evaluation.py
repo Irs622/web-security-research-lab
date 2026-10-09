@@ -1,6 +1,11 @@
 """Unit tests for research evaluation metrics and statistical calculations."""
 import pytest
-from evaluation.analyze_results import calculate_percentile, evaluate_waf_performance
+from evaluation.analyze_results import (
+    LAB_ENVIRONMENT_PROTOCOL_RULES,
+    SCORING_META_RULES,
+    calculate_percentile,
+    evaluate_waf_performance,
+)
 
 
 def test_percentile_calculation():
@@ -52,3 +57,115 @@ def test_evaluation_latency_overhead():
     assert res["latency_waf"]["mean_ms"] == 30.0
     assert res["latency_baseline"]["mean_ms"] == 15.0
     assert res["latency_overhead_mean_ms"] == 15.0
+
+
+def test_transport_error_rows_excluded_from_metrics():
+    # Rows with transport_error must be excluded from sample_count and confusion matrix.
+    waf_rows = [
+        {
+            "expected_class": "malicious",
+            "waf_rule_ids": "942100",
+            "waf_intervention": "True",
+            "http_status": "403",
+            "latency_ms": "12.0",
+            "transport_error": "TimeoutError: timed out",
+        },
+        {
+            "expected_class": "malicious",
+            "waf_rule_ids": "941100",
+            "waf_intervention": "True",
+            "http_status": "403",
+            "latency_ms": "14.0",
+            "transport_error": "",
+        },
+    ]
+    res = evaluate_waf_performance(waf_rows)
+    assert res["sample_count"] == 1
+    assert res["confusion_matrix"]["TP"] == 1
+    assert res["confusion_matrix"]["FN"] == 0
+
+
+def test_empty_waf_intervention_string_treated_as_false():
+    # waf_intervention stored as empty string (not "True") must not trigger is_blocked.
+    # Attack rule present → TP via has_attack_detection, not via blocking.
+    waf_rows = [
+        {
+            "expected_class": "malicious",
+            "waf_rule_ids": "942100",
+            "waf_intervention": "",
+            "http_status": "200",
+            "latency_ms": "12.0",
+        },
+    ]
+    res = evaluate_waf_performance(waf_rows)
+    assert res["confusion_matrix"]["TP"] == 1
+    assert res["confusion_matrix"]["FN"] == 0
+    assert res["blocking_rate"] == 0.0
+
+
+def test_lab_environment_rule_excluded_from_fp():
+    # Rule 920350 (numeric IP host) fires on all lab requests. A benign request
+    # carrying only 920350 must still count as TN, not FP.
+    lab_rule = next(iter(LAB_ENVIRONMENT_PROTOCOL_RULES))
+    waf_rows = [
+        {
+            "expected_class": "benign",
+            "waf_rule_ids": lab_rule,
+            "waf_intervention": "False",
+            "http_status": "200",
+            "latency_ms": "15.0",
+        },
+    ]
+    res = evaluate_waf_performance(waf_rows)
+    assert res["confusion_matrix"]["FP"] == 0
+    assert res["confusion_matrix"]["TN"] == 1
+
+
+def test_scoring_meta_rule_excluded_from_detection():
+    # Rule 949110 (anomaly score exceeded) must not count as an attack rule on its own.
+    meta_rule = next(iter(SCORING_META_RULES))
+    waf_rows = [
+        {
+            "expected_class": "malicious",
+            "waf_rule_ids": meta_rule,
+            "waf_intervention": "False",
+            "http_status": "200",
+            "latency_ms": "12.0",
+        },
+    ]
+    res = evaluate_waf_performance(waf_rows)
+    assert res["confusion_matrix"]["FN"] == 1
+    assert res["confusion_matrix"]["TP"] == 0
+
+
+def test_unknown_expected_class_not_counted():
+    # Rows with unexpected class values must not affect TP/FP/TN/FN counts.
+    waf_rows = [
+        {
+            "expected_class": "unknown",
+            "waf_rule_ids": "942100",
+            "waf_intervention": "True",
+            "http_status": "403",
+            "latency_ms": "10.0",
+        },
+    ]
+    res = evaluate_waf_performance(waf_rows)
+    cm = res["confusion_matrix"]
+    assert cm["TP"] == cm["FP"] == cm["TN"] == cm["FN"] == 0
+
+
+def test_zero_division_guard_only_malicious_rows():
+    # When FP + TN == 0 (no benign rows), FPR must return 0.0, not raise ZeroDivisionError.
+    waf_rows = [
+        {
+            "expected_class": "malicious",
+            "waf_rule_ids": "942100",
+            "waf_intervention": "True",
+            "http_status": "403",
+            "latency_ms": "12.0",
+        },
+    ]
+    res = evaluate_waf_performance(waf_rows)
+    assert res["false_positive_rate"] == 0.0
+    assert res["confusion_matrix"]["TN"] == 0
+    assert res["confusion_matrix"]["FP"] == 0

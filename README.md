@@ -124,7 +124,7 @@ make zap
 |---|---|---|
 | **True Positives (TP)** | 27 | Serangan berhasil dideteksi oleh aturan CRS |
 | **False Positives (FP)** | 0 | Request normal tidak ada yang salah diblokir |
-| **True Negatives (TN)** | 12 | Seluruh request benign diizinkan (200 OK) |
+| **True Negatives (TN)** | 12 | Seluruh request benign diizinkan WAF (pass-through tanpa pemblokiran) |
 | **False Negatives (FN)** | 1 | 1 probe traversal null-byte lolos pada PL 1 |
 | **Detection Rate (Recall)** | **96.43%** | Tingkat keberhasilan deteksi ancaman |
 | **Precision** | **100.00%** | Tingkat ketepatan peringatan deteksi |
@@ -143,13 +143,13 @@ Grafik visualisasi tersimpan di:
 
 ## 6. Dokumentasi Lengkap
 
-- [Arsitektur Sistem](file:///Users/mac/Downloads/waf-research-lab/docs/ARCHITECTURE.md)
-- [Batasan Keamanan & Containment](file:///Users/mac/Downloads/waf-research-lab/docs/SECURITY_SCOPE.md)
-- [Metodologi Penelitian](file:///Users/mac/Downloads/waf-research-lab/docs/METHODOLOGY.md)
-- [Formulasi Metrik Evaluasi](file:///Users/mac/Downloads/waf-research-lab/docs/METRICS.md)
-- [Experiment Runbook](file:///Users/mac/Downloads/waf-research-lab/docs/EXPERIMENT_RUNBOOK.md)
-- [Panduan Interpretasi Hasil](file:///Users/mac/Downloads/waf-research-lab/docs/RESULTS_INTERPRETATION.md)
-- [Initial Audit Report](file:///Users/mac/Downloads/waf-research-lab/docs/INITIAL_AUDIT.md)
+- [Arsitektur Sistem](docs/ARCHITECTURE.md)
+- [Batasan Keamanan & Containment](docs/SECURITY_SCOPE.md)
+- [Metodologi Penelitian](docs/METHODOLOGY.md)
+- [Formulasi Metrik Evaluasi](docs/METRICS.md)
+- [Experiment Runbook](docs/EXPERIMENT_RUNBOOK.md)
+- [Panduan Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md)
+- [Initial Audit Report](docs/INITIAL_AUDIT.md)
 
 ---
 *Dikembangkan untuk keperluan penelitian skripsi akademik Teknik Informatika.*

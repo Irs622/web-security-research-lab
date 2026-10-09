@@ -44,8 +44,22 @@ $$\Delta L = \bar{L}_{\text{WAF}} - \bar{L}_{\text{Baseline}}$$
 
 ## 4. Penanganan Edge Cases & Keamanan Matematis
 
-Pada skrip [`evaluation/analyze_results.py`](file:///Users/mac/Downloads/waf-research-lab/evaluation/analyze_results.py), seluruh kalkulasi diproteksi dari pembagian dengan nol (*Division-by-Zero Guard*):
+Pada skrip [`evaluation/analyze_results.py`](../evaluation/analyze_results.py), seluruh kalkulasi diproteksi dari pembagian dengan nol (*Division-by-Zero Guard*):
 - Jika $\text{TP} + \text{FN} = 0$, Recall diatur ke `0.0`.
 - Jika $\text{TP} + \text{FP} = 0$, Precision diatur ke `0.0`.
 - Jika $\text{FP} + \text{TN} = 0$, FPR diatur ke `0.0`.
 - Jika Precision + Recall = 0, F1-Score diatur ke `0.0`.
+
+---
+
+## 5. Ekslusi Rule ID dalam Kalkulasi Deteksi
+
+Dua kelompok Rule ID dikecualikan dari variabel `attack_rules` (penentu `has_attack_detection`) sebelum klasifikasi TP/FP/TN/FN dilakukan:
+
+### LAB_ENVIRONMENT_PROTOCOL_RULES: `{920350}`
+
+Rule **920350** ("Request Header Host Is Numeric IP Address") terpicu pada **setiap** request dalam lab karena Host header berisi `127.0.0.1`. Rule ini memberikan anomaly score 3 poin — di bawah blocking threshold 5. Tidak ada kaitannya dengan deteksi pola serangan aplikasi. Jika tidak dikecualikan, seluruh 12 request benign akan salah diklasifikasikan sebagai FP.
+
+### SCORING_META_RULES: `{949110}`
+
+Rule **949110** ("Inbound Anomaly Score Exceeded") adalah meta-rule CRS yang terpicu ketika akumulasi skor dari rule-rule serangan lain melewati threshold. Rule ini **tidak mendeteksi pola serangan secara independen** — ia hanya mencerminkan hasil rule-rule yang sudah dihitung di atas. Menyertakannya dalam `has_attack_detection` akan menyebabkan double-counting pada setiap TP yang diblokir. Dikecualikan untuk menjaga keabsahan perhitungan confusion matrix.

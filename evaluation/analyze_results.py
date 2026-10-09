@@ -10,8 +10,16 @@ from typing import Any, Dict, List, Optional
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS_DIR = ROOT / "results"
 
-# Protocol rules that trigger due to lab environment artifacts (e.g., numeric IP in host header)
+# Rule 920350: "Host header is a numeric IP address" — fires on every request because the lab
+# uses 127.0.0.1 as the Host value. It contributes anomaly score 3 (below blocking threshold 5)
+# and has no bearing on attack-class detection. Excluded from all TP/FP calculations.
 LAB_ENVIRONMENT_PROTOCOL_RULES = {"920350"}
+
+# Rule 949110: "Inbound Anomaly Score Exceeded" — a CRS meta-rule that fires when the
+# accumulated anomaly score reaches the blocking threshold. It reflects the sum of scores from
+# other attack rules already counted above; including it would double-count every TP that was
+# blocked. Excluded from has_attack_detection to avoid that double-count.
+SCORING_META_RULES = {"949110"}
 
 
 def load_csv(path: Path) -> List[Dict[str, Any]]:
@@ -66,8 +74,10 @@ def evaluate_waf_performance(
         category_stats[cat]["total"] += 1
 
         all_rules = [r.strip() for r in row.get("waf_rule_ids", "").split(";") if r.strip()]
-        # Attack rules: exclude lab artifact 920350 and blocking evaluation rule 949110
-        attack_rules = [r for r in all_rules if r not in LAB_ENVIRONMENT_PROTOCOL_RULES and r != "949110"]
+        attack_rules = [
+            r for r in all_rules
+            if r not in LAB_ENVIRONMENT_PROTOCOL_RULES and r not in SCORING_META_RULES
+        ]
         is_blocked = str(row.get("waf_intervention", "")).lower() == "true" or row.get("http_status") == "403"
         has_attack_detection = len(attack_rules) > 0 or is_blocked
 

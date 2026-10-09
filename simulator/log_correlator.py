@@ -57,8 +57,15 @@ class WafLogCorrelator:
             tx_method = req.get("method", "").upper()
             tx_uri = req.get("uri", "")
 
-            # Exact or normalized prefix matching
-            if tx_method == method.upper() and (tx_uri == path_with_query or path_with_query.startswith(tx_uri.split("?")[0])):
+            # Prefer exact URI match. Fall back to exact base-path match (both sides
+            # stripped of query string) only when the request itself has no query
+            # component — prevents cross-matching between requests that share a base
+            # path but carry different payloads.
+            tx_base = tx_uri.split("?")[0]
+            req_base = path_with_query.split("?")[0]
+            has_query = "?" in path_with_query
+            matched = tx_uri == path_with_query or (not has_query and tx_base == req_base)
+            if tx_method == method.upper() and matched:
                 rule_ids = []
                 for msg in tx.get("messages", []):
                     details = msg.get("details", {})

@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from simulator.target_validator import StrictNoRedirectHandler, validate_target_url
 from simulator.log_correlator import WafLogCorrelator
+from evaluation.analyze_results import LAB_ENVIRONMENT_PROTOCOL_RULES
 
 CSV_FIELDS = [
     "run_id",
@@ -110,8 +111,15 @@ class ExperimentRunner:
             time.sleep(0.05)
             r_ids, interrupted, _ = self.correlator.correlate_request(method, full_path)
             waf_rules = r_ids
-            # Intervention is confirmed if status is 403 or interrupted flag was raised
+            # Intervention is confirmed if status is 403/406 or interrupted flag was raised
             waf_intervention = interrupted or (status in {403, 406})
+
+        # Attack-relevant rules only (excludes lab-environment protocol artifacts)
+        SCORING_META_RULES = {"949110"}
+        attack_rules = [
+            r for r in waf_rules
+            if r not in LAB_ENVIRONMENT_PROTOCOL_RULES and r not in SCORING_META_RULES
+        ]
 
         # Determine observed outcome
         if transport_error:
@@ -121,7 +129,7 @@ class ExperimentRunner:
         else:
             if waf_intervention:
                 observed_outcome = "blocked_by_waf"
-            elif waf_rules:
+            elif attack_rules:
                 observed_outcome = "detected_alert_only"
             else:
                 observed_outcome = "passed_clean"

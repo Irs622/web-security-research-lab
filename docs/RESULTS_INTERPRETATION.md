@@ -44,10 +44,30 @@ Pada pengujian Baseline (`results/baseline.csv`), kasus traversal `TRAV-001`, `T
 
 ---
 
-## 4. Evaluasi Kinerja Latensi & Overhead
+## 4. Pembedaan HTTP 400 vs HTTP 403 pada Kasus Path Traversal
+
+Dari 8 kasus traversal yang diuji, terdapat perbedaan kode HTTP pada jalur WAF yang perlu dipahami:
+
+| Kode HTTP | Ukuran Respons | Asal | Kasus |
+|---|---|---|---|
+| **403** + 146 B | Halaman error WAF | ModSecurity memblokir (CRS rule aktif) | TRAV-003, TRAV-006 |
+| **400** + 150 B | Nginx 400 Bad Request | Nginx menolak URL malformed sebelum/selama WAF | TRAV-001, TRAV-002, TRAV-005, TRAV-008 |
+| **403** + 1937 B | Juice Shop app | Aplikasi memblokir secara mandiri | TRAV-007 (lihat catatan) |
+
+Untuk kasus HTTP **400**: Nginx me-reject URL yang mengandung sequence `../` yang tidak ter-resolve selama normalisasi path, sehingga ModSecurity dan aplikasi tidak pernah memproses request tersebut. Meskipun WAF audit log mencatat `is_interrupted: true` dan attack rules, layer Nginx secara independen juga akan menolak URL ini tanpa kehadiran WAF. Peneliti harus mendokumentasikan bahwa sebagian kasus traversal terblokir oleh **dua mekanisme berlapis** (Nginx URL normalization + WAF CRS inspection).
+
+### Catatan Investigasi TRAV-007
+
+TRAV-007 (`GET /ftp/....//....//etc/passwd`) mengembalikan HTTP 403 dengan ukuran 1937 byte — identik dengan respons 403 dari Juice Shop di jalur baseline, bukan halaman error WAF (146 byte). Namun `waf_intervention: True` karena `is_interrupted: true` di audit log WAF.
+
+Ketidakkonsistenan ini berpotensi disebabkan oleh ambiguitas korelasi log: TRAV-007 dikirim 380ms setelah TRAV-006, dan keduanya memiliki base path `/ftp/`. Jika log correlator salah mengambil transaksi TRAV-006 (yang memiliki rules 930100+930110 dengan `is_interrupted: true`), maka TRAV-007 seharusnya adalah **FN** (missed), bukan TP. Penelitian selanjutnya disarankan untuk memverifikasi ulang kasus ini menggunakan mekanisme korelasi berbasis trace token unik per request.
+
+---
+
+## 5. Evaluasi Kinerja Latensi & Overhead
 
 - **Baseline Latency:** Mean = 18.47 ms | p50 = 14.43 ms | p95 = 47.89 ms
 - **WAF Latency:** Mean = 21.55 ms | p50 = 18.29 ms | p95 = 44.52 ms
-- **Inspeksi Overhead:** Rata-rata hanya **+3.07 ms** per request.
-- **Kesimpulan Kinerja:**
-  Overhead latensi sebesar ~3 ms adalah *trade-off* komputasi yang sangat efisien dan dapat diterima untuk keamanan aplikasi web perusahaan (*production-grade acceptable latency*).
+- **Inspeksi Overhead:** Rata-rata **+3.07 ms** per request (satu run eksperimen).
+- **Catatan Metodologis:**
+  Angka overhead diperoleh dari satu run eksperimen dengan 40 request per jalur. Untuk klaim statistik yang lebih kuat, disarankan melakukan minimal 3 run dan melaporkan mean ± standar deviasi. Data ini cukup sebagai indikasi awal bahwa overhead inspeksi WAF berada di kisaran single-digit milidetik pada konfigurasi lab lokal.
