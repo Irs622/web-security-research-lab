@@ -69,7 +69,7 @@ cd web-security-research-lab
 # Setup virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-pip install pytest matplotlib pandas
+pip install -r requirements.txt
 ```
 
 ---
@@ -153,3 +153,8 @@ Grafik visualisasi tersimpan di:
 
 ---
 *Dikembangkan untuk keperluan penelitian skripsi akademik Teknik Informatika.*
+
+---
+
+## Deployment Produksi
+Untuk memakai WAF ini melindungi website nyata (TLS, mode DetectionOnly, tuning false positive), lihat [docs/PRODUCTION.md](docs/PRODUCTION.md).

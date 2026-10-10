@@ -7,3 +7,6 @@ results/*.html
 results/*.json
 results/*.log
 results/*.png
+
+# Production secrets
+deploy/prod/.env

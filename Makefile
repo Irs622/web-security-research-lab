@@ -42,3 +42,27 @@ charts:
 
 zap:
 	docker compose --profile scan run --rm zap-baseline
+
+# --- Production deployment (lihat docs/PRODUCTION.md) ---
+PROD = docker compose -f deploy/prod/docker-compose.prod.yml --env-file deploy/prod/.env
+
+.PHONY: prod-up prod-down prod-restart prod-logs prod-fp install
+
+install:
+	python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+
+prod-up:
+	$(PROD) up -d
+
+prod-down:
+	$(PROD) down
+
+prod-restart:
+	$(PROD) restart waf
+
+prod-logs:
+	$(PROD) logs --tail=100 -f waf
+
+prod-fp:
+	@$(PROD) exec waf sh -c "cat /var/log/modsecurity/audit.log" \
+	  | grep -o '"ruleId":"[0-9]*"' | sort | uniq -c | sort -rn | head -20

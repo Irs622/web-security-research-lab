@@ -1,0 +1,88 @@
+# Deployment produksi: Internet -> Caddy (TLS) -> ModSecurity+CRS -> aplikasi Anda.
+# Jalankan: docker compose -f deploy/prod/docker-compose.prod.yml --env-file deploy/prod/.env up -d
+name: waf-prod
+
+services:
+  caddy:
+    image: caddy:2.8.4-alpine
+    container_name: wafprod-caddy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      waf:
+        condition: service_healthy
+    networks:
+      - edge
+
+  waf:
+    image: owasp/modsecurity-crs:4.25.2-nginx-alpine-lts
+    container_name: wafprod-modsecurity
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1024M
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      BACKEND: ${BACKEND_URL:?set BACKEND_URL}
+      PORT: "8080"
+      MODSEC_RULE_ENGINE: ${MODSEC_RULE_ENGINE:-DetectionOnly}
+      PARANOIA: ${PARANOIA:-1}
+      BLOCKING_PARANOIA: ${PARANOIA:-1}
+      ANOMALY_INBOUND: ${ANOMALY_INBOUND:-5}
+      ANOMALY_OUTBOUND: ${ANOMALY_OUTBOUND:-4}
+      MODSEC_REQ_BODY_LIMIT: ${MODSEC_REQ_BODY_LIMIT:-13107200}
+      MODSEC_AUDIT_ENGINE: "RelevantOnly"
+      MODSEC_AUDIT_LOG_FORMAT: "JSON"
+      MODSEC_AUDIT_LOG: "/var/log/modsecurity/audit.log"
+      # Percayai IP klien hanya dari jaringan Caddy
+      REAL_IP_HEADER: "X-Forwarded-For"
+      SET_REAL_IP_FROM: "172.30.0.0/24"
+      PROXY_TIMEOUT: "60s"
+      SERVER_TOKENS: "off"
+    volumes:
+      - ./waf/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:ro
+      - ./waf/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:ro
+      - waf_logs:/var/log/modsecurity
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/local/bin/healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+    networks:
+      - edge
+
+volumes:
+  caddy_data:
+  caddy_config:
+  waf_logs:
+
+networks:
+  edge:
+    name: wafprod-edge
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
