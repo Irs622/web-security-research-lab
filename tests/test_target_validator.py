@@ -10,7 +10,7 @@ from simulator.target_validator import (
 def test_valid_loopback_targets():
     assert validate_target_url("http://127.0.0.1:3001") == "http://127.0.0.1:3001"
     assert validate_target_url("http://localhost:8080") == "http://localhost:8080"
-    assert validate_target_url("http://[::1]:3001") == "http://::1:3001"
+    assert validate_target_url("http://[::1]:3001") == "http://[::1]:3001"
 
 
 def test_reject_external_domain():

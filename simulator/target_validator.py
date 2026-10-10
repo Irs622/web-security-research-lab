@@ -80,4 +80,5 @@ def validate_target_url(base_url: str, expected_mode: str | None = None) -> str:
             "Base target URL must not contain a sub-path, query string, or fragment."
         )
 
-    return f"http://{hostname}:{port}"
+    host_part = f"[{hostname}]" if ":" in hostname else hostname
+    return f"http://{host_part}:{port}"

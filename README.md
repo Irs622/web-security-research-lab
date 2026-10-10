@@ -165,6 +165,8 @@ python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf \
 | `--output` | `results/{mode}.csv` | Lokasi CSV hasil |
 | `--no-docker-logs` | nonaktif | Matikan korelasi audit log via Docker CLI |
 
+Setiap request diberi header unik `X-Lab-Trace-Id` sehingga baris CSV dapat dicocokkan secara pasti dengan transaksi audit log ModSecurity (kolom `trace_id` dan `log_match`). Lihat [Metodologi §4a](docs/METHODOLOGY.md).
+
 ### Daftar Perintah Make
 | Perintah | Fungsi |
 |---|---|
@@ -182,6 +184,8 @@ python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf \
 ---
 
 ## 5. Ringkasan Hasil Eksperimen Aktual (N=40 Kasus Uji)
+
+> ⚠️ Angka di bawah berasal dari run sebelum perbaikan korelasi berbasis trace ID. Jalankan ulang eksperimen untuk angka final — lihat [Interpretasi Hasil §4](docs/RESULTS_INTERPRETATION.md).
 
 | Metrik Evaluasi | Nilai | Keterangan |
 |---|---|---|

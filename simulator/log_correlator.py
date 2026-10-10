@@ -5,6 +5,20 @@ import subprocess
 from typing import Dict, List, Optional, Tuple
 
 
+TRACE_HEADER = "X-Lab-Trace-Id"
+
+
+def _header_value(headers: Dict, name: str) -> Optional[str]:
+    """Case-insensitive header lookup on an audit-log header mapping."""
+    if not isinstance(headers, dict):
+        return None
+    lname = name.lower()
+    for key, value in headers.items():
+        if str(key).lower() == lname:
+            return str(value)
+    return None
+
+
 class WafLogCorrelator:
     """Fetches and correlates ModSecurity audit logs from the WAF container."""
 
@@ -42,14 +56,26 @@ class WafLogCorrelator:
         method: str,
         path_with_query: str,
         transactions: Optional[List[Dict]] = None,
-    ) -> Tuple[List[str], bool, Optional[int]]:
+        trace_id: Optional[str] = None,
+    ) -> Tuple[List[str], bool, Optional[int], str]:
         """Matches a sent request to a ModSecurity audit transaction.
 
+        Matching prefers the unique per-request trace header, which removes the
+        ambiguity of URI-based matching between requests sharing a base path.
+        URI matching is kept as a fallback when the header is absent from the log.
+
         Returns:
-            Tuple of (rule_ids_list, was_interrupted, http_code)
+            Tuple of (rule_ids_list, was_interrupted, http_code, match_method)
+            where match_method is "trace_id", "uri", or "none".
         """
         if transactions is None:
             transactions = self.fetch_recent_logs(tail_lines=100)
+
+        if trace_id:
+            for tx in reversed(transactions):
+                headers = tx.get("request", {}).get("headers", {})
+                if _header_value(headers, TRACE_HEADER) == trace_id:
+                    return (*self._extract(tx), "trace_id")
 
         # Iterate in reverse order (most recent first)
         for tx in reversed(transactions):
@@ -66,15 +92,18 @@ class WafLogCorrelator:
             has_query = "?" in path_with_query
             matched = tx_uri == path_with_query or (not has_query and tx_base == req_base)
             if tx_method == method.upper() and matched:
-                rule_ids = []
-                for msg in tx.get("messages", []):
-                    details = msg.get("details", {})
-                    rid = str(details.get("ruleId", "")).strip()
-                    if rid and rid not in rule_ids:
-                        rule_ids.append(rid)
+                return (*self._extract(tx), "uri")
 
-                is_interrupted = bool(tx.get("is_interrupted", False))
-                http_code = tx.get("response", {}).get("http_code")
-                return rule_ids, is_interrupted, http_code
+        return [], False, None, "none"
 
-        return [], False, None
+    @staticmethod
+    def _extract(tx: Dict) -> Tuple[List[str], bool, Optional[int]]:
+        rule_ids: List[str] = []
+        for msg in tx.get("messages", []):
+            details = msg.get("details", {})
+            rid = str(details.get("ruleId", "")).strip()
+            if rid and rid not in rule_ids:
+                rule_ids.append(rid)
+        is_interrupted = bool(tx.get("is_interrupted", False))
+        http_code = tx.get("response", {}).get("http_code")
+        return rule_ids, is_interrupted, http_code

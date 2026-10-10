@@ -62,6 +62,10 @@ TRAV-007 (`GET /ftp/....//....//etc/passwd`) mengembalikan HTTP 403 dengan ukura
 
 Ketidakkonsistenan ini berpotensi disebabkan oleh ambiguitas korelasi log: TRAV-007 dikirim 380ms setelah TRAV-006, dan keduanya memiliki base path `/ftp/`. Jika log correlator salah mengambil transaksi TRAV-006 (yang memiliki rules 930100+930110 dengan `is_interrupted: true`), maka TRAV-007 seharusnya adalah **FN** (missed), bukan TP. Penelitian selanjutnya disarankan untuk memverifikasi ulang kasus ini menggunakan mekanisme korelasi berbasis trace token unik per request.
 
+> **Pembaruan (sudah diimplementasikan):** Simulator kini menyisipkan header unik `X-Lab-Trace-Id` (UUID) pada setiap request dan mencocokkannya dengan header request di audit log ModSecurity (kolom CSV `trace_id` dan `log_match`). Status `waf_intervention` kini diambil **hanya** dari flag `is_interrupted` audit log bila transaksi ditemukan; HTTP 403 mentah tidak lagi dianggap blokir WAF (karena Juice Shop dapat mengembalikan 403 sendiri). Heuristik status 403/406 hanya dipakai bila bukti audit log tidak tersedia (`log_match = none`/`disabled`).
+>
+> **Hasil pada tabel di atas berasal dari run sebelum perbaikan ini.** Jalankan ulang `make test-baseline`, `make test-waf`, `make analyze`, dan `make charts` untuk memperoleh angka final. Bila TRAV-007 terkonfirmasi tidak diintervensi, metrik akan menjadi TP=26, FN=2 (Recall ≈ 92.86%).
+
 ---
 
 ## 5. Evaluasi Kinerja Latensi & Overhead

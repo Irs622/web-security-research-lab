@@ -53,6 +53,16 @@ Penelitian memisahkan secara ketat dua konsep keamanan:
 
 ---
 
+## 4a. Korelasi Request ↔ Audit Log
+
+Untuk memastikan setiap baris hasil dikaitkan dengan transaksi ModSecurity yang benar:
+1. Setiap request membawa header unik `X-Lab-Trace-Id` (UUID v4) yang dicatat di kolom CSV `trace_id`.
+2. Korelator mencari transaksi audit log dengan header tersebut (`log_match = trace_id`). Bila tidak ditemukan, korelator jatuh ke pencocokan method + URI persis (`log_match = uri`).
+3. Atribusi blokir (`waf_intervention`) diambil dari flag `is_interrupted` audit log. HTTP 403 dari aplikasi backend **tidak** dihitung sebagai blokir WAF.
+4. Bila tidak ada bukti audit log (`log_match = none` atau korelasi dimatikan), dipakai heuristik status HTTP 403/406 dan baris tersebut perlu ditinjau manual.
+
+---
+
 ## 5. Parameter Pengendalian
 
 - **Ukuran Sampel:** N=40 kasus uji terkontrol (12 Benign, 10 SQLi, 10 XSS, 8 Path Traversal).

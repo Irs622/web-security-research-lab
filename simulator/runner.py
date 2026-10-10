@@ -6,13 +6,14 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from simulator.target_validator import StrictNoRedirectHandler, validate_target_url
-from simulator.log_correlator import WafLogCorrelator
-from evaluation.analyze_results import LAB_ENVIRONMENT_PROTOCOL_RULES
+from simulator.log_correlator import TRACE_HEADER, WafLogCorrelator
+from evaluation.analyze_results import filter_attack_rules
 
 CSV_FIELDS = [
     "run_id",
@@ -27,6 +28,8 @@ CSV_FIELDS = [
     "transport_error",
     "waf_rule_ids",
     "waf_intervention",
+    "trace_id",
+    "log_match",
     "expected_class",
     "observed_outcome",
 ]
@@ -63,6 +66,8 @@ class ExperimentRunner:
         expected_class = case.get("expected_class", "unknown")
 
         headers.setdefault("User-Agent", "WAF-Research-Lab-Simulator/2.0")
+        trace_id = uuid.uuid4().hex
+        headers[TRACE_HEADER] = trace_id
 
         query_str = urllib.parse.urlencode(params, doseq=True) if params else ""
         full_path = path + (f"?{query_str}" if query_str else "")
@@ -106,20 +111,24 @@ class ExperimentRunner:
         # Correlate with ModSecurity logs if in WAF mode
         waf_rules: List[str] = []
         waf_intervention = False
-        if self.mode == "waf" and self.correlator and status is not None:
-            # Short sleep to allow container stdout flush
-            time.sleep(0.05)
-            r_ids, interrupted, _ = self.correlator.correlate_request(method, full_path)
-            waf_rules = r_ids
-            # Intervention is confirmed if status is 403/406 or interrupted flag was raised
-            waf_intervention = interrupted or (status in {403, 406})
+        log_match = "disabled"
+        if self.mode == "waf" and status is not None:
+            if self.correlator:
+                # Short sleep to allow container stdout flush
+                time.sleep(0.05)
+                r_ids, interrupted, _, log_match = self.correlator.correlate_request(
+                    method, full_path, trace_id=trace_id
+                )
+                waf_rules = r_ids
+            if log_match != "none" and log_match != "disabled":
+                # Audit log is authoritative: a 403 produced by the backend application
+                # itself (e.g. Juice Shop's own /ftp guard) is NOT a WAF intervention.
+                waf_intervention = interrupted
+            else:
+                # No audit evidence available: fall back to the status code heuristic.
+                waf_intervention = status in {403, 406}
 
-        # Attack-relevant rules only (excludes lab-environment protocol artifacts)
-        SCORING_META_RULES = {"949110"}
-        attack_rules = [
-            r for r in waf_rules
-            if r not in LAB_ENVIRONMENT_PROTOCOL_RULES and r not in SCORING_META_RULES
-        ]
+        attack_rules = filter_attack_rules(waf_rules)
 
         # Determine observed outcome
         if transport_error:
@@ -147,6 +156,8 @@ class ExperimentRunner:
             "transport_error": transport_error,
             "waf_rule_ids": ";".join(waf_rules) if waf_rules else "",
             "waf_intervention": waf_intervention if self.mode == "waf" else "",
+            "trace_id": trace_id,
+            "log_match": log_match if self.mode == "waf" else "",
             "expected_class": expected_class,
             "observed_outcome": observed_outcome,
         }

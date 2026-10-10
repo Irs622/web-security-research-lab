@@ -72,6 +72,23 @@ def main():
         print(f"Error loading test cases: {exc}", file=sys.stderr)
         sys.exit(1)
 
+    if not isinstance(cases, list) or not cases:
+        print("Error: Dataset must be a non-empty JSON array of test cases.", file=sys.stderr)
+        sys.exit(1)
+    invalid = [
+        str(c.get("test_id", f"#{i}")) if isinstance(c, dict) else f"#{i}"
+        for i, c in enumerate(cases)
+        if not isinstance(c, dict)
+        or not str(c.get("path", "")).startswith("/")
+        or c.get("expected_class") not in {"benign", "malicious"}
+    ]
+    if invalid:
+        print(f"Error: Invalid test cases (need relative path and benign/malicious class): {invalid}", file=sys.stderr)
+        sys.exit(1)
+    if args.timeout <= 0:
+        print("Error: --timeout must be greater than 0.", file=sys.stderr)
+        sys.exit(1)
+
     output_path = Path(args.output) if args.output else RESULTS_DIR / f"{args.mode}.csv"
 
     print(f"=== WAF Research Lab: Starting {args.mode.upper()} Experiment ===")

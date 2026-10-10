@@ -22,6 +22,14 @@ LAB_ENVIRONMENT_PROTOCOL_RULES = {"920350"}
 SCORING_META_RULES = {"949110"}
 
 
+def filter_attack_rules(rule_ids: List[str]) -> List[str]:
+    """Returns only attack-relevant rule IDs (drops lab protocol artifacts and scoring meta-rules)."""
+    return [
+        r for r in rule_ids
+        if r not in LAB_ENVIRONMENT_PROTOCOL_RULES and r not in SCORING_META_RULES
+    ]
+
+
 def load_csv(path: Path) -> List[Dict[str, Any]]:
     if not path.exists():
         return []
@@ -74,11 +82,10 @@ def evaluate_waf_performance(
         category_stats[cat]["total"] += 1
 
         all_rules = [r.strip() for r in row.get("waf_rule_ids", "").split(";") if r.strip()]
-        attack_rules = [
-            r for r in all_rules
-            if r not in LAB_ENVIRONMENT_PROTOCOL_RULES and r not in SCORING_META_RULES
-        ]
-        is_blocked = str(row.get("waf_intervention", "")).lower() == "true" or row.get("http_status") == "403"
+        attack_rules = filter_attack_rules(all_rules)
+        # waf_intervention is decided by the runner from the audit log (is_interrupted).
+        # A raw HTTP 403 is not used here because the backend can return 403 on its own.
+        is_blocked = str(row.get("waf_intervention", "")).lower() == "true"
         has_attack_detection = len(attack_rules) > 0 or is_blocked
 
         if is_blocked:
@@ -134,14 +141,14 @@ def evaluate_waf_performance(
         "malicious_blocked": malicious_blocked,
         "total_malicious": total_malicious,
         "latency_waf": {
-            "mean_ms": round(waf_mean, 2) if waf_mean else None,
-            "p50_ms": round(waf_p50, 2) if waf_p50 else None,
-            "p95_ms": round(waf_p95, 2) if waf_p95 else None,
+            "mean_ms": round(waf_mean, 2) if waf_mean is not None else None,
+            "p50_ms": round(waf_p50, 2) if waf_p50 is not None else None,
+            "p95_ms": round(waf_p95, 2) if waf_p95 is not None else None,
         },
         "latency_baseline": {
-            "mean_ms": round(base_mean, 2) if base_mean else None,
-            "p50_ms": round(base_p50, 2) if base_p50 else None,
-            "p95_ms": round(base_p95, 2) if base_p95 else None,
+            "mean_ms": round(base_mean, 2) if base_mean is not None else None,
+            "p50_ms": round(base_p50, 2) if base_p50 is not None else None,
+            "p95_ms": round(base_p95, 2) if base_p95 is not None else None,
         },
         "latency_overhead_mean_ms": latency_overhead,
         "category_breakdown": category_stats,
