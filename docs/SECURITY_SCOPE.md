@@ -59,3 +59,15 @@ Jika penelitian dipindahkan atau direplikasi pada Virtual Private Server (VPS), 
 3. **Non-Destructive Testing:**
    - Pengujian hanya berfokus pada evaluasi kemampuan deteksi (*detection rate*) dan mitigasi (*blocking rate*) WAF.
    - Tidak melakukan persistensi eksploitasi, perusakan database, atau *lateral movement*.
+
+---
+
+## 4. Ruang Lingkup Profil Produksi
+
+Batasan loopback di atas berlaku untuk **lab riset** (`docker-compose.yml`) karena targetnya aplikasi yang sengaja rentan. Profil produksi (`deploy/prod/`) memang mengekspos port 80/443 ke publik, dengan ketentuan:
+
+1. **Hanya untuk aplikasi milik sendiri** atau yang dikelola dengan izin tertulis. Jangan pernah menaruh Juice Shop di belakang profil produksi.
+2. **Backend tidak boleh terekspos langsung.** Aplikasi harus listen di `127.0.0.1` atau hanya di jaringan Docker, sehingga satu-satunya jalur masuk adalah melalui Caddy → WAF.
+3. **Simulator tetap terkunci ke loopback.** `simulator/target_validator.py` tidak boleh dilonggarkan untuk menyerang domain publik. Pengujian serangan terhadap sistem nyata dilakukan di lingkungan staging dengan otorisasi tertulis.
+4. **Rahasia tidak di-commit.** File `deploy/prod/.env` sudah tercantum di `.gitignore`.
+5. **WAF bukan satu-satunya kontrol.** Tetap lakukan patching aplikasi, hardening server, rate limiting/CDN, dan backup.

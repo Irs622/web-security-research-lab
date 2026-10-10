@@ -77,7 +77,7 @@ Semua versi image di-pin secara eksplisit untuk menjamin reproduksibilitas:
 | Service | Container Name | Base Image Tag | Healthcheck | Resource Limits |
 |---|---|---|---|---|
 | **juice-shop** | `waflab-juice-shop` | `bkimminich/juice-shop:v17.1.1` | Node.js HTTP ping ke port 3000 (`/`) | CPU 1.5, RAM 1024 MB |
-| **waf** | `waflab-modsecurity` | `owasp/modsecurity-crs:4.25.2-nginx-alpine-lts` | Busybox `wget -q --spider` ke port 8080 | CPU 1.5, RAM 512 MB |
+| **waf** | `waflab-modsecurity` | `owasp/modsecurity-crs:4.25.2-nginx-alpine-lts` | Script bawaan image `/usr/local/bin/healthcheck` | CPU 1.5, RAM 512 MB |
 | **zap-baseline**| `waflab-zap-baseline`| `ghcr.io/zaproxy/zaproxy:2.16.0` | N/A (One-off task profile) | CPU 1.5, RAM 1024 MB |
 
 ---
@@ -129,3 +129,37 @@ docker compose down
 # Hentikan dan hapus volume serta network jika reset total diperlukan
 docker compose down -v
 ```
+
+---
+
+## 6. Arsitektur Deployment Produksi
+
+Selain lab riset, repository menyediakan profil produksi di `deploy/prod/` untuk melindungi website nyata:
+
+```mermaid
+flowchart LR
+    Client["Pengguna Internet"] -->|"HTTPS :443"| Caddy
+    subgraph Edge["Docker Network wafprod-edge (172.30.0.0/24)"]
+        Caddy["Caddy 2.8\nTLS Let's Encrypt\nSecurity Headers"] -->|"HTTP :8080\nX-Forwarded-For"| WAF["ModSecurity v3 + CRS 4.25\n(DetectionOnly → On)"]
+    end
+    WAF -->|"BACKEND_URL"| App["Aplikasi Anda"]
+    WAF -.-> Logs[("Volume waf_logs\naudit.log JSON")]
+```
+
+| Service | Container | Image | Fungsi |
+|---|---|---|---|
+| **caddy** | `wafprod-caddy` | `caddy:2.8.4-alpine` | Terminasi TLS, redirect HTTP→HTTPS, HSTS & security headers, batas body 12 MB |
+| **waf** | `wafprod-modsecurity` | `owasp/modsecurity-crs:4.25.2-nginx-alpine-lts` | Inspeksi CRS, real IP dari Caddy, audit log JSON ke volume |
+
+Perbedaan utama terhadap lab:
+
+| Aspek | Lab Riset | Produksi |
+|---|---|---|
+| Paparan | `127.0.0.1` saja | Publik port 80/443 |
+| TLS | Tidak ada | Otomatis (Caddy + Let's Encrypt) |
+| Rule engine | `On` | `DetectionOnly` saat tuning, lalu `On` |
+| Backend | Juice Shop | Aplikasi milik sendiri (`BACKEND_URL`) |
+| Rule exclusion | Tidak ada | `deploy/prod/waf/*.conf` |
+| Log | Di dalam container | Volume `waf_logs` + rotasi log container |
+
+Detail operasional: [PRODUCTION.md](PRODUCTION.md).

@@ -1,7 +1,16 @@
 # WAF Security Testing Lab
 
+[![CI](https://github.com/Irs622/web-security-research-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/Irs622/web-security-research-lab/actions/workflows/ci.yml)
+
 Repository penelitian eksperimental skripsi Teknik Informatika berjudul:  
 **"Evaluasi Efektivitas Web Application Firewall dalam Mendeteksi dan Memitigasi Serangan terhadap Aplikasi Web"**
+
+Repository ini memiliki **dua mode penggunaan**:
+
+| Mode | Tujuan | File Compose | Paparan Jaringan |
+|---|---|---|---|
+| **Lab Riset** | Eksperimen skripsi terhadap OWASP Juice Shop | [`docker-compose.yml`](docker-compose.yml) | Loopback saja (`127.0.0.1`) |
+| **Produksi** | Melindungi website nyata milik sendiri | [`deploy/prod/docker-compose.prod.yml`](deploy/prod/docker-compose.prod.yml) | Publik via HTTPS (80/443) |
 
 ---
 
@@ -39,6 +48,30 @@ Laboratorium ini menguji kemampuan **ModSecurity v3** yang diperkuat oleh **OWAS
 - **Controlled Simulator:** Python 3 (urllib dengan strict no-redirect policy & ModSecurity audit log correlator)
 - **Evaluation & Visualizer:** Python (Pandas & Matplotlib)
 
+### Struktur Repository
+```text
+.
+├── docker-compose.yml          # Lab riset: Juice Shop + WAF + ZAP (loopback only)
+├── Makefile                    # Shortcut perintah lab & produksi
+├── requirements.txt            # Dependensi Python (pandas, matplotlib, pytest)
+├── simulator/                  # Simulator uji terkontrol + korelator audit log
+│   ├── attack_cases.json       # Dataset 40 kasus berlabel
+│   ├── run_tests.py            # CLI eksekusi eksperimen
+│   ├── runner.py               # Eksekutor request & pencatatan hasil
+│   ├── log_correlator.py       # Korelasi request ↔ audit log ModSecurity
+│   └── target_validator.py     # Allowlist loopback & anti-redirect
+├── evaluation/                 # Kalkulasi metrik & pembuatan grafik
+├── results/                    # CSV hasil, ringkasan metrik, grafik, laporan ZAP
+├── tests/                      # Unit test (pytest)
+├── deploy/prod/                # Profil deployment produksi
+│   ├── docker-compose.prod.yml # Caddy (TLS) + ModSecurity/CRS
+│   ├── .env.example            # Template konfigurasi
+│   ├── caddy/Caddyfile         # TLS otomatis & security headers
+│   └── waf/                    # Rule exclusion CRS (tuning false positive)
+├── docs/                       # Dokumentasi penelitian & operasional
+└── .github/workflows/ci.yml    # CI: unit test, validasi compose, smoke test WAF
+```
+
 ---
 
 ## 2. Batasan Keamanan & Containment
@@ -70,6 +103,7 @@ cd web-security-research-lab
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+# atau cukup: make install
 ```
 
 ---
@@ -116,6 +150,35 @@ make charts
 make zap
 ```
 
+### Opsi Lanjutan Simulator
+```bash
+python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf \
+  --delay 0.25 --timeout 5.0 --cases simulator/attack_cases.json --output results/waf.csv
+```
+| Opsi | Default | Keterangan |
+|---|---|---|
+| `--target` | (wajib) | URL loopback: `:3001` baseline, `:8080` WAF |
+| `--mode` | (wajib) | `baseline` atau `waf` |
+| `--delay` | `0.25` | Jeda antar request (detik, minimum 0.1) |
+| `--timeout` | `5.0` | Timeout HTTP (detik) |
+| `--cases` | `simulator/attack_cases.json` | Dataset kasus uji |
+| `--output` | `results/{mode}.csv` | Lokasi CSV hasil |
+| `--no-docker-logs` | nonaktif | Matikan korelasi audit log via Docker CLI |
+
+### Daftar Perintah Make
+| Perintah | Fungsi |
+|---|---|
+| `make install` | Buat `.venv` dan instal `requirements.txt` |
+| `make up` / `make down` / `make ps` / `make logs` | Kelola container lab |
+| `make test-unit` | Jalankan pytest |
+| `make test-baseline` / `make test-waf` | Eksekusi eksperimen dua jalur |
+| `make analyze` / `make charts` | Hitung metrik & buat grafik |
+| `make zap` | OWASP ZAP passive baseline scan |
+| `make prod-up` / `make prod-down` | Jalankan / hentikan stack produksi |
+| `make prod-restart` | Restart WAF setelah mengubah rule exclusion |
+| `make prod-logs` | Ikuti log WAF produksi |
+| `make prod-fp` | Ringkasan 20 rule ID CRS yang paling sering terpicu |
+
 ---
 
 ## 5. Ringkasan Hasil Eksperimen Aktual (N=40 Kasus Uji)
@@ -153,8 +216,3 @@ Grafik visualisasi tersimpan di:
 
 ---
 *Dikembangkan untuk keperluan penelitian skripsi akademik Teknik Informatika.*
-
----
-
-## Deployment Produksi
-Untuk memakai WAF ini melindungi website nyata (TLS, mode DetectionOnly, tuning false positive), lihat [docs/PRODUCTION.md](docs/PRODUCTION.md).

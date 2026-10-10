@@ -24,7 +24,8 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 # Instal dependensi pengujian dan grafik
-pip install pytest matplotlib pandas
+pip install -r requirements.txt
+# atau: make install
 ```
 
 ---

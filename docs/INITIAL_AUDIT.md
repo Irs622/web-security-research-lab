@@ -1,5 +1,7 @@
 # Initial Audit Report: WAF Security Testing Lab
 
+> **Catatan:** Dokumen ini adalah arsip kondisi awal repository sebelum pengembangan. Kondisi terkini dijelaskan di [README](../README.md), [ARCHITECTURE.md](ARCHITECTURE.md), dan [PRODUCTION.md](PRODUCTION.md).
+
 **Tanggal Audit:** 10 Oktober 2026  
 **Auditor:** Agent A (Repository Auditor & AppSec/Research Engineer)  
 **Tujuan Proyek:** Evaluasi Efektivitas Web Application Firewall (ModSecurity + OWASP CRS) dalam Mendeteksi dan Memitigasi Serangan terhadap Aplikasi Web (OWASP Juice Shop) untuk Skripsi Teknik Informatika.  
