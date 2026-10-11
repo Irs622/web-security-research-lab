@@ -54,6 +54,18 @@ def main():
         help="Custom output CSV path (default: results/{mode}.csv)",
     )
     parser.add_argument(
+        "--repeat",
+        type=int,
+        default=1,
+        help="Repeat the whole suite N times for latency statistics (default: 1)",
+    )
+    parser.add_argument(
+        "--warmup",
+        type=int,
+        default=5,
+        help="Unrecorded warm-up requests before measuring (default: 5)",
+    )
+    parser.add_argument(
         "--no-docker-logs",
         action="store_true",
         help="Disable automatic WAF audit log correlation via Docker CLI",
@@ -85,6 +97,9 @@ def main():
     if invalid:
         print(f"Error: Invalid test cases (need relative path and benign/malicious class): {invalid}", file=sys.stderr)
         sys.exit(1)
+    if args.repeat < 1 or args.warmup < 0:
+        print("Error: --repeat must be >= 1 and --warmup >= 0.", file=sys.stderr)
+        sys.exit(1)
     if args.timeout <= 0:
         print("Error: --timeout must be greater than 0.", file=sys.stderr)
         sys.exit(1)
@@ -95,6 +110,7 @@ def main():
     print(f"Target:       {args.target}")
     print(f"Dataset:      {cases_path} (N={len(cases)} cases)")
     print(f"Delay:        {args.delay} s")
+    print(f"Repeat:       {args.repeat}x (warm-up: {args.warmup})")
     print(f"Output CSV:   {output_path}\n")
 
     try:
@@ -105,7 +121,7 @@ def main():
             timeout_seconds=args.timeout,
             enable_log_correlation=not args.no_docker_logs,
         )
-        runner.run_suite(cases=cases, output_path=output_path)
+        runner.run_suite(cases=cases, output_path=output_path, repeat=args.repeat, warmup=args.warmup)
     except Exception as exc:
         print(f"\nExecution Aborted: {exc}", file=sys.stderr)
         sys.exit(1)

@@ -11,6 +11,7 @@ help:
 	@echo "  make test-waf      : Run controlled test suite against WAF inspected endpoint"
 	@echo "  make analyze       : Compute confusion matrix, detection, blocking rates, and latency"
 	@echo "  make charts        : Generate PNG charts and figures for thesis"
+	@echo "  make experiment-matrix : Run WAF suite at Paranoia Level 1-4 and compare trade-offs"
 	@echo "  make zap           : Run OWASP ZAP passive baseline scan"
 
 up:
@@ -29,10 +30,10 @@ test-unit:
 	.venv/bin/pytest -v
 
 test-baseline:
-	python3 simulator/run_tests.py --target http://127.0.0.1:3001 --mode baseline
+	python3 simulator/run_tests.py --target http://127.0.0.1:3001 --mode baseline --repeat $(REPEAT)
 
 test-waf:
-	python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf
+	python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT)
 
 analyze:
 	python3 evaluation/analyze_results.py
@@ -42,6 +43,21 @@ charts:
 
 zap:
 	docker compose --profile scan run --rm zap-baseline
+
+# Paranoia Level matrix: recreate the WAF per level, run the suite, then compare.
+REPEAT ?= 3
+.PHONY: experiment-matrix
+experiment-matrix:
+	@for pl in 1 2 3 4; do \
+	  echo "=== Paranoia Level $$pl ==="; \
+	  PARANOIA=$$pl docker compose up -d --wait --force-recreate waf || exit 1; \
+	  python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT) \
+	    --output results/paranoia/pl$$pl/waf.csv || exit 1; \
+	  python3 evaluation/analyze_results.py --waf results/paranoia/pl$$pl/waf.csv \
+	    --baseline results/baseline.csv --output results/paranoia/pl$$pl/summary_metrics.json || exit 1; \
+	done
+	docker compose up -d --wait --force-recreate waf
+	.venv/bin/python evaluation/compare_paranoia.py
 
 # --- Production deployment (lihat docs/PRODUCTION.md) ---
 PROD = docker compose -f deploy/prod/docker-compose.prod.yml --env-file deploy/prod/.env

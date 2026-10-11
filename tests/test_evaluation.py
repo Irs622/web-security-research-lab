@@ -5,6 +5,7 @@ from evaluation.analyze_results import (
     SCORING_META_RULES,
     calculate_percentile,
     wilson_interval,
+    mann_whitney_u,
     evaluate_waf_performance,
 )
 
@@ -190,3 +191,19 @@ def test_category_field_and_misclassified_listing():
     res = evaluate_waf_performance(rows)
     assert set(res["category_breakdown"]) == {"path-traversal", "normal"}
     assert [(m["type"], m["test_id"]) for m in res["misclassified"]] == [("FN", "TRAV-007"), ("FP", "BENIGN-001")]
+
+
+def test_repeats_counted_once_for_detection_but_all_for_latency():
+    row = {"expected_class": "malicious", "waf_rule_ids": "942100", "waf_intervention": "True"}
+    rows = [dict(row, repeat_index=str(i), latency_ms=str(10 + i)) for i in range(3)]
+    res = evaluate_waf_performance(rows)
+    assert res["confusion_matrix"]["TP"] == 1
+    assert res["latency_stats"]["waf"]["n"] == 3
+
+
+def test_mann_whitney_detects_shift_and_handles_small_samples():
+    assert mann_whitney_u([1.0], [2.0]) is None
+    res = mann_whitney_u([float(x) for x in range(20, 40)], [float(x) for x in range(0, 20)])
+    assert res["p_value"] < 0.001
+    same = mann_whitney_u([5.0, 5.0, 5.0], [5.0, 5.0, 5.0])
+    assert same["p_value"] == 1.0

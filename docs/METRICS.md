@@ -63,3 +63,14 @@ Rule **920350** ("Request Header Host Is Numeric IP Address") terpicu pada **set
 ### SCORING_META_RULES: `{949110}`
 
 Rule **949110** ("Inbound Anomaly Score Exceeded") adalah meta-rule CRS yang terpicu ketika akumulasi skor dari rule-rule serangan lain melewati threshold. Rule ini **tidak mendeteksi pola serangan secara independen** — ia hanya mencerminkan hasil rule-rule yang sudah dihitung di atas. Menyertakannya dalam `has_attack_detection` akan menyebabkan double-counting pada setiap TP yang diblokir. Dikecualikan untuk menjaga keabsahan perhitungan confusion matrix.
+
+## Interval Kepercayaan & Uji Statistik
+
+- **Wilson 95% CI** dilaporkan untuk Recall, Precision, FPR, dan Blocking Rate (`confidence_intervals_95` di `summary_metrics.json`). Dengan sampel kecil (mis. 0/12 benign), FPR 0% masih kompatibel dengan FPR sebenarnya hingga ±24% — selalu sertakan interval saat menulis kesimpulan.
+- **Pengulangan (`--repeat N`)**: deteksi dihitung sekali per kasus (`repeat_index = 0`), sedangkan seluruh pengulangan menjadi sampel latensi. Request warm-up (`--warmup`, default 5) tidak dicatat.
+- **Latensi**: dilaporkan mean, p50, p95, dan IQR; perbedaan baseline vs WAF diuji dengan **Mann-Whitney U** dua sisi (aproksimasi normal, koreksi ties) karena distribusi latensi tidak normal.
+- **Daftar FN/FP** (`misclassified`) mencantumkan path dan rule yang muncul untuk analisis kegagalan.
+
+## Perbandingan Paranoia Level
+
+`make experiment-matrix` menjalankan suite WAF pada Paranoia Level 1–4 (`REPEAT=3` default), menyimpan hasil di `results/paranoia/pl<N>/`, lalu `evaluation/compare_paranoia.py` membuat `paranoia_comparison.json` dan grafik `paranoia_tradeoff.png` (Recall vs FPR vs F1).

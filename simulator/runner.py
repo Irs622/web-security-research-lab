@@ -19,6 +19,7 @@ CSV_FIELDS = [
     "run_id",
     "test_id",
     "category",
+    "repeat_index",
     "mode",
     "timestamp_utc",
     "method",
@@ -163,25 +164,47 @@ class ExperimentRunner:
             "observed_outcome": observed_outcome,
         }
 
-    def run_suite(self, cases: List[Dict[str, Any]], output_path: Path) -> List[Dict[str, Any]]:
-        """Runs the entire test suite and persists results to CSV."""
+    def warm_up(self, requests: int) -> None:
+        """Sends unrecorded benign requests so connection setup and JIT effects do not skew latency."""
+        for _ in range(max(0, requests)):
+            try:
+                with self.opener.open(urllib.request.Request(self.base_url + "/"), timeout=self.timeout) as resp:
+                    resp.read(1024)
+            except Exception:
+                pass
+            time.sleep(self.delay)
+
+    def run_suite(
+        self,
+        cases: List[Dict[str, Any]],
+        output_path: Path,
+        repeat: int = 1,
+        warmup: int = 0,
+    ) -> List[Dict[str, Any]]:
+        """Runs the test suite ``repeat`` times and persists results to CSV.
+
+        Only ``repeat_index == 0`` rows feed detection metrics; all rows feed latency statistics.
+        """
         run_id = f"run_{self.mode}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
         results = []
+        self.warm_up(warmup)
+        schedule = [(rep, case) for rep in range(max(1, repeat)) for case in cases]
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with output_path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
             writer.writeheader()
 
-            for idx, case in enumerate(cases, 1):
+            for idx, (rep, case) in enumerate(schedule, 1):
                 res = self.execute_test(case, run_id=run_id)
+                res["repeat_index"] = rep
                 writer.writerow(res)
                 results.append(res)
 
                 rule_info = f" [Rules: {res['waf_rule_ids']}]" if res.get("waf_rule_ids") else ""
                 err_info = f" [ERR: {res['transport_error']}]" if res.get("transport_error") else ""
                 print(
-                    f"[{idx:02d}/{len(cases):02d}] {res['test_id']} ({res['expected_class']}) "
+                    f"[{idx:03d}/{len(schedule):03d}] {res['test_id']} ({res['expected_class']}) "
                     f"HTTP {res['http_status']} ({res['latency_ms']} ms) -> {res['observed_outcome']}"
                     f"{rule_info}{err_info}"
                 )

@@ -1,7 +1,9 @@
 """Research-grade evaluation metrics analyzer for WAF experimental data."""
 from __future__ import annotations
+import argparse
 import csv
 import json
+import math
 import statistics
 import sys
 from pathlib import Path
@@ -64,6 +66,55 @@ def wilson_interval(successes: int, total: int, z: float = 1.96) -> Optional[Lis
     return [round(max(0.0, centre - margin), 4), round(min(1.0, centre + margin), 4)]
 
 
+def _is_primary(row: Dict[str, Any]) -> bool:
+    """First repetition of a case (rows from single-run CSVs have no repeat_index)."""
+    return str(row.get("repeat_index", "") or "0") == "0"
+
+
+def latency_summary(values: List[float]) -> Dict[str, Optional[float]]:
+    def r(v: Optional[float]) -> Optional[float]:
+        return round(v, 2) if v is not None else None
+
+    q1, q3 = calculate_percentile(values, 0.25), calculate_percentile(values, 0.75)
+    return {
+        "n": len(values),
+        "mean_ms": r(statistics.mean(values)) if values else None,
+        "p50_ms": r(calculate_percentile(values, 0.50)),
+        "p95_ms": r(calculate_percentile(values, 0.95)),
+        "iqr_ms": r(q3 - q1) if values else None,
+    }
+
+
+def mann_whitney_u(a: List[float], b: List[float]) -> Optional[Dict[str, float]]:
+    """Two-sided Mann-Whitney U test (normal approximation, tie-corrected)."""
+    n1, n2 = len(a), len(b)
+    if n1 < 2 or n2 < 2:
+        return None
+    combined = sorted([(v, 0) for v in a] + [(v, 1) for v in b])
+    ranks = [0.0] * len(combined)
+    tie_term = 0.0
+    i = 0
+    while i < len(combined):
+        j = i
+        while j + 1 < len(combined) and combined[j + 1][0] == combined[i][0]:
+            j += 1
+        avg = (i + j) / 2 + 1
+        for k in range(i, j + 1):
+            ranks[k] = avg
+        t = j - i + 1
+        tie_term += t ** 3 - t
+        i = j + 1
+    r1 = sum(rk for rk, (_, g) in zip(ranks, combined) if g == 0)
+    u1 = r1 - n1 * (n1 + 1) / 2
+    n = n1 + n2
+    sigma = math.sqrt(n1 * n2 / 12 * ((n + 1) - tie_term / (n * (n - 1))))
+    if sigma == 0:
+        return {"u": u1, "z": 0.0, "p_value": 1.0}
+    z = (u1 - n1 * n2 / 2) / sigma
+    p = math.erfc(abs(z) / math.sqrt(2))
+    return {"u": round(u1, 2), "z": round(z, 4), "p_value": round(p, 6)}
+
+
 def evaluate_waf_performance(
     waf_rows: List[Dict[str, Any]],
     baseline_rows: Optional[List[Dict[str, Any]]] = None,
@@ -72,7 +123,9 @@ def evaluate_waf_performance(
     if not waf_rows:
         return {"error": "No WAF rows provided"}
 
-    valid_waf = [r for r in waf_rows if not r.get("transport_error")]
+    all_valid_waf = [r for r in waf_rows if not r.get("transport_error")]
+    # Detection is evaluated once per case; repetitions only add latency samples.
+    valid_waf = [r for r in all_valid_waf if _is_primary(r)]
 
     tp = 0  # Expected malicious, attack rule fired or blocked
     fn = 0  # Expected malicious, missed by attack rules and not blocked
@@ -129,7 +182,7 @@ def evaluate_waf_performance(
     f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
     blocking_rate = (malicious_blocked / total_malicious) if total_malicious > 0 else 0.0
 
-    waf_latencies = [l for r in valid_waf if (l := safe_float(r.get("latency_ms"))) is not None]
+    waf_latencies = [l for r in all_valid_waf if (l := safe_float(r.get("latency_ms"))) is not None]
     waf_p50 = calculate_percentile(waf_latencies, 0.50)
     waf_p95 = calculate_percentile(waf_latencies, 0.95)
     waf_mean = statistics.mean(waf_latencies) if waf_latencies else None
@@ -167,6 +220,11 @@ def evaluate_waf_performance(
             "p95_ms": round(base_p95, 2) if base_p95 is not None else None,
         },
         "latency_overhead_mean_ms": latency_overhead,
+        "latency_stats": {
+            "waf": latency_summary(waf_latencies),
+            "baseline": latency_summary(base_latencies),
+            "mann_whitney_u": mann_whitney_u(waf_latencies, base_latencies),
+        },
         "confidence_intervals_95": {
             "detection_rate_recall": wilson_interval(tp, tp + fn),
             "precision": wilson_interval(tp, tp + fp),
@@ -213,6 +271,13 @@ def print_report(metrics: Dict[str, Any]):
     print(f"  WAF Latency       : Mean={w_lat['mean_ms']} ms | p50={w_lat['p50_ms']} ms | p95={w_lat['p95_ms']} ms")
     if metrics["latency_overhead_mean_ms"] is not None:
         print(f"  Inspection Overhead: +{metrics['latency_overhead_mean_ms']} ms mean latency per request")
+    stats = metrics.get("latency_stats", {})
+    print(f"  Samples (WAF/Base): {stats.get('waf', {}).get('n')} / {stats.get('baseline', {}).get('n')} "
+          f"| IQR WAF={stats.get('waf', {}).get('iqr_ms')} ms, Base={stats.get('baseline', {}).get('iqr_ms')} ms")
+    mw = stats.get("mann_whitney_u")
+    if mw:
+        verdict = "significant" if mw["p_value"] < 0.05 else "not significant"
+        print(f"  Mann-Whitney U    : U={mw['u']} z={mw['z']} p={mw['p_value']} ({verdict} at a=0.05)")
 
     print("\n--- BREAKDOWN BY ATTACK CATEGORY ---")
     print(f"  {'Category':<16} | {'Total':<6} | {'Detected':<9} | {'Blocked':<8}")
@@ -229,8 +294,13 @@ def print_report(metrics: Dict[str, Any]):
 
 
 def main():
-    baseline_file = RESULTS_DIR / "baseline.csv"
-    waf_file = RESULTS_DIR / "waf.csv"
+    parser = argparse.ArgumentParser(description="Compute WAF evaluation metrics from experiment CSVs.")
+    parser.add_argument("--waf", default=str(RESULTS_DIR / "waf.csv"), help="WAF-mode results CSV")
+    parser.add_argument("--baseline", default=str(RESULTS_DIR / "baseline.csv"), help="Baseline results CSV")
+    parser.add_argument("--output", default=str(RESULTS_DIR / "summary_metrics.json"), help="Summary JSON path")
+    args = parser.parse_args()
+    baseline_file = Path(args.baseline)
+    waf_file = Path(args.waf)
 
     if not waf_file.exists():
         print(f"Error: {waf_file} does not exist. Run WAF simulator first.", file=sys.stderr)
@@ -242,7 +312,8 @@ def main():
     metrics = evaluate_waf_performance(waf_data, baseline_data)
     print_report(metrics)
 
-    summary_path = RESULTS_DIR / "summary_metrics.json"
+    summary_path = Path(args.output)
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
     with summary_path.open("w", encoding="utf-8") as f:
         json.dump(metrics, f, indent=2)
     print(f"\n[OK] Summary metrics exported to {summary_path}")
