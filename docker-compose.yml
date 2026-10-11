@@ -2,7 +2,7 @@ name: waf-research-lab
 
 services:
   juice-shop:
-    image: bkimminich/juice-shop:v17.1.1
+    image: bkimminich/juice-shop:v17.1.1@sha256:9e437b456e444ff001d1663e4f6f05c796fe02f1058dd2651d6791a15b43dfeb
     container_name: waflab-juice-shop
     restart: unless-stopped
     security_opt:
@@ -26,7 +26,7 @@ services:
       - lab
 
   waf:
-    image: owasp/modsecurity-crs:4.25.2-nginx-alpine-lts
+    image: owasp/modsecurity-crs:4.25.2-nginx-alpine-lts@sha256:13ba8285eb8c73d1d83a0ac6f2a9e8a9273293fde419bbc46bfe2be6c379ca1b
     container_name: waflab-modsecurity
     restart: unless-stopped
     security_opt:
@@ -61,7 +61,7 @@ services:
       - lab
 
   zap-baseline:
-    image: ghcr.io/zaproxy/zaproxy:2.16.0
+    image: ghcr.io/zaproxy/zaproxy:2.16.0@sha256:391f66efa53b30de40d4a1c6e28146477263552fc828bc7613c9cd11a2949908
     container_name: waflab-zap-baseline
     profiles: ["scan"]
     security_opt:

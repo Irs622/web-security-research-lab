@@ -51,9 +51,13 @@ def _git_sha() -> str:
 
 def _container_image(name: str) -> str:
     try:
-        out = subprocess.run(["docker", "inspect", "--format", "{{.Config.Image}}@{{.Image}}", name],
+        out = subprocess.run(["docker", "inspect", "--format", "{{.Config.Image}}|{{.Image}}", name],
                              capture_output=True, text=True, timeout=5, check=False)
-        return out.stdout.strip() or "unavailable"
+        ref, _, image_id = out.stdout.strip().partition("|")
+        if not ref:
+            return "unavailable"
+        # A pinned reference already carries its digest; otherwise append the local image id.
+        return ref if "@sha256:" in ref else f"{ref}@{image_id}"
     except Exception:
         return "unavailable"
 
@@ -72,6 +76,7 @@ def build_run_metadata(run_id: str, mode: str, cases: List[Dict[str, Any]], repe
         "warmup": warmup,
         "paranoia_level": os.environ.get("PARANOIA", "1"),
         "anomaly_inbound": os.environ.get("ANOMALY_INBOUND", "5"),
+        "tuned_exclusions": os.environ.get("TUNED") == "1",
         "images": {
             "waf": _container_image("waflab-modsecurity"),
             "juice_shop": _container_image("waflab-juice-shop"),

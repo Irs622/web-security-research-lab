@@ -1,0 +1,6 @@
+# Override for the "PL2 tuned" scenario: mounts narrow CRS exclusions into the lab WAF.
+# Usage: PARANOIA=2 docker compose -f docker-compose.yml -f docker-compose.tuned.yml up -d --wait --force-recreate waf
+services:
+  waf:
+    volumes:
+      - ./lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:ro

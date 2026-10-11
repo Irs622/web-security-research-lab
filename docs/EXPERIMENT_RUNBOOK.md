@@ -33,7 +33,7 @@ pip install -r requirements.txt
 ## 3. Menjalankan Lab Container
 
 ```bash
-# Tarik image container resmi yang ter-pin
+# Tarik image container resmi yang ter-pin (tag + digest sha256, lihat docker-compose.yml)
 docker compose pull
 
 # Jalankan service target Juice Shop dan ModSecurity CRS
@@ -64,17 +64,43 @@ Seluruh tes harus berstatus `PASSED`.
 
 ## 5. Eksekusi Pengujian Terkontrol
 
+> ⚠️ **Jangan menjalankan dua eksperimen bersamaan.** Semua skenario memakai container `waflab-modsecurity` yang sama; `experiment-matrix` dan `experiment-tuned` me-*recreate* container itu dengan Paranoia Level berbeda. Eksekusi paralel (mis. dua terminal) memutus koneksi di tengah run (`transport_error`) dan mencampur data antar-level. Bila terjadi, hapus hasil run tersebut dan ulangi.
+
 ### Tahap A: Pengujian Jalur Kontrol (Baseline)
 ```bash
-python3 simulator/run_tests.py --target http://127.0.0.1:3001 --mode baseline
+python3 simulator/run_tests.py --target http://127.0.0.1:3001 --mode baseline --repeat 3
+# atau: make test-baseline   (REPEAT=3 default)
 ```
-*Hasil akan tersimpan ke `results/baseline.csv`.*
+*Hasil akan tersimpan ke `results/baseline.csv`, metadata run ke `results/baseline.meta.json`.*
 
 ### Tahap B: Pengujian Jalur WAF
 ```bash
-python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf
+python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat 3
+# atau: make test-waf
 ```
 *Hasil akan tersimpan ke `results/waf.csv` lengkap dengan Rule ID CRS yang terpicu.*
+
+Opsi penting simulator:
+
+| Opsi | Default | Fungsi |
+|---|---|---|
+| `--repeat N` | 1 (`make`: 3) | Ulangi seluruh suite N kali; deteksi dihitung sekali, latensi dari semua pengulangan |
+| `--warmup N` | 5 | Request pemanasan yang tidak dicatat |
+| `--delay S` | 0.25 | Jeda antar-request (minimum 0.1 s) |
+| `--output PATH` | `results/<mode>.csv` | Lokasi CSV hasil |
+
+Pastikan kolom `transport_error` kosong dan `log_match` bernilai `trace_id` untuk hampir semua baris WAF. Baris `rejected_by_proxy` (HTTP 400 dari Nginx tanpa audit log) adalah perilaku yang diharapkan untuk URI `../`.
+
+### Tahap C: Matriks Paranoia Level 1–4
+```bash
+make experiment-matrix          # ±10 menit; hasil di results/paranoia/pl<N>/
+```
+
+### Tahap D: Skenario PL2 Tuned
+```bash
+make experiment-tuned           # PL2 + exclusion sempit dari lab/tuning/; hasil di results/paranoia/pl2-tuned/
+```
+Kedua target mengembalikan WAF ke PL1 setelah selesai dan memperbarui `results/paranoia/paranoia_comparison.json` serta `paranoia_tradeoff.png`.
 
 ---
 
@@ -83,6 +109,7 @@ python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf
 ```bash
 # Tampilkan ringkasan matriks konfusi, recall, precision, FPR, dan latensi
 python3 evaluation/analyze_results.py
+# opsional untuk file lain: --waf X.csv --baseline Y.csv --output Z.json
 
 # Hasilkan grafik visualisasi ilmiah untuk skripsi
 .venv/bin/python evaluation/generate_charts.py

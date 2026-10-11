@@ -1,6 +1,8 @@
 [
   {
+    "scenario": "pl1",
     "paranoia_level": 1,
+    "tuned": false,
     "recall": 0.7857,
     "recall_ci95": [
       0.6046,
@@ -23,7 +25,9 @@
     }
   },
   {
+    "scenario": "pl2",
     "paranoia_level": 2,
+    "tuned": false,
     "recall": 0.8214,
     "recall_ci95": [
       0.6441,
@@ -46,7 +50,34 @@
     }
   },
   {
+    "scenario": "pl2-tuned",
+    "paranoia_level": 2,
+    "tuned": true,
+    "recall": 0.8214,
+    "recall_ci95": [
+      0.6441,
+      0.9212
+    ],
+    "false_positive_rate": 0.0238,
+    "fpr_ci95": [
+      0.0042,
+      0.1232
+    ],
+    "precision": 0.9583,
+    "f1_score": 0.8846,
+    "blocking_rate": 0.7857,
+    "waf_p50_ms": 20.35,
+    "confusion_matrix": {
+      "TP": 23,
+      "FP": 1,
+      "TN": 41,
+      "FN": 5
+    }
+  },
+  {
+    "scenario": "pl3",
     "paranoia_level": 3,
+    "tuned": false,
     "recall": 0.8571,
     "recall_ci95": [
       0.6851,
@@ -69,7 +100,9 @@
     }
   },
   {
+    "scenario": "pl4",
     "paranoia_level": 4,
+    "tuned": false,
     "recall": 0.8571,
     "recall_ci95": [
       0.6851,

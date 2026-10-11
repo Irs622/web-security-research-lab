@@ -1,6 +1,7 @@
 """Compare detection/false-positive trade-offs across CRS Paranoia Levels."""
 from __future__ import annotations
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
@@ -10,16 +11,18 @@ MATRIX_DIR = ROOT / "results" / "paranoia"
 
 
 def collect(matrix_dir: Path) -> List[Dict[str, Any]]:
-    """Reads results/paranoia/pl<N>/summary_metrics.json into one row per level."""
+    """Reads results/paranoia/pl<N>[-tuned]/summary_metrics.json into one row per scenario."""
     rows = []
     for summary in sorted(matrix_dir.glob("pl*/summary_metrics.json")):
-        level = summary.parent.name[2:]
-        if not level.isdigit():
+        match = re.fullmatch(r"pl(\d+)(-tuned)?", summary.parent.name)
+        if not match:
             continue
         m = json.loads(summary.read_text(encoding="utf-8"))
         ci = m.get("confidence_intervals_95", {})
         rows.append({
-            "paranoia_level": int(level),
+            "scenario": summary.parent.name,
+            "paranoia_level": int(match.group(1)),
+            "tuned": bool(match.group(2)),
             "recall": m["detection_rate_recall"],
             "recall_ci95": ci.get("detection_rate_recall"),
             "false_positive_rate": m["false_positive_rate"],
@@ -30,7 +33,7 @@ def collect(matrix_dir: Path) -> List[Dict[str, Any]]:
             "waf_p50_ms": m["latency_waf"]["p50_ms"],
             "confusion_matrix": m["confusion_matrix"],
         })
-    return sorted(rows, key=lambda r: r["paranoia_level"])
+    return sorted(rows, key=lambda r: (r["paranoia_level"], r["tuned"]))
 
 
 def plot(rows: List[Dict[str, Any]], output_file: Path) -> None:
@@ -38,12 +41,19 @@ def plot(rows: List[Dict[str, Any]], output_file: Path) -> None:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    tuned = [r for r in rows if r["tuned"]]
+    rows = [r for r in rows if not r["tuned"]]
     levels = [r["paranoia_level"] for r in rows]
     fig, ax = plt.subplots(figsize=(7, 4.5))
     for key, label, marker in (("recall", "Detection Rate (Recall)", "o"),
                                ("false_positive_rate", "False Positive Rate", "s"),
                                ("f1_score", "F1-Score", "^")):
         ax.plot(levels, [r[key] * 100 for r in rows], marker=marker, label=label)
+    for r in tuned:
+        ax.scatter([r["paranoia_level"]] * 2, [r["recall"] * 100, r["false_positive_rate"] * 100],
+                   marker="*", s=160, color="black", zorder=5)
+        ax.annotate(f"PL{r['paranoia_level']} tuned", (r["paranoia_level"], r["false_positive_rate"] * 100),
+                    textcoords="offset points", xytext=(8, -4), fontsize=8)
     ax.set_xticks(levels)
     ax.set_xlabel("CRS Paranoia Level")
     ax.set_ylabel("Persentase (%)")
@@ -63,10 +73,10 @@ def main():
               file=sys.stderr)
         sys.exit(1)
 
-    print(f"  {'PL':<3} | {'Recall':<8} | {'FPR':<8} | {'Precision':<9} | {'F1':<6} | {'p50 ms':<7}")
-    print("  " + "-" * 52)
+    print(f"  {'Scenario':<10} | {'Recall':<8} | {'FPR':<8} | {'Precision':<9} | {'F1':<6} | {'p50 ms':<7}")
+    print("  " + "-" * 59)
     for r in rows:
-        print(f"  {r['paranoia_level']:<3} | {r['recall'] * 100:6.2f}% | {r['false_positive_rate'] * 100:6.2f}% | "
+        print(f"  {r['scenario']:<10} | {r['recall'] * 100:6.2f}% | {r['false_positive_rate'] * 100:6.2f}% | "
               f"{r['precision'] * 100:7.2f}% | {r['f1_score']:.4f} | {r['waf_p50_ms']}")
 
     (MATRIX_DIR / "paranoia_comparison.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")

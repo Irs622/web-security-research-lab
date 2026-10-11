@@ -14,11 +14,11 @@ def _summary(recall, fpr):
 
 
 def test_collect_sorts_levels_and_ignores_other_dirs(tmp_path):
-    for name, recall in (("pl2", 0.98), ("pl1", 0.96), ("plx", 0.0)):
+    for name, recall in (("pl2", 0.98), ("pl1", 0.96), ("plx", 0.0), ("pl2-tuned", 0.97)):
         d = tmp_path / name
         d.mkdir()
         (d / "summary_metrics.json").write_text(json.dumps(_summary(recall, 0.0)))
     rows = collect(tmp_path)
-    assert [r["paranoia_level"] for r in rows] == [1, 2]
-    assert rows[1]["recall"] == 0.98
+    assert [r["scenario"] for r in rows] == ["pl1", "pl2", "pl2-tuned"]
+    assert rows[1]["recall"] == 0.98 and rows[2]["tuned"] is True
     assert rows[0]["recall_ci95"] == [0.5, 1.0]

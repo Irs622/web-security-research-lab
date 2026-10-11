@@ -43,10 +43,26 @@ Serangan ini **termitigasi**, tetapi bukan oleh rule engine WAF — maka tetap d
 |---|---|---|---|---|---|
 | 1 | 78.57% | 0.00% | 100.00% | 0.880 | — |
 | 2 | 82.14% | 16.67% | 76.67% | 0.793 | `950100` (respons 5xx backend), `942xxx` |
+| **2 + tuning** | **82.14%** | **2.38%** | **95.83%** | **0.885** | `950100` pada pencarian `O'Reilly` (sengaja tidak dikecualikan) |
 | 3 | 85.71% | 23.81% | 70.59% | 0.774 | + `920272` (karakter di luar ASCII cetak) |
 | 4 | 85.71% | 54.76% | 51.06% | 0.640 | `920273` (karakter spesial ketat), `942432` |
 
-Kesimpulan: PL1 optimal untuk aplikasi ini tanpa tuning. PL2–PL3 hanya layak bila disertai rule exclusion (lihat `deploy/prod/waf/`). `950100` adalah rule outbound yang menandai respons error 5xx dari aplikasi — FP ini mencerminkan perilaku Juice Shop, bukan input pengguna.
+Kesimpulan: tanpa tuning, PL1 optimal. Namun **PL2 dengan exclusion sempit memberikan F1 tertinggi (0.885)**.
+
+### Skenario PL2 Tuned
+
+Exclusion di [`lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf`](../lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf) diturunkan langsung dari FP PL2. Setiap exclusion hanya menghapus **satu rule pada satu parameter di satu path**:
+
+| ID | Path | Dikecualikan | Alasan |
+|---|---|---|---|
+| 1101 | `/api/Feedbacks` | `950100` (seluruh request); `932200`, `942200` pada `json.comment` | 500 karena captcha kosong adalah error aplikasi; komentar bebas memuat `I'd`, `5/5` |
+| 1102 | `/rest/products/search` | `942440`, `942390` pada `q` | Istilah natural (`C# sticker`, `1 or 2 bottles`); rule SQLi lain (mis. `942100` libinjection) tetap aktif |
+
+Hasil: FP turun dari 7 menjadi 1 (FPR 16.67% → 2.38%, CI 95%: 0.4–12.3%), sementara SQLi tetap 10/10 dan XSS 10/10 — exclusion tidak membuka celah pada payload uji. Satu FP tersisa (`BENIGN-013`, pencarian `O'Reilly`) **sengaja dipertahankan**: respons 500-nya adalah gejala nyata kerentanan SQL injection Juice Shop, sehingga rule outbound `950100` memberikan sinyal yang benar secara keamanan meskipun inputnya sah.
+
+> Keterbatasan: exclusion disusun dari dataset yang sama dengan yang dievaluasi, sehingga FPR tuned cenderung optimistis. Validasi yang lebih kuat memerlukan set benign terpisah (hold-out) yang tidak dipakai saat tuning.
+
+Catatan: `950100` adalah rule outbound yang menandai respons error 5xx dari aplikasi — FP ini mencerminkan perilaku Juice Shop, bukan input pengguna.
 
 > Simulator kini mengirim header `Accept` seperti browser. Tanpa header itu, rule `920300` (Missing Accept Header) terpicu di setiap request pada PL2+ dan menghasilkan FPR 100% semu.
 

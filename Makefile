@@ -13,6 +13,7 @@ help:
 	@echo "  make analyze       : Compute confusion matrix, detection, blocking rates, and latency"
 	@echo "  make charts        : Generate PNG charts and figures for thesis"
 	@echo "  make experiment-matrix : Run WAF suite at Paranoia Level 1-4 and compare trade-offs"
+	@echo "  make experiment-tuned  : Run WAF suite at PL2 with narrow CRS exclusions (lab/tuning)"
 	@echo "  make zap           : Run OWASP ZAP passive baseline scan"
 
 up:
@@ -56,7 +57,7 @@ experiment-matrix:
 	@for pl in 1 2 3 4; do \
 	  echo "=== Paranoia Level $$pl ==="; \
 	  PARANOIA=$$pl docker compose up -d --wait --force-recreate waf || exit 1; \
-	  python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT) \
+	  PARANOIA=$$pl python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT) \
 	    --output results/paranoia/pl$$pl/waf.csv || exit 1; \
 	  python3 evaluation/analyze_results.py --waf results/paranoia/pl$$pl/waf.csv \
 	    --baseline results/baseline.csv --output results/paranoia/pl$$pl/summary_metrics.json || exit 1; \
@@ -87,3 +88,15 @@ prod-logs:
 prod-fp:
 	@$(PROD) exec waf sh -c "cat /var/log/modsecurity/audit.log" \
 	  | grep -o '"ruleId":"[0-9]*"' | sort | uniq -c | sort -rn | head -20
+
+# PL2 with narrow exclusions (lab/tuning/), compared against the untuned matrix.
+TUNED = docker compose -f docker-compose.yml -f docker-compose.tuned.yml
+.PHONY: experiment-tuned
+experiment-tuned:
+	PARANOIA=2 $(TUNED) up -d --wait --force-recreate waf
+	PARANOIA=2 TUNED=1 python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT) \
+	  --output results/paranoia/pl2-tuned/waf.csv
+	python3 evaluation/analyze_results.py --waf results/paranoia/pl2-tuned/waf.csv \
+	  --baseline results/baseline.csv --output results/paranoia/pl2-tuned/summary_metrics.json
+	docker compose up -d --wait --force-recreate waf
+	$(PY) evaluation/compare_paranoia.py

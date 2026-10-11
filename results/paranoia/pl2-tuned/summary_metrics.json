@@ -1,0 +1,144 @@
+{
+  "sample_count": 70,
+  "confusion_matrix": {
+    "TP": 23,
+    "FP": 1,
+    "TN": 41,
+    "FN": 5
+  },
+  "detection_rate_recall": 0.8214,
+  "precision": 0.9583,
+  "false_positive_rate": 0.0238,
+  "f1_score": 0.8846,
+  "blocking_rate": 0.7857,
+  "malicious_blocked": 22,
+  "malicious_rejected_by_proxy": 4,
+  "overall_mitigation_rate": 0.9286,
+  "total_malicious": 28,
+  "latency_waf": {
+    "mean_ms": 22.55,
+    "p50_ms": 20.35,
+    "p95_ms": 45.41
+  },
+  "latency_baseline": {
+    "mean_ms": 22.02,
+    "p50_ms": 11.31,
+    "p95_ms": 33.56
+  },
+  "latency_overhead_mean_ms": 0.53,
+  "latency_stats": {
+    "waf": {
+      "n": 210,
+      "mean_ms": 22.55,
+      "p50_ms": 20.35,
+      "p95_ms": 45.41,
+      "iqr_ms": 11.17
+    },
+    "baseline": {
+      "n": 210,
+      "mean_ms": 22.02,
+      "p50_ms": 11.31,
+      "p95_ms": 33.56,
+      "iqr_ms": 9.5
+    },
+    "mann_whitney_u": {
+      "u": 34179.5,
+      "z": 9.7515,
+      "p_value": 0.0
+    }
+  },
+  "confidence_intervals_95": {
+    "detection_rate_recall": [
+      0.6441,
+      0.9212
+    ],
+    "precision": [
+      0.7976,
+      0.9926
+    ],
+    "false_positive_rate": [
+      0.0042,
+      0.1232
+    ],
+    "blocking_rate": [
+      0.6046,
+      0.8979
+    ]
+  },
+  "category_breakdown": {
+    "normal": {
+      "total": 42,
+      "detected": 1,
+      "blocked": 0
+    },
+    "sqli": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "xss": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "path-traversal": {
+      "total": 8,
+      "detected": 3,
+      "blocked": 2
+    }
+  },
+  "misclassified": [
+    {
+      "type": "FP",
+      "test_id": "BENIGN-013",
+      "category": "normal",
+      "path": "/rest/products/search?q=O%27Reilly",
+      "rules": [
+        "920350",
+        "950100"
+      ]
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-001",
+      "category": "path-traversal",
+      "path": "/ftp/../../../../etc/passwd",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-002",
+      "category": "path-traversal",
+      "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-004",
+      "category": "path-traversal",
+      "path": "/ftp/eastere.gg%2500.md",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-005",
+      "category": "path-traversal",
+      "path": "/assets/public/images/../../../../windows/win.ini",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-008",
+      "category": "path-traversal",
+      "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    }
+  ]
+}

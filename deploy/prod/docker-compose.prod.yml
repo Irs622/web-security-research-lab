@@ -4,7 +4,7 @@ name: waf-prod
 
 services:
   caddy:
-    image: caddy:2.8.4-alpine
+    image: caddy:2.8.4-alpine@sha256:af32e97399febea808609119bb21544d0265c58a02836576e32a2d082c262c17
     container_name: wafprod-caddy
     restart: unless-stopped
     security_opt:
@@ -27,7 +27,7 @@ services:
       - edge
 
   waf:
-    image: owasp/modsecurity-crs:4.25.2-nginx-alpine-lts
+    image: owasp/modsecurity-crs:4.25.2-nginx-alpine-lts@sha256:13ba8285eb8c73d1d83a0ac6f2a9e8a9273293fde419bbc46bfe2be6c379ca1b
     container_name: wafprod-modsecurity
     restart: unless-stopped
     security_opt:
