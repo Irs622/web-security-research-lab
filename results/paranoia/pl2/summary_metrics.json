@@ -1,0 +1,206 @@
+{
+  "sample_count": 70,
+  "confusion_matrix": {
+    "TP": 23,
+    "FP": 7,
+    "TN": 35,
+    "FN": 5
+  },
+  "detection_rate_recall": 0.8214,
+  "precision": 0.7667,
+  "false_positive_rate": 0.1667,
+  "f1_score": 0.7931,
+  "blocking_rate": 0.7857,
+  "malicious_blocked": 22,
+  "malicious_rejected_by_proxy": 4,
+  "overall_mitigation_rate": 0.9286,
+  "total_malicious": 28,
+  "latency_waf": {
+    "mean_ms": 20.1,
+    "p50_ms": 19.1,
+    "p95_ms": 37.6
+  },
+  "latency_baseline": {
+    "mean_ms": 22.02,
+    "p50_ms": 11.31,
+    "p95_ms": 33.56
+  },
+  "latency_overhead_mean_ms": -1.91,
+  "latency_stats": {
+    "waf": {
+      "n": 210,
+      "mean_ms": 20.1,
+      "p50_ms": 19.1,
+      "p95_ms": 37.6,
+      "iqr_ms": 9.82
+    },
+    "baseline": {
+      "n": 210,
+      "mean_ms": 22.02,
+      "p50_ms": 11.31,
+      "p95_ms": 33.56,
+      "iqr_ms": 9.5
+    },
+    "mann_whitney_u": {
+      "u": 32855.0,
+      "z": 8.6867,
+      "p_value": 0.0
+    }
+  },
+  "confidence_intervals_95": {
+    "detection_rate_recall": [
+      0.6441,
+      0.9212
+    ],
+    "precision": [
+      0.5907,
+      0.8821
+    ],
+    "false_positive_rate": [
+      0.0832,
+      0.306
+    ],
+    "blocking_rate": [
+      0.6046,
+      0.8979
+    ]
+  },
+  "category_breakdown": {
+    "normal": {
+      "total": 42,
+      "detected": 7,
+      "blocked": 0
+    },
+    "sqli": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "xss": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "path-traversal": {
+      "total": 8,
+      "detected": 3,
+      "blocked": 2
+    }
+  },
+  "misclassified": [
+    {
+      "type": "FP",
+      "test_id": "BENIGN-010",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-013",
+      "category": "normal",
+      "path": "/rest/products/search?q=O%27Reilly",
+      "rules": [
+        "920350",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-018",
+      "category": "normal",
+      "path": "/rest/products/search?q=C%23+sticker",
+      "rules": [
+        "920350",
+        "942440"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-019",
+      "category": "normal",
+      "path": "/rest/products/search?q=1+or+2+bottles",
+      "rules": [
+        "920350",
+        "942390"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-038",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "932200",
+        "942200",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-039",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-040",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "950100"
+      ]
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-001",
+      "category": "path-traversal",
+      "path": "/ftp/../../../../etc/passwd",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-002",
+      "category": "path-traversal",
+      "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-004",
+      "category": "path-traversal",
+      "path": "/ftp/eastere.gg%2500.md",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-005",
+      "category": "path-traversal",
+      "path": "/assets/public/images/../../../../windows/win.ini",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-008",
+      "category": "path-traversal",
+      "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    }
+  ]
+}

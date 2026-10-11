@@ -184,28 +184,38 @@ Setiap request diberi header unik `X-Lab-Trace-Id` sehingga baris CSV dapat dico
 
 ---
 
-## 5. Ringkasan Hasil Eksperimen Aktual (N=40 Kasus Uji)
+## 5. Ringkasan Hasil Eksperimen Aktual (N=70 Kasus Uji, 3× Pengulangan)
 
-> ⚠️ Angka di bawah berasal dari run sebelum perbaikan korelasi berbasis trace ID. Jalankan ulang eksperimen untuk angka final — lihat [Interpretasi Hasil §4](docs/RESULTS_INTERPRETATION.md).
+Konfigurasi: CRS 4.25.2, Paranoia Level 1, Anomaly Inbound 5. Interval kepercayaan 95% (Wilson) dalam kurung.
 
 | Metrik Evaluasi | Nilai | Keterangan |
 |---|---|---|
-| **True Positives (TP)** | 27 | Serangan berhasil dideteksi oleh aturan CRS |
-| **False Positives (FP)** | 0 | Request normal tidak ada yang salah diblokir |
-| **True Negatives (TN)** | 12 | Seluruh request benign diizinkan WAF (pass-through tanpa pemblokiran) |
-| **False Negatives (FN)** | 1 | 1 probe traversal null-byte lolos pada PL 1 |
-| **Detection Rate (Recall)** | **96.43%** | Tingkat keberhasilan deteksi ancaman |
-| **Precision** | **100.00%** | Tingkat ketepatan peringatan deteksi |
-| **False Positive Rate (FPR)** | **0.00%** | Tingkat kesalahan deteksi terhadap user sah |
-| **Enforcement Blocking Rate** | **96.43%** | 27 dari 28 serangan diputus (HTTP 403) |
-| **Baseline Latency (Mean)** | 18.47 ms | Latensi langsung ke OWASP Juice Shop |
-| **WAF Latency (Mean)** | 21.55 ms | Latensi melalui Nginx + ModSecurity |
-| **Inspection Overhead** | **+3.07 ms** | Overhead komputasi inspeksi WAF |
+| **TP / FP / TN / FN** | 22 / 0 / 42 / 6 | 28 malicious, 42 benign |
+| **Detection Rate (Recall)** | **78.57%** (60.5–89.8%) | SQLi 10/10, XSS 10/10, Path Traversal 2/8 |
+| **Precision** | **100.00%** (85.1–100%) | Tidak ada false alarm |
+| **False Positive Rate** | **0.00%** (0–8.4%) | 0 dari 42 request benign |
+| **Blocking Rate (WAF)** | 78.57% | 22/28 diblokir ModSecurity (HTTP 403) |
+| **Ditolak Nginx sebelum WAF** | 4 | URI yang keluar dari root (`../`) → HTTP 400 dari Nginx |
+| **Mitigasi total** | **92.86%** | WAF + normalisasi Nginx |
+| **Latensi p50 (Baseline / WAF)** | 11.31 / 11.75 ms | 210 sampel per mode |
+| **Overhead rata-rata** | **+2.16 ms** | Mann-Whitney U: p = 0.032 (signifikan, α = 0.05) |
+
+### Perbandingan Paranoia Level
+
+| PL | Recall | FPR | Precision | F1 |
+|---|---|---|---|---|
+| 1 | 78.57% | 0.00% | 100.00% | 0.880 |
+| 2 | 82.14% | 16.67% | 76.67% | 0.793 |
+| 3 | 85.71% | 23.81% | 70.59% | 0.774 |
+| 4 | 85.71% | 54.76% | 51.06% | 0.640 |
+
+PL1 memberikan F1 terbaik; kenaikan Paranoia Level menambah deteksi traversal tetapi FPR naik tajam. Detail: [Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md).
 
 Grafik visualisasi tersimpan di:
 - `results/confusion_matrix.png`
 - `results/latency_comparison.png`
 - `results/category_breakdown.png`
+- `results/paranoia/paranoia_tradeoff.png`
 
 ---
 

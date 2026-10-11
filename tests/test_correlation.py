@@ -79,6 +79,7 @@ def test_trace_header_is_sent_and_recorded():
     sent = {k.lower(): v for k, v in runner.sent_headers.items()}
     assert sent[TRACE_HEADER.lower()] == row["trace_id"]
     assert runner.correlator.trace_id == row["trace_id"]
+    assert "accept" in sent  # avoids CRS 920300 (missing Accept) lab artifact
     assert row["observed_outcome"] == "blocked_by_waf"
 
 
@@ -112,3 +113,13 @@ def test_polls_log_until_trace_id_appears(monkeypatch):
     monkeypatch.setattr("simulator.log_correlator.time.sleep", lambda s: None)
     rules, interrupted, _, how = corr.correlate_request("GET", "/a", trace_id="t1", poll_attempts=3)
     assert how == "trace_id" and rules == ["942100"] and interrupted is True
+
+
+def test_nginx_400_without_audit_record_is_rejected_by_proxy():
+    runner = _runner_with(([], False, None, "none"), status=400)
+    row = runner.execute_test({"test_id": "TRAV-001", "path": "/ftp/x", "expected_class": "malicious"}, "r")
+    assert row["waf_intervention"] is False
+    assert row["observed_outcome"] == "rejected_by_proxy"
+    res = evaluate_waf_performance([dict(row, waf_intervention=str(row["waf_intervention"]))])
+    assert res["confusion_matrix"]["FN"] == 1
+    assert res["malicious_rejected_by_proxy"] == 1 and res["overall_mitigation_rate"] == 1.0

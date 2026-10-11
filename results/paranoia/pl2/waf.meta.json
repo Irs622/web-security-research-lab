@@ -1,0 +1,20 @@
+{
+  "run_id": "run_waf_20261011_141119",
+  "mode": "waf",
+  "started_utc": "2026-10-11T14:11:19.981831+00:00",
+  "git_sha": "2cefc6cb661cdffc1f218cbf8c135bf25447fc59",
+  "dataset_sha256": "40a7dba73cd9b382a8cd44e4e2915a5bd5b7dcf943af7457b10d84b10963e95c",
+  "case_count": 70,
+  "repeat": 3,
+  "warmup": 5,
+  "paranoia_level": "1",
+  "anomaly_inbound": "5",
+  "images": {
+    "waf": "owasp/modsecurity-crs:4.25.2-nginx-alpine-lts@sha256:13ba8285eb8c73d1d83a0ac6f2a9e8a9273293fde419bbc46bfe2be6c379ca1b",
+    "juice_shop": "bkimminich/juice-shop:v17.1.1@sha256:9e437b456e444ff001d1663e4f6f05c796fe02f1058dd2651d6791a15b43dfeb"
+  },
+  "python": "3.9.6",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "finished_utc": "2026-10-11T14:12:35.360659+00:00",
+  "transport_errors": 0
+}

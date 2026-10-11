@@ -65,7 +65,7 @@ Untuk memastikan setiap baris hasil dikaitkan dengan transaksi ModSecurity yang 
 
 ## 5. Parameter Pengendalian
 
-- **Ukuran Sampel:** N=70 kasus uji terkontrol (42 Benign, 10 SQLi, 10 XSS, 8 Path Traversal). Hasil yang dipublikasikan di README masih berasal dari run N=40 sebelumnya dan perlu diregenerasi.
+- **Ukuran Sampel:** N=70 kasus uji terkontrol (42 Benign, 10 SQLi, 10 XSS, 8 Path Traversal).
 - **Concurrency & Rate:** Sequential execution dengan inter-request delay 0.25 detik.
 - **Hardware Environment:** Apple Silicon M3 (ARM64), 8 GB RAM, macOS Darwin.
 - **Software Pinning:**

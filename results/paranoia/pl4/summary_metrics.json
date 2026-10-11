@@ -1,0 +1,376 @@
+{
+  "sample_count": 70,
+  "confusion_matrix": {
+    "TP": 24,
+    "FP": 23,
+    "TN": 19,
+    "FN": 4
+  },
+  "detection_rate_recall": 0.8571,
+  "precision": 0.5106,
+  "false_positive_rate": 0.5476,
+  "f1_score": 0.64,
+  "blocking_rate": 0.7857,
+  "malicious_blocked": 22,
+  "malicious_rejected_by_proxy": 4,
+  "overall_mitigation_rate": 0.9286,
+  "total_malicious": 28,
+  "latency_waf": {
+    "mean_ms": 21.62,
+    "p50_ms": 20.34,
+    "p95_ms": 39.22
+  },
+  "latency_baseline": {
+    "mean_ms": 22.02,
+    "p50_ms": 11.31,
+    "p95_ms": 33.56
+  },
+  "latency_overhead_mean_ms": -0.4,
+  "latency_stats": {
+    "waf": {
+      "n": 210,
+      "mean_ms": 21.62,
+      "p50_ms": 20.34,
+      "p95_ms": 39.22,
+      "iqr_ms": 12.83
+    },
+    "baseline": {
+      "n": 210,
+      "mean_ms": 22.02,
+      "p50_ms": 11.31,
+      "p95_ms": 33.56,
+      "iqr_ms": 9.5
+    },
+    "mann_whitney_u": {
+      "u": 33796.0,
+      "z": 9.4432,
+      "p_value": 0.0
+    }
+  },
+  "confidence_intervals_95": {
+    "detection_rate_recall": [
+      0.6851,
+      0.943
+    ],
+    "precision": [
+      0.3724,
+      0.6472
+    ],
+    "false_positive_rate": [
+      0.3995,
+      0.6878
+    ],
+    "blocking_rate": [
+      0.6046,
+      0.8979
+    ]
+  },
+  "category_breakdown": {
+    "normal": {
+      "total": 42,
+      "detected": 23,
+      "blocked": 0
+    },
+    "sqli": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "xss": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "path-traversal": {
+      "total": 8,
+      "detected": 4,
+      "blocked": 2
+    }
+  },
+  "misclassified": [
+    {
+      "type": "FP",
+      "test_id": "BENIGN-003",
+      "category": "normal",
+      "path": "/rest/products/search?q=orange+juice",
+      "rules": [
+        "920350",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-004",
+      "category": "normal",
+      "path": "/rest/products/search?q=banana+%26+strawberry",
+      "rules": [
+        "920350",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-009",
+      "category": "normal",
+      "path": "/rest/user/login",
+      "rules": [
+        "920350",
+        "920273",
+        "942432"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-010",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "920273",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-012",
+      "category": "normal",
+      "path": "/rest/products/search?q=100%25+natural+organic",
+      "rules": [
+        "920350",
+        "920272",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-013",
+      "category": "normal",
+      "path": "/rest/products/search?q=O%27Reilly",
+      "rules": [
+        "920350",
+        "920273",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-014",
+      "category": "normal",
+      "path": "/rest/products/search?q=juice+100%25+natural",
+      "rules": [
+        "920350",
+        "920272",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-015",
+      "category": "normal",
+      "path": "/rest/products/search?q=caf%C3%A9+cr%C3%A8me",
+      "rules": [
+        "920350",
+        "920272",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-016",
+      "category": "normal",
+      "path": "/rest/products/search?q=select+fruit",
+      "rules": [
+        "920350",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-017",
+      "category": "normal",
+      "path": "/rest/products/search?q=apple-banana+mix",
+      "rules": [
+        "920350",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-018",
+      "category": "normal",
+      "path": "/rest/products/search?q=C%23+sticker",
+      "rules": [
+        "920350",
+        "920273",
+        "942440"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-019",
+      "category": "normal",
+      "path": "/rest/products/search?q=1+or+2+bottles",
+      "rules": [
+        "920350",
+        "920273",
+        "942390"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-020",
+      "category": "normal",
+      "path": "/rest/products/search?q=lemon+%28organic%29",
+      "rules": [
+        "920350",
+        "920273",
+        "942432"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-021",
+      "category": "normal",
+      "path": "/rest/products/search?q=%22green+smoothie%22",
+      "rules": [
+        "920350",
+        "920273",
+        "942432"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-022",
+      "category": "normal",
+      "path": "/rest/products/search?q=price%3A+2.99%2Fl",
+      "rules": [
+        "920350",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-023",
+      "category": "normal",
+      "path": "/rest/products/search?q=melon%3B+kiwi",
+      "rules": [
+        "920350",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-024",
+      "category": "normal",
+      "path": "/rest/products/search?q=bestseller+2026",
+      "rules": [
+        "920350",
+        "920273"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-025",
+      "category": "normal",
+      "path": "/rest/products/search?q=t-shirt+size%3DXL",
+      "rules": [
+        "920350",
+        "920273",
+        "942432"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-037",
+      "category": "normal",
+      "path": "/rest/user/login",
+      "rules": [
+        "920350",
+        "920273",
+        "942432"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-038",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "920273",
+        "932200",
+        "942200",
+        "942432",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-039",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "920273",
+        "942432",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-040",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "920273",
+        "942460",
+        "942432",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-041",
+      "category": "normal",
+      "path": "/api/Users/",
+      "rules": [
+        "920350",
+        "920273",
+        "942432"
+      ]
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-001",
+      "category": "path-traversal",
+      "path": "/ftp/../../../../etc/passwd",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-002",
+      "category": "path-traversal",
+      "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-005",
+      "category": "path-traversal",
+      "path": "/assets/public/images/../../../../windows/win.ini",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-008",
+      "category": "path-traversal",
+      "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    }
+  ]
+}

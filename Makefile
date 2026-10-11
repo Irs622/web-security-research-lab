@@ -50,6 +50,7 @@ zap:
 
 # Paranoia Level matrix: recreate the WAF per level, run the suite, then compare.
 REPEAT ?= 3
+PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 .PHONY: experiment-matrix
 experiment-matrix:
 	@for pl in 1 2 3 4; do \
@@ -61,7 +62,7 @@ experiment-matrix:
 	    --baseline results/baseline.csv --output results/paranoia/pl$$pl/summary_metrics.json || exit 1; \
 	done
 	docker compose up -d --wait --force-recreate waf
-	.venv/bin/python evaluation/compare_paranoia.py
+	$(PY) evaluation/compare_paranoia.py
 
 # --- Production deployment (lihat docs/PRODUCTION.md) ---
 PROD = docker compose -f deploy/prod/docker-compose.prod.yml --env-file deploy/prod/.env

@@ -133,6 +133,7 @@ def evaluate_waf_performance(
     fp = 0  # Expected benign, attack rule fired or blocked
 
     malicious_blocked = 0
+    malicious_proxy_rejected = 0
     total_malicious = 0
 
     category_stats: Dict[str, Dict[str, int]] = {}
@@ -162,12 +163,15 @@ def evaluate_waf_performance(
             total_malicious += 1
             if is_blocked:
                 malicious_blocked += 1
+            elif row.get("observed_outcome") == "rejected_by_proxy":
+                malicious_proxy_rejected += 1
             if has_attack_detection:
                 tp += 1
             else:
                 fn += 1
                 misclassified.append({"type": "FN", "test_id": test_id, "category": cat,
-                                      "path": row.get("path", ""), "rules": all_rules})
+                                      "path": row.get("path", ""), "rules": all_rules,
+                                      "outcome": row.get("observed_outcome", "")})
         elif exp_class == "benign":
             if has_attack_detection:
                 fp += 1
@@ -208,6 +212,9 @@ def evaluate_waf_performance(
         "f1_score": round(f1, 4),
         "blocking_rate": round(blocking_rate, 4),
         "malicious_blocked": malicious_blocked,
+        "malicious_rejected_by_proxy": malicious_proxy_rejected,
+        "overall_mitigation_rate": round(
+            (malicious_blocked + malicious_proxy_rejected) / total_malicious, 4) if total_malicious else 0.0,
         "total_malicious": total_malicious,
         "latency_waf": {
             "mean_ms": round(waf_mean, 2) if waf_mean is not None else None,
@@ -256,6 +263,8 @@ def print_report(metrics: Dict[str, Any]):
     print(f"  F1-Score                      : {metrics['f1_score']:.4f}")
     print(f"  Enforcement / Blocking Rate   : {metrics['blocking_rate'] * 100:.2f}% "
           f"({metrics['malicious_blocked']}/{metrics['total_malicious']})")
+    print(f"  Rejected by Nginx (pre-WAF)   : {metrics['malicious_rejected_by_proxy']} "
+          f"-> overall mitigation {metrics['overall_mitigation_rate'] * 100:.2f}%")
 
     ci = metrics.get("confidence_intervals_95", {})
     print("\n--- 95% CONFIDENCE INTERVALS (Wilson) ---")
@@ -289,7 +298,8 @@ def print_report(metrics: Dict[str, Any]):
         print("\n--- MISCLASSIFIED CASES (FN / FP) ---")
         for m in metrics["misclassified"]:
             rules = ";".join(m["rules"]) or "-"
-            print(f"  [{m['type']}] {m['test_id']:<12} {m['path']}  rules={rules}")
+            note = "  (rejected by nginx before WAF)" if m.get("outcome") == "rejected_by_proxy" else ""
+            print(f"  [{m['type']}] {m['test_id']:<12} {m['path']}  rules={rules}{note}")
     print("=" * 65)
 
 

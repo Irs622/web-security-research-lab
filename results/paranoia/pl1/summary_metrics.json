@@ -1,0 +1,144 @@
+{
+  "sample_count": 70,
+  "confusion_matrix": {
+    "TP": 22,
+    "FP": 0,
+    "TN": 42,
+    "FN": 6
+  },
+  "detection_rate_recall": 0.7857,
+  "precision": 1.0,
+  "false_positive_rate": 0.0,
+  "f1_score": 0.88,
+  "blocking_rate": 0.7857,
+  "malicious_blocked": 22,
+  "malicious_rejected_by_proxy": 4,
+  "overall_mitigation_rate": 0.9286,
+  "total_malicious": 28,
+  "latency_waf": {
+    "mean_ms": 18.65,
+    "p50_ms": 15.21,
+    "p95_ms": 35.31
+  },
+  "latency_baseline": {
+    "mean_ms": 22.02,
+    "p50_ms": 11.31,
+    "p95_ms": 33.56
+  },
+  "latency_overhead_mean_ms": -3.37,
+  "latency_stats": {
+    "waf": {
+      "n": 210,
+      "mean_ms": 18.65,
+      "p50_ms": 15.21,
+      "p95_ms": 35.31,
+      "iqr_ms": 11.78
+    },
+    "baseline": {
+      "n": 210,
+      "mean_ms": 22.02,
+      "p50_ms": 11.31,
+      "p95_ms": 33.56,
+      "iqr_ms": 9.5
+    },
+    "mann_whitney_u": {
+      "u": 30490.0,
+      "z": 6.7854,
+      "p_value": 0.0
+    }
+  },
+  "confidence_intervals_95": {
+    "detection_rate_recall": [
+      0.6046,
+      0.8979
+    ],
+    "precision": [
+      0.8513,
+      1.0
+    ],
+    "false_positive_rate": [
+      0.0,
+      0.0838
+    ],
+    "blocking_rate": [
+      0.6046,
+      0.8979
+    ]
+  },
+  "category_breakdown": {
+    "normal": {
+      "total": 42,
+      "detected": 0,
+      "blocked": 0
+    },
+    "sqli": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "xss": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10
+    },
+    "path-traversal": {
+      "total": 8,
+      "detected": 2,
+      "blocked": 2
+    }
+  },
+  "misclassified": [
+    {
+      "type": "FN",
+      "test_id": "TRAV-001",
+      "category": "path-traversal",
+      "path": "/ftp/../../../../etc/passwd",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-002",
+      "category": "path-traversal",
+      "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-004",
+      "category": "path-traversal",
+      "path": "/ftp/eastere.gg%2500.md",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-005",
+      "category": "path-traversal",
+      "path": "/assets/public/images/../../../../windows/win.ini",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-007",
+      "category": "path-traversal",
+      "path": "/ftp/....//....//etc/passwd",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-008",
+      "category": "path-traversal",
+      "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
+      "rules": [],
+      "outcome": "rejected_by_proxy"
+    }
+  ]
+}

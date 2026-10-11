@@ -112,6 +112,9 @@ class ExperimentRunner:
         expected_class = case.get("expected_class", "unknown")
 
         headers.setdefault("User-Agent", "WAF-Research-Lab-Simulator/2.0")
+        # Real browsers always send Accept; omitting it trips CRS 920300 at PL2+ on every
+        # request, which would measure the simulator rather than the WAF.
+        headers.setdefault("Accept", "text/html,application/json;q=0.9,*/*;q=0.8")
         trace_id = uuid.uuid4().hex
         headers[TRACE_HEADER] = trace_id
 
@@ -183,6 +186,10 @@ class ExperimentRunner:
         else:
             if waf_intervention:
                 observed_outcome = "blocked_by_waf"
+            elif status == 400 and log_match == "none":
+                # Nginx rejects malformed/root-escaping URIs before ModSecurity runs, so no
+                # audit record exists. Mitigated, but not by the WAF rule engine.
+                observed_outcome = "rejected_by_proxy"
             elif attack_rules:
                 observed_outcome = "detected_alert_only"
             else:
