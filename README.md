@@ -56,7 +56,7 @@ Laboratorium ini menguji kemampuan **ModSecurity v3** yang diperkuat oleh **OWAS
 ├── requirements.txt            # Dependensi Python (pandas, matplotlib, pytest, ruff)
 ├── ruff.toml                   # Konfigurasi linter
 ├── simulator/                  # Simulator uji terkontrol + korelator audit log
-│   ├── attack_cases.json       # Dataset 40 kasus berlabel
+│   ├── attack_cases.json       # Dataset 70 kasus berlabel (42 benign, 28 malicious)
 │   ├── run_tests.py            # CLI eksekusi eksperimen
 │   ├── runner.py               # Eksekutor request & pencatatan hasil
 │   ├── log_correlator.py       # Korelasi request ↔ audit log ModSecurity

