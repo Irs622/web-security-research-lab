@@ -105,7 +105,7 @@ make experiment-tuned           # PL2 + exclusion sempit dari lab/tuning/; hasil
 make experiment-holdout         # 20 benign baru vs PL1, PL2, PL2 tuned; hasil di results/holdout/<skenario>/
 ```
 
-Ketiga target mengembalikan WAF ke PL1 setelah selesai dan memperbarui `results/paranoia/paranoia_comparison.json` serta `paranoia_tradeoff.png`.
+Ketiga target mengembalikan WAF ke PL1 setelah selesai. `experiment-matrix` dan `experiment-tuned` juga memperbarui `results/paranoia/paranoia_comparison.json` serta `paranoia_tradeoff.png`.
 
 ---
 
