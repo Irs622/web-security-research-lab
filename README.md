@@ -212,7 +212,7 @@ Konfigurasi: CRS 4.25.2, Paranoia Level 1, Anomaly Inbound 5. Interval kepercaya
 | 3 | 85.71% | 23.81% | 70.59% | 0.774 |
 | 4 | 85.71% | 54.76% | 51.06% | 0.640 |
 
-Tanpa tuning, PL1 memberikan F1 terbaik karena FPR naik tajam di level lebih tinggi. Dengan exclusion sempit ([`lab/tuning/`](lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf)), **PL2 tuned** mengungguli PL1 (F1 0.885): recall naik ke 82.14% dengan FPR hanya 2.38% (1 dari 42). Detail: [Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md).
+Tanpa tuning, PL1 memberikan F1 terbaik karena FPR naik tajam di level lebih tinggi. Dengan exclusion sempit ([`lab/tuning/`](lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf)), **PL2 tuned** mengungguli PL1 (F1 0.885): recall naik ke 82.14% dengan FPR hanya 2.38% (1 dari 42). Namun pada **set hold-out** (20 benign yang tidak dipakai saat tuning) FPR-nya 20% vs PL1 5% — tuning sebagian overfit; lihat validasi hold-out. Detail: [Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md).
 
 Grafik visualisasi tersimpan di:
 - `results/confusion_matrix.png`

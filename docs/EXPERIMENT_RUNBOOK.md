@@ -100,7 +100,12 @@ make experiment-matrix          # ±10 menit; hasil di results/paranoia/pl<N>/
 ```bash
 make experiment-tuned           # PL2 + exclusion sempit dari lab/tuning/; hasil di results/paranoia/pl2-tuned/
 ```
-Kedua target mengembalikan WAF ke PL1 setelah selesai dan memperbarui `results/paranoia/paranoia_comparison.json` serta `paranoia_tradeoff.png`.
+### Tahap E: Validasi Hold-out
+```bash
+make experiment-holdout         # 20 benign baru vs PL1, PL2, PL2 tuned; hasil di results/holdout/<skenario>/
+```
+
+Ketiga target mengembalikan WAF ke PL1 setelah selesai dan memperbarui `results/paranoia/paranoia_comparison.json` serta `paranoia_tradeoff.png`.
 
 ---
 

@@ -13,6 +13,7 @@ help:
 	@echo "  make analyze       : Compute confusion matrix, detection, blocking rates, and latency"
 	@echo "  make charts        : Generate PNG charts and figures for thesis"
 	@echo "  make experiment-matrix : Run WAF suite at Paranoia Level 1-4 and compare trade-offs"
+	@echo "  make experiment-holdout: Run hold-out benign set against PL1, PL2, PL2 tuned"
 	@echo "  make experiment-tuned  : Run WAF suite at PL2 with narrow CRS exclusions (lab/tuning)"
 	@echo "  make zap           : Run OWASP ZAP passive baseline scan"
 
@@ -100,3 +101,20 @@ experiment-tuned:
 	  --baseline results/baseline.csv --output results/paranoia/pl2-tuned/summary_metrics.json
 	docker compose up -d --wait --force-recreate waf
 	$(PY) evaluation/compare_paranoia.py
+
+# Hold-out benign set (never used for tuning) against PL1, PL2 and PL2 tuned.
+.PHONY: experiment-holdout
+experiment-holdout:
+	@for sc in pl1 pl2 pl2-tuned; do \
+	  echo "=== Hold-out: $$sc ==="; \
+	  case $$sc in \
+	    pl1) docker compose up -d --wait --force-recreate waf || exit 1; pl=1; t=0;; \
+	    pl2) PARANOIA=2 docker compose up -d --wait --force-recreate waf || exit 1; pl=2; t=0;; \
+	    pl2-tuned) PARANOIA=2 $(TUNED) up -d --wait --force-recreate waf || exit 1; pl=2; t=1;; \
+	  esac; \
+	  PARANOIA=$$pl TUNED=$$t python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf \
+	    --repeat $(REPEAT) --cases simulator/holdout_benign.json --output results/holdout/$$sc/waf.csv || exit 1; \
+	  python3 evaluation/analyze_results.py --waf results/holdout/$$sc/waf.csv --baseline /dev/null \
+	    --output results/holdout/$$sc/summary_metrics.json | grep -E "FP\\]|False Positive Rate|false_positive_rate" ; \
+	done
+	docker compose up -d --wait --force-recreate waf

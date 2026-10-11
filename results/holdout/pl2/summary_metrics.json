@@ -1,0 +1,152 @@
+{
+  "sample_count": 20,
+  "confusion_matrix": {
+    "TP": 0,
+    "FP": 8,
+    "TN": 12,
+    "FN": 0
+  },
+  "detection_rate_recall": 0.0,
+  "precision": 0.0,
+  "false_positive_rate": 0.4,
+  "f1_score": 0.0,
+  "blocking_rate": 0.0,
+  "malicious_blocked": 0,
+  "malicious_rejected_by_proxy": 0,
+  "overall_mitigation_rate": 0.0,
+  "total_malicious": 0,
+  "latency_waf": {
+    "mean_ms": 40.3,
+    "p50_ms": 23.29,
+    "p95_ms": 81.33
+  },
+  "latency_baseline": {
+    "mean_ms": null,
+    "p50_ms": null,
+    "p95_ms": null
+  },
+  "latency_overhead_mean_ms": null,
+  "latency_stats": {
+    "waf": {
+      "n": 60,
+      "mean_ms": 40.3,
+      "p50_ms": 23.29,
+      "p95_ms": 81.33,
+      "iqr_ms": 11.2
+    },
+    "baseline": {
+      "n": 0,
+      "mean_ms": null,
+      "p50_ms": null,
+      "p95_ms": null,
+      "iqr_ms": null
+    },
+    "mann_whitney_u": null
+  },
+  "confidence_intervals_95": {
+    "detection_rate_recall": null,
+    "precision": [
+      0.0,
+      0.3244
+    ],
+    "false_positive_rate": [
+      0.2188,
+      0.6134
+    ],
+    "blocking_rate": null
+  },
+  "category_breakdown": {
+    "normal": {
+      "total": 20,
+      "detected": 8,
+      "blocked": 1
+    }
+  },
+  "misclassified": [
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-001",
+      "category": "normal",
+      "path": "/rest/products/search?q=Bob%27s+favourite",
+      "rules": [
+        "920350",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-002",
+      "category": "normal",
+      "path": "/rest/products/search?q=don%27t+miss",
+      "rules": [
+        "920350",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-007",
+      "category": "normal",
+      "path": "/rest/products/search?q=F%23+notes",
+      "rules": [
+        "920350",
+        "942440"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-009",
+      "category": "normal",
+      "path": "/rest/products/search?q=50%25+off+--+today",
+      "rules": [
+        "920350",
+        "942100",
+        "942440",
+        "949110"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-015",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "932200",
+        "942200",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-016",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-017",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "950100"
+      ]
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-018",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "942440",
+        "950100"
+      ]
+    }
+  ]
+}

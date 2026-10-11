@@ -62,6 +62,26 @@ Hasil: FP turun dari 7 menjadi 1 (FPR 16.67% → 2.38%, CI 95%: 0.4–12.3%), se
 
 > Keterbatasan: exclusion disusun dari dataset yang sama dengan yang dievaluasi, sehingga FPR tuned cenderung optimistis. Validasi yang lebih kuat memerlukan set benign terpisah (hold-out) yang tidak dipakai saat tuning.
 
+### Validasi Hold-out (20 kasus benign yang tidak dipakai saat tuning)
+
+Set terpisah [`simulator/holdout_benign.json`](../simulator/holdout_benign.json) (dijamin tidak beririsan dengan dataset utama oleh `tests/test_dataset.py`) dijalankan dengan `make experiment-holdout`:
+
+| Skenario | FPR in-sample (42 benign) | **FPR hold-out (20 benign)** | 95% CI hold-out |
+|---|---|---|---|
+| PL1 | 0.00% | **5.00%** (1/20) | 0.9–23.6% |
+| PL2 | 16.67% | **40.00%** (8/20) | 21.9–61.3% |
+| PL2 tuned | 2.38% | **20.00%** (4/20) | 8.1–41.6% |
+
+FP hold-out pada PL2 tuned:
+
+| Kasus | Rule | Penjelasan |
+|---|---|---|
+| `HOLDOUT-001/002` (`Bob's`, `don't`) | `950100` | Apostrof memicu error SQL Juice Shop (500) — gejala kerentanan nyata, sama seperti `O'Reilly`; sengaja tidak dikecualikan |
+| `HOLDOUT-009` (`50% off -- today`) | `942100` | **Diblokir (403) bahkan pada PL1** — libinjection membaca `--` sebagai komentar SQL. FP murni yang berdampak ke pengguna |
+| `HOLDOUT-018` (`Order #1234 ... (late)`) | `942440` | Rule ini hanya dikecualikan pada `q`, bukan pada `json.comment` → bukti exclusion **overfit** ke dataset tuning |
+
+**Kesimpulan yang jujur:** keunggulan PL2 tuned (FPR 2.38%) sebagian besar adalah efek *in-sample*. Pada data baru, FPR PL2 tuned (20%) tetap jauh lebih baik dari PL2 tanpa tuning (40%), tetapi lebih buruk dari PL1 (5%). Tuning per-endpoint membutuhkan iterasi pada trafik nyata (mode `DetectionOnly`) sebelum dapat mengalahkan PL1. Bila kasus 950100 (gejala kerentanan) dikeluarkan dari hitungan, FP yang berdampak ke pengguna pada PL2 tuned adalah 2/20 (10%).
+
 Catatan: `950100` adalah rule outbound yang menandai respons error 5xx dari aplikasi — FP ini mencerminkan perilaku Juice Shop, bukan input pengguna.
 
 > Simulator kini mengirim header `Accept` seperti browser. Tanpa header itu, rule `920300` (Missing Accept Header) terpicu di setiap request pada PL2+ dan menghasilkan FPR 100% semu.
