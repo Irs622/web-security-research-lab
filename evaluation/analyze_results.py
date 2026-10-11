@@ -182,7 +182,7 @@ def evaluate_waf_performance(
     f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
     blocking_rate = (malicious_blocked / total_malicious) if total_malicious > 0 else 0.0
 
-    waf_latencies = [l for r in all_valid_waf if (l := safe_float(r.get("latency_ms"))) is not None]
+    waf_latencies = [lat for r in all_valid_waf if (lat := safe_float(r.get("latency_ms"))) is not None]
     waf_p50 = calculate_percentile(waf_latencies, 0.50)
     waf_p95 = calculate_percentile(waf_latencies, 0.95)
     waf_mean = statistics.mean(waf_latencies) if waf_latencies else None
@@ -191,7 +191,7 @@ def evaluate_waf_performance(
     base_p50, base_p95, base_mean, latency_overhead = None, None, None, None
     if baseline_rows:
         valid_base = [r for r in baseline_rows if not r.get("transport_error")]
-        base_latencies = [l for r in valid_base if (l := safe_float(r.get("latency_ms"))) is not None]
+        base_latencies = [lat for r in valid_base if (lat := safe_float(r.get("latency_ms"))) is not None]
         if base_latencies:
             base_p50 = calculate_percentile(base_latencies, 0.50)
             base_p95 = calculate_percentile(base_latencies, 0.95)

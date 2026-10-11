@@ -74,3 +74,7 @@ Rule **949110** ("Inbound Anomaly Score Exceeded") adalah meta-rule CRS yang ter
 ## Perbandingan Paranoia Level
 
 `make experiment-matrix` menjalankan suite WAF pada Paranoia Level 1–4 (`REPEAT=3` default), menyimpan hasil di `results/paranoia/pl<N>/`, lalu `evaluation/compare_paranoia.py` membuat `paranoia_comparison.json` dan grafik `paranoia_tradeoff.png` (Recall vs FPR vs F1).
+
+## Metadata Reproducibility
+
+Setiap run menulis `<output>.meta.json` di samping CSV: `run_id`, git SHA, SHA-256 dataset, jumlah kasus, `repeat`/`warmup`, Paranoia Level & threshold, digest image container yang sedang berjalan (`docker inspect`), serta versi Python/platform. Lampirkan file ini bersama hasil saat menulis laporan.

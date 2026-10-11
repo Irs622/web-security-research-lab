@@ -1,7 +1,11 @@
 """Controlled security test runner for baseline and WAF lab evaluation."""
 from __future__ import annotations
 import csv
+import hashlib
 import json
+import os
+import platform
+import subprocess
 import time
 import urllib.error
 import urllib.parse
@@ -35,6 +39,46 @@ CSV_FIELDS = [
     "expected_class",
     "observed_outcome",
 ]
+
+
+def _git_sha() -> str:
+    try:
+        out = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, timeout=5, check=False)
+        return out.stdout.strip() or "unknown"
+    except Exception:
+        return "unknown"
+
+
+def _container_image(name: str) -> str:
+    try:
+        out = subprocess.run(["docker", "inspect", "--format", "{{.Config.Image}}@{{.Image}}", name],
+                             capture_output=True, text=True, timeout=5, check=False)
+        return out.stdout.strip() or "unavailable"
+    except Exception:
+        return "unavailable"
+
+
+def build_run_metadata(run_id: str, mode: str, cases: List[Dict[str, Any]], repeat: int, warmup: int) -> Dict[str, Any]:
+    """Captures what is needed to reproduce a run: code version, dataset hash, images, WAF tuning."""
+    dataset_hash = hashlib.sha256(json.dumps(cases, sort_keys=True).encode("utf-8")).hexdigest()
+    return {
+        "run_id": run_id,
+        "mode": mode,
+        "started_utc": datetime.now(timezone.utc).isoformat(),
+        "git_sha": _git_sha(),
+        "dataset_sha256": dataset_hash,
+        "case_count": len(cases),
+        "repeat": repeat,
+        "warmup": warmup,
+        "paranoia_level": os.environ.get("PARANOIA", "1"),
+        "anomaly_inbound": os.environ.get("ANOMALY_INBOUND", "5"),
+        "images": {
+            "waf": _container_image("waflab-modsecurity"),
+            "juice_shop": _container_image("waflab-juice-shop"),
+        },
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+    }
 
 
 class ExperimentRunner:
@@ -187,6 +231,7 @@ class ExperimentRunner:
         """
         run_id = f"run_{self.mode}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
         results = []
+        metadata = build_run_metadata(run_id, self.mode, cases, repeat, warmup)
         self.warm_up(warmup)
         schedule = [(rep, case) for rep in range(max(1, repeat)) for case in cases]
 
@@ -210,4 +255,7 @@ class ExperimentRunner:
                 )
                 time.sleep(self.delay)
 
+        metadata["finished_utc"] = datetime.now(timezone.utc).isoformat()
+        metadata["transport_errors"] = sum(1 for r in results if r["transport_error"])
+        output_path.with_suffix(".meta.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         return results

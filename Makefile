@@ -1,4 +1,4 @@
-.PHONY: up down ps logs test-baseline test-waf analyze charts test-unit zap help
+.PHONY: up down ps logs test-baseline test-waf analyze charts test-unit lint zap help
 
 help:
 	@echo "WAF Research Lab - Command Shortcuts"
@@ -6,7 +6,8 @@ help:
 	@echo "  make down          : Stop all containers"
 	@echo "  make ps            : Check status of running containers and health checks"
 	@echo "  make logs          : Tail logs from WAF and Juice Shop"
-	@echo "  make test-unit     : Run pytest unit test suite"
+	@echo "  make test-unit     : Run pytest suite with coverage"
+	@echo "  make lint          : Run ruff linter"
 	@echo "  make test-baseline : Run controlled test suite against baseline direct endpoint"
 	@echo "  make test-waf      : Run controlled test suite against WAF inspected endpoint"
 	@echo "  make analyze       : Compute confusion matrix, detection, blocking rates, and latency"
@@ -27,7 +28,10 @@ logs:
 	docker compose logs --tail=100 waf juice-shop
 
 test-unit:
-	.venv/bin/pytest -v
+	.venv/bin/pytest -v --cov=simulator --cov=evaluation
+
+lint:
+	.venv/bin/ruff check .
 
 test-baseline:
 	python3 simulator/run_tests.py --target http://127.0.0.1:3001 --mode baseline --repeat $(REPEAT)

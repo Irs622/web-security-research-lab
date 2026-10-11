@@ -10,3 +10,6 @@ results/*.png
 
 # Production secrets
 deploy/prod/.env
+ci-results/
+.coverage
+.ruff_cache/

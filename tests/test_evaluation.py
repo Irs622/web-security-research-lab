@@ -1,5 +1,4 @@
 """Unit tests for research evaluation metrics and statistical calculations."""
-import pytest
 from evaluation.analyze_results import (
     LAB_ENVIRONMENT_PROTOCOL_RULES,
     SCORING_META_RULES,

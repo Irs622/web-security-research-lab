@@ -6,6 +6,16 @@ on:
   pull_request:
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff
+      - run: ruff check .
+
   unit-tests:
     runs-on: ubuntu-latest
     steps:
@@ -14,7 +24,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -r requirements.txt
-      - run: pytest -v
+      - run: pytest -v --cov=simulator --cov=evaluation --cov-report=term-missing
 
   compose-validate:
     runs-on: ubuntu-latest
@@ -36,5 +46,19 @@ jobs:
         run: test "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8080/rest/products/search?q=%27%20OR%201%3D1--")" = "403"
       - name: XSS payload must be blocked
         run: test "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8080/?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E")" = "403"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Full simulator run (baseline + WAF)
+        run: |
+          python3 simulator/run_tests.py --target http://127.0.0.1:3001 --mode baseline --output ci-results/baseline.csv
+          python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --output ci-results/waf.csv
+          python3 evaluation/analyze_results.py --waf ci-results/waf.csv --baseline ci-results/baseline.csv --output ci-results/summary_metrics.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment-results
+          path: ci-results/
       - if: always()
         run: docker compose down

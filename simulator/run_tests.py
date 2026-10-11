@@ -126,7 +126,7 @@ def main():
         print(f"\nExecution Aborted: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"\n[OK] Experiment run completed successfully.")
+    print("\n[OK] Experiment run completed successfully.")
     print(f"[OK] Results written to: {output_path}")
 
 

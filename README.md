@@ -53,7 +53,8 @@ Laboratorium ini menguji kemampuan **ModSecurity v3** yang diperkuat oleh **OWAS
 .
 ├── docker-compose.yml          # Lab riset: Juice Shop + WAF + ZAP (loopback only)
 ├── Makefile                    # Shortcut perintah lab & produksi
-├── requirements.txt            # Dependensi Python (pandas, matplotlib, pytest)
+├── requirements.txt            # Dependensi Python (pandas, matplotlib, pytest, ruff)
+├── ruff.toml                   # Konfigurasi linter
 ├── simulator/                  # Simulator uji terkontrol + korelator audit log
 │   ├── attack_cases.json       # Dataset 40 kasus berlabel
 │   ├── run_tests.py            # CLI eksekusi eksperimen
@@ -69,7 +70,7 @@ Laboratorium ini menguji kemampuan **ModSecurity v3** yang diperkuat oleh **OWAS
 │   ├── caddy/Caddyfile         # TLS otomatis & security headers
 │   └── waf/                    # Rule exclusion CRS (tuning false positive)
 ├── docs/                       # Dokumentasi penelitian & operasional
-└── .github/workflows/ci.yml    # CI: unit test, validasi compose, smoke test WAF
+└── .github/workflows/ci.yml    # CI: lint, unit+integration test (coverage), validasi compose, smoke test + run simulator penuh
 ```
 
 ---
