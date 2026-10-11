@@ -18,6 +18,7 @@ from evaluation.analyze_results import filter_attack_rules
 CSV_FIELDS = [
     "run_id",
     "test_id",
+    "category",
     "mode",
     "timestamp_utc",
     "method",
@@ -114,10 +115,9 @@ class ExperimentRunner:
         log_match = "disabled"
         if self.mode == "waf" and status is not None:
             if self.correlator:
-                # Short sleep to allow container stdout flush
-                time.sleep(0.05)
+                # Poll the audit log until this request's trace id appears (bounded wait).
                 r_ids, interrupted, _, log_match = self.correlator.correlate_request(
-                    method, full_path, trace_id=trace_id
+                    method, full_path, trace_id=trace_id, poll_attempts=5, poll_interval=0.1
                 )
                 waf_rules = r_ids
             if log_match != "none" and log_match != "disabled":
@@ -146,6 +146,7 @@ class ExperimentRunner:
         return {
             "run_id": run_id,
             "test_id": case.get("test_id", "UNKNOWN"),
+            "category": case.get("category", ""),
             "mode": self.mode,
             "timestamp_utc": datetime.now(timezone.utc).isoformat(),
             "method": method,

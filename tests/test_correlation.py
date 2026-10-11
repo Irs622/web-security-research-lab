@@ -47,7 +47,7 @@ class _FakeCorrelator:
         self.result = result
         self.trace_id = None
 
-    def correlate_request(self, method, path, trace_id=None):
+    def correlate_request(self, method, path, trace_id=None, **kwargs):
         self.trace_id = trace_id
         return self.result
 
@@ -103,3 +103,12 @@ def test_filter_attack_rules():
 def test_zero_latency_not_reported_as_none():
     rows = [{"expected_class": "benign", "waf_rule_ids": "", "waf_intervention": "False", "latency_ms": "0"}]
     assert evaluate_waf_performance(rows)["latency_waf"]["mean_ms"] == 0.0
+
+
+def test_polls_log_until_trace_id_appears(monkeypatch):
+    batches = [[], [_tx("/a", ["942100"], True, trace="t1")]]
+    corr = WafLogCorrelator()
+    monkeypatch.setattr(corr, "fetch_recent_logs", lambda tail_lines=100: batches.pop(0))
+    monkeypatch.setattr("simulator.log_correlator.time.sleep", lambda s: None)
+    rules, interrupted, _, how = corr.correlate_request("GET", "/a", trace_id="t1", poll_attempts=3)
+    assert how == "trace_id" and rules == ["942100"] and interrupted is True

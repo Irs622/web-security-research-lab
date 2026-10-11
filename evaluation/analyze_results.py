@@ -53,6 +53,17 @@ def calculate_percentile(data: List[float], p: float) -> Optional[float]:
     return data_sorted[lo] + (data_sorted[hi] - data_sorted[lo]) * (idx - lo)
 
 
+def wilson_interval(successes: int, total: int, z: float = 1.96) -> Optional[List[float]]:
+    """Wilson score 95% confidence interval for a binomial proportion (robust for small n)."""
+    if total <= 0:
+        return None
+    p = successes / total
+    denom = 1 + z * z / total
+    centre = (p + z * z / (2 * total)) / denom
+    margin = z * ((p * (1 - p) / total + z * z / (4 * total * total)) ** 0.5) / denom
+    return [round(max(0.0, centre - margin), 4), round(min(1.0, centre + margin), 4)]
+
+
 def evaluate_waf_performance(
     waf_rows: List[Dict[str, Any]],
     baseline_rows: Optional[List[Dict[str, Any]]] = None,
@@ -72,11 +83,12 @@ def evaluate_waf_performance(
     total_malicious = 0
 
     category_stats: Dict[str, Dict[str, int]] = {}
+    misclassified: List[Dict[str, Any]] = []
 
     for row in valid_waf:
         exp_class = row.get("expected_class", "").lower()
         test_id = row.get("test_id", "")
-        cat = test_id.split("-")[0] if "-" in test_id else "OTHER"
+        cat = (row.get("category") or "").strip() or (test_id.split("-")[0] if "-" in test_id else "OTHER")
         if cat not in category_stats:
             category_stats[cat] = {"total": 0, "detected": 0, "blocked": 0}
         category_stats[cat]["total"] += 1
@@ -101,9 +113,13 @@ def evaluate_waf_performance(
                 tp += 1
             else:
                 fn += 1
+                misclassified.append({"type": "FN", "test_id": test_id, "category": cat,
+                                      "path": row.get("path", ""), "rules": all_rules})
         elif exp_class == "benign":
             if has_attack_detection:
                 fp += 1
+                misclassified.append({"type": "FP", "test_id": test_id, "category": cat,
+                                      "path": row.get("path", ""), "rules": all_rules})
             else:
                 tn += 1
 
@@ -151,7 +167,14 @@ def evaluate_waf_performance(
             "p95_ms": round(base_p95, 2) if base_p95 is not None else None,
         },
         "latency_overhead_mean_ms": latency_overhead,
+        "confidence_intervals_95": {
+            "detection_rate_recall": wilson_interval(tp, tp + fn),
+            "precision": wilson_interval(tp, tp + fp),
+            "false_positive_rate": wilson_interval(fp, fp + tn),
+            "blocking_rate": wilson_interval(malicious_blocked, total_malicious),
+        },
         "category_breakdown": category_stats,
+        "misclassified": misclassified,
     }
 
 
@@ -176,6 +199,12 @@ def print_report(metrics: Dict[str, Any]):
     print(f"  Enforcement / Blocking Rate   : {metrics['blocking_rate'] * 100:.2f}% "
           f"({metrics['malicious_blocked']}/{metrics['total_malicious']})")
 
+    ci = metrics.get("confidence_intervals_95", {})
+    print("\n--- 95% CONFIDENCE INTERVALS (Wilson) ---")
+    for name, bounds in ci.items():
+        if bounds:
+            print(f"  {name:<30}: [{bounds[0] * 100:.2f}%, {bounds[1] * 100:.2f}%]")
+
     print("\n--- LATENCY & PERFORMANCE OVERHEAD ---")
     w_lat = metrics["latency_waf"]
     b_lat = metrics["latency_baseline"]
@@ -190,6 +219,12 @@ def print_report(metrics: Dict[str, Any]):
     print("  " + "-" * 48)
     for cat, data in metrics["category_breakdown"].items():
         print(f"  {cat:<16} | {data['total']:<6} | {data['detected']:<9} | {data['blocked']:<8}")
+
+    if metrics.get("misclassified"):
+        print("\n--- MISCLASSIFIED CASES (FN / FP) ---")
+        for m in metrics["misclassified"]:
+            rules = ";".join(m["rules"]) or "-"
+            print(f"  [{m['type']}] {m['test_id']:<12} {m['path']}  rules={rules}")
     print("=" * 65)
 
 

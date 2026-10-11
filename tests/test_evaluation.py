@@ -4,6 +4,7 @@ from evaluation.analyze_results import (
     LAB_ENVIRONMENT_PROTOCOL_RULES,
     SCORING_META_RULES,
     calculate_percentile,
+    wilson_interval,
     evaluate_waf_performance,
 )
 
@@ -169,3 +170,23 @@ def test_zero_division_guard_only_malicious_rows():
     assert res["false_positive_rate"] == 0.0
     assert res["confusion_matrix"]["TN"] == 0
     assert res["confusion_matrix"]["FP"] == 0
+
+
+def test_wilson_interval_bounds():
+    assert wilson_interval(0, 0) is None
+    lo, hi = wilson_interval(0, 12)
+    assert lo == 0.0 and 0.2 < hi < 0.3  # FPR 0/12 is still compatible with ~24%
+    lo, hi = wilson_interval(27, 28)
+    assert lo < 0.9643 < hi
+
+
+def test_category_field_and_misclassified_listing():
+    rows = [
+        {"test_id": "TRAV-007", "category": "path-traversal", "expected_class": "malicious",
+         "waf_rule_ids": "920350", "waf_intervention": "False", "path": "/ftp/x", "latency_ms": "5"},
+        {"test_id": "BENIGN-001", "category": "normal", "expected_class": "benign",
+         "waf_rule_ids": "942100", "waf_intervention": "False", "path": "/", "latency_ms": "5"},
+    ]
+    res = evaluate_waf_performance(rows)
+    assert set(res["category_breakdown"]) == {"path-traversal", "normal"}
+    assert [(m["type"], m["test_id"]) for m in res["misclassified"]] == [("FN", "TRAV-007"), ("FP", "BENIGN-001")]

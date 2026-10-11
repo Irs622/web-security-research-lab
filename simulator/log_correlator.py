@@ -2,6 +2,7 @@
 from __future__ import annotations
 import json
 import subprocess
+import time
 from typing import Dict, List, Optional, Tuple
 
 
@@ -57,6 +58,8 @@ class WafLogCorrelator:
         path_with_query: str,
         transactions: Optional[List[Dict]] = None,
         trace_id: Optional[str] = None,
+        poll_attempts: int = 1,
+        poll_interval: float = 0.1,
     ) -> Tuple[List[str], bool, Optional[int], str]:
         """Matches a sent request to a ModSecurity audit transaction.
 
@@ -67,15 +70,23 @@ class WafLogCorrelator:
         Returns:
             Tuple of (rule_ids_list, was_interrupted, http_code, match_method)
             where match_method is "trace_id", "uri", or "none".
-        """
-        if transactions is None:
-            transactions = self.fetch_recent_logs(tail_lines=100)
 
-        if trace_id:
+        When ``transactions`` is not supplied, the container log is polled up to
+        ``poll_attempts`` times so a slow audit-log flush does not cause a missed match.
+        """
+        fetch = transactions is None
+        attempts = max(1, poll_attempts) if fetch else 1
+        for attempt in range(attempts):
+            if fetch:
+                transactions = self.fetch_recent_logs(tail_lines=100)
+            if not trace_id:
+                break
             for tx in reversed(transactions):
                 headers = tx.get("request", {}).get("headers", {})
                 if _header_value(headers, TRACE_HEADER) == trace_id:
                     return (*self._extract(tx), "trace_id")
+            if attempt < attempts - 1:
+                time.sleep(poll_interval)
 
         # Iterate in reverse order (most recent first)
         for tx in reversed(transactions):
