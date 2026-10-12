@@ -39,10 +39,12 @@ def test_evaluation_zero_division_guard():
     ]
     res = evaluate_waf_performance(waf_rows)
     assert res["confusion_matrix"]["TP"] == 0
-    assert res["detection_rate_recall"] == 0.0
-    assert res["precision"] == 0.0
+    # No malicious rows: recall/precision/blocking are undefined, not 0%.
+    assert res["detection_rate_recall"] is None
+    assert res["precision"] is None
+    assert res["f1_score"] is None
     assert res["false_positive_rate"] == 0.0
-    assert res["blocking_rate"] == 0.0
+    assert res["blocking_rate"] is None
 
 
 def test_evaluation_latency_overhead():
@@ -156,7 +158,7 @@ def test_unknown_expected_class_not_counted():
 
 
 def test_zero_division_guard_only_malicious_rows():
-    # When FP + TN == 0 (no benign rows), FPR must return 0.0, not raise ZeroDivisionError.
+    # When FP + TN == 0 (no benign rows), FPR is undefined (None), not a ZeroDivisionError.
     waf_rows = [
         {
             "expected_class": "malicious",
@@ -167,7 +169,7 @@ def test_zero_division_guard_only_malicious_rows():
         },
     ]
     res = evaluate_waf_performance(waf_rows)
-    assert res["false_positive_rate"] == 0.0
+    assert res["false_positive_rate"] is None
     assert res["confusion_matrix"]["TN"] == 0
     assert res["confusion_matrix"]["FP"] == 0
 
@@ -206,3 +208,10 @@ def test_mann_whitney_detects_shift_and_handles_small_samples():
     assert res["p_value"] < 0.001
     same = mann_whitney_u([5.0, 5.0, 5.0], [5.0, 5.0, 5.0])
     assert same["p_value"] == 1.0
+
+
+def test_print_report_handles_undefined_metrics(capsys):
+    from evaluation.analyze_results import print_report
+    rows = [{"expected_class": "benign", "waf_rule_ids": "", "waf_intervention": "False", "latency_ms": "5"}]
+    print_report(evaluate_waf_performance(rows))
+    assert "n/a" in capsys.readouterr().out

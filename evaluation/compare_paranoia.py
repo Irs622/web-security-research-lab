@@ -48,7 +48,8 @@ def plot(rows: List[Dict[str, Any]], output_file: Path) -> None:
     for key, label, marker in (("recall", "Detection Rate (Recall)", "o"),
                                ("false_positive_rate", "False Positive Rate", "s"),
                                ("f1_score", "F1-Score", "^")):
-        ax.plot(levels, [r[key] * 100 for r in rows], marker=marker, label=label)
+        ax.plot(levels, [r[key] * 100 if r[key] is not None else float("nan") for r in rows],
+                marker=marker, label=label)
     for r in tuned:
         ax.scatter([r["paranoia_level"]] * 2, [r["recall"] * 100, r["false_positive_rate"] * 100],
                    marker="*", s=160, color="black", zorder=5)
@@ -66,22 +67,26 @@ def plot(rows: List[Dict[str, Any]], output_file: Path) -> None:
     plt.close(fig)
 
 
-def main():
-    rows = collect(MATRIX_DIR)
+def main(matrix_dir: Path = MATRIX_DIR):
+    rows = collect(matrix_dir)
     if not rows:
-        print(f"Error: no pl*/summary_metrics.json under {MATRIX_DIR}. Run `make experiment-matrix` first.",
+        print(f"Error: no pl*/summary_metrics.json under {matrix_dir}. Run `make experiment-matrix` first.",
               file=sys.stderr)
         sys.exit(1)
 
     print(f"  {'Scenario':<10} | {'Recall':<8} | {'FPR':<8} | {'Precision':<9} | {'F1':<6} | {'p50 ms':<7}")
     print("  " + "-" * 59)
-    for r in rows:
-        print(f"  {r['scenario']:<10} | {r['recall'] * 100:6.2f}% | {r['false_positive_rate'] * 100:6.2f}% | "
-              f"{r['precision'] * 100:7.2f}% | {r['f1_score']:.4f} | {r['waf_p50_ms']}")
+    def pct(v):
+        return f"{v * 100:6.2f}%" if v is not None else "    n/a"
 
-    (MATRIX_DIR / "paranoia_comparison.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
-    plot(rows, MATRIX_DIR / "paranoia_tradeoff.png")
-    print(f"\n[OK] Comparison written to {MATRIX_DIR}")
+    for r in rows:
+        f1 = f"{r['f1_score']:.4f}" if r["f1_score"] is not None else "n/a"
+        print(f"  {r['scenario']:<10} | {pct(r['recall'])} | {pct(r['false_positive_rate'])} | "
+              f"{pct(r['precision'])}  | {f1:<6} | {r['waf_p50_ms']}")
+
+    (matrix_dir / "paranoia_comparison.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
+    plot(rows, matrix_dir / "paranoia_tradeoff.png")
+    print(f"\n[OK] Comparison written to {matrix_dir}")
 
 
 if __name__ == "__main__":

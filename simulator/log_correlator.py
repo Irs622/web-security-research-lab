@@ -88,6 +88,14 @@ class WafLogCorrelator:
             if attempt < attempts - 1:
                 time.sleep(poll_interval)
 
+        # If the log records trace headers at all, a missing trace id means this request's
+        # transaction is not (yet) in the log. Falling back to URI matching would then pick up
+        # an older transaction for the same URI (warm-up or an earlier repetition).
+        if trace_id and any(
+            _header_value(tx.get("request", {}).get("headers", {}), TRACE_HEADER) for tx in transactions
+        ):
+            return [], False, None, "none"
+
         # Iterate in reverse order (most recent first)
         for tx in reversed(transactions):
             req = tx.get("request", {})

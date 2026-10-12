@@ -71,6 +71,18 @@ def _is_primary(row: Dict[str, Any]) -> bool:
     return str(row.get("repeat_index", "") or "0") == "0"
 
 
+def _ratio(num: int, denom: int) -> Optional[float]:
+    return num / denom if denom > 0 else None
+
+
+def _round(v: Optional[float]) -> Optional[float]:
+    return round(v, 4) if v is not None else None
+
+
+def _pct(v: Optional[float]) -> str:
+    return f"{v * 100:.2f}%" if v is not None else "n/a"
+
+
 def latency_summary(values: List[float]) -> Dict[str, Optional[float]]:
     def r(v: Optional[float]) -> Optional[float]:
         return round(v, 2) if v is not None else None
@@ -180,11 +192,16 @@ def evaluate_waf_performance(
             else:
                 tn += 1
 
-    recall = (tp / (tp + fn)) if (tp + fn) > 0 else 0.0
-    precision = (tp / (tp + fp)) if (tp + fp) > 0 else 0.0
-    fpr = (fp / (fp + tn)) if (fp + tn) > 0 else 0.0
-    f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
-    blocking_rate = (malicious_blocked / total_malicious) if total_malicious > 0 else 0.0
+    # Ratios with an empty denominator are undefined (None), not 0.0: a benign-only hold-out set
+    # has no recall, and reporting 0% would read as "detected nothing".
+    recall = _ratio(tp, tp + fn)
+    precision = _ratio(tp, tp + fp)
+    fpr = _ratio(fp, fp + tn)
+    if recall is None or precision is None:
+        f1 = None
+    else:
+        f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
+    blocking_rate = _ratio(malicious_blocked, total_malicious)
 
     waf_latencies = [lat for r in all_valid_waf if (lat := safe_float(r.get("latency_ms"))) is not None]
     waf_p50 = calculate_percentile(waf_latencies, 0.50)
@@ -206,15 +223,14 @@ def evaluate_waf_performance(
     return {
         "sample_count": len(valid_waf),
         "confusion_matrix": {"TP": tp, "FP": fp, "TN": tn, "FN": fn},
-        "detection_rate_recall": round(recall, 4),
-        "precision": round(precision, 4),
-        "false_positive_rate": round(fpr, 4),
-        "f1_score": round(f1, 4),
-        "blocking_rate": round(blocking_rate, 4),
+        "detection_rate_recall": _round(recall),
+        "precision": _round(precision),
+        "false_positive_rate": _round(fpr),
+        "f1_score": _round(f1),
+        "blocking_rate": _round(blocking_rate),
         "malicious_blocked": malicious_blocked,
         "malicious_rejected_by_proxy": malicious_proxy_rejected,
-        "overall_mitigation_rate": round(
-            (malicious_blocked + malicious_proxy_rejected) / total_malicious, 4) if total_malicious else 0.0,
+        "overall_mitigation_rate": _round(_ratio(malicious_blocked + malicious_proxy_rejected, total_malicious)),
         "total_malicious": total_malicious,
         "latency_waf": {
             "mean_ms": round(waf_mean, 2) if waf_mean is not None else None,
@@ -257,14 +273,15 @@ def print_report(metrics: Dict[str, Any]):
     print(f"  False Negatives (FN) : {cm['FN']:<4} (Malicious attack missed)")
 
     print("\n--- CORE RESEARCH METRICS ---")
-    print(f"  Detection Rate / Recall (TPR) : {metrics['detection_rate_recall'] * 100:.2f}%")
-    print(f"  Precision                     : {metrics['precision'] * 100:.2f}%")
-    print(f"  False Positive Rate (FPR)     : {metrics['false_positive_rate'] * 100:.2f}%")
-    print(f"  F1-Score                      : {metrics['f1_score']:.4f}")
-    print(f"  Enforcement / Blocking Rate   : {metrics['blocking_rate'] * 100:.2f}% "
+    f1 = metrics["f1_score"]
+    print(f"  Detection Rate / Recall (TPR) : {_pct(metrics['detection_rate_recall'])}")
+    print(f"  Precision                     : {_pct(metrics['precision'])}")
+    print(f"  False Positive Rate (FPR)     : {_pct(metrics['false_positive_rate'])}")
+    print(f"  F1-Score                      : {f'{f1:.4f}' if f1 is not None else 'n/a'}")
+    print(f"  Enforcement / Blocking Rate   : {_pct(metrics['blocking_rate'])} "
           f"({metrics['malicious_blocked']}/{metrics['total_malicious']})")
     print(f"  Rejected by Nginx (pre-WAF)   : {metrics['malicious_rejected_by_proxy']} "
-          f"-> overall mitigation {metrics['overall_mitigation_rate'] * 100:.2f}%")
+          f"-> overall mitigation {_pct(metrics['overall_mitigation_rate'])}")
 
     ci = metrics.get("confidence_intervals_95", {})
     print("\n--- 95% CONFIDENCE INTERVALS (Wilson) ---")

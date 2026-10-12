@@ -6,14 +6,14 @@
     "TN": 16,
     "FN": 0
   },
-  "detection_rate_recall": 0.0,
+  "detection_rate_recall": null,
   "precision": 0.0,
   "false_positive_rate": 0.2,
-  "f1_score": 0.0,
-  "blocking_rate": 0.0,
+  "f1_score": null,
+  "blocking_rate": null,
   "malicious_blocked": 0,
   "malicious_rejected_by_proxy": 0,
-  "overall_mitigation_rate": 0.0,
+  "overall_mitigation_rate": null,
   "total_malicious": 0,
   "latency_waf": {
     "mean_ms": 38.62,

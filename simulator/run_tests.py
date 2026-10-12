@@ -5,6 +5,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any, Dict, List
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -13,6 +14,36 @@ from simulator.runner import ExperimentRunner
 
 CASES_FILE = ROOT / "simulator" / "attack_cases.json"
 RESULTS_DIR = ROOT / "results"
+
+
+class DatasetError(ValueError):
+    """Raised when a test-case dataset is missing or malformed."""
+
+
+def load_cases(path: Path) -> List[Dict[str, Any]]:
+    """Loads and validates a labelled dataset: relative paths, known classes, unique test ids."""
+    if not path.exists():
+        raise DatasetError(f"Cases file not found at {path}")
+    try:
+        cases = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise DatasetError(f"Cannot load test cases: {exc}") from exc
+    if not isinstance(cases, list) or not cases:
+        raise DatasetError("Dataset must be a non-empty JSON array of test cases.")
+    invalid = [
+        str(c.get("test_id", f"#{i}")) if isinstance(c, dict) else f"#{i}"
+        for i, c in enumerate(cases)
+        if not isinstance(c, dict)
+        or not str(c.get("path", "")).startswith("/")
+        or c.get("expected_class") not in {"benign", "malicious"}
+    ]
+    if invalid:
+        raise DatasetError(f"Invalid test cases (need relative path and benign/malicious class): {invalid}")
+    ids = [c.get("test_id") for c in cases]
+    duplicates = sorted({str(i) for i in ids if i is not None and ids.count(i) > 1})
+    if duplicates:
+        raise DatasetError(f"Duplicate test_id values would corrupt per-case metrics: {duplicates}")
+    return cases
 
 
 def main():
@@ -73,32 +104,16 @@ def main():
     args = parser.parse_args()
 
     cases_path = Path(args.cases)
-    if not cases_path.exists():
-        print(f"Error: Cases file not found at {cases_path}", file=sys.stderr)
-        sys.exit(1)
-
     try:
-        with cases_path.open(encoding="utf-8") as f:
-            cases = json.load(f)
-    except Exception as exc:
-        print(f"Error loading test cases: {exc}", file=sys.stderr)
-        sys.exit(1)
-
-    if not isinstance(cases, list) or not cases:
-        print("Error: Dataset must be a non-empty JSON array of test cases.", file=sys.stderr)
-        sys.exit(1)
-    invalid = [
-        str(c.get("test_id", f"#{i}")) if isinstance(c, dict) else f"#{i}"
-        for i, c in enumerate(cases)
-        if not isinstance(c, dict)
-        or not str(c.get("path", "")).startswith("/")
-        or c.get("expected_class") not in {"benign", "malicious"}
-    ]
-    if invalid:
-        print(f"Error: Invalid test cases (need relative path and benign/malicious class): {invalid}", file=sys.stderr)
+        cases = load_cases(cases_path)
+    except DatasetError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
     if args.repeat < 1 or args.warmup < 0:
         print("Error: --repeat must be >= 1 and --warmup >= 0.", file=sys.stderr)
+        sys.exit(1)
+    if args.delay < 0.1:
+        print("Error: --delay must be >= 0.1 s (rate limit to avoid stressing the lab).", file=sys.stderr)
         sys.exit(1)
     if args.timeout <= 0:
         print("Error: --timeout must be greater than 0.", file=sys.stderr)

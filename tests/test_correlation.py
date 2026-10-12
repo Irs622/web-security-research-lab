@@ -37,6 +37,13 @@ def test_uri_fallback_when_trace_missing_from_log():
     assert rules == ["942100"]
 
 
+def test_no_stale_uri_match_when_log_records_trace_headers():
+    # An older repetition of the same request is in the log, ours is not flushed yet.
+    txs = [_tx("/search?q=x", ["942100"], True, trace="older")]
+    rules, interrupted, _, how = WafLogCorrelator().correlate_request("GET", "/search?q=x", txs, trace_id="new")
+    assert (rules, interrupted, how) == ([], False, "none")
+
+
 def test_no_match_returns_none():
     rules, interrupted, code, how = WafLogCorrelator().correlate_request("GET", "/x?a=1", [], trace_id="t")
     assert (rules, interrupted, code, how) == ([], False, None, "none")
