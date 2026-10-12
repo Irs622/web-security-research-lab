@@ -45,10 +45,12 @@ $$\Delta L = \bar{L}_{\text{WAF}} - \bar{L}_{\text{Baseline}}$$
 ## 4. Penanganan Edge Cases & Keamanan Matematis
 
 Pada skrip [`evaluation/analyze_results.py`](../evaluation/analyze_results.py), seluruh kalkulasi diproteksi dari pembagian dengan nol (*Division-by-Zero Guard*):
-- Jika $\text{TP} + \text{FN} = 0$, Recall diatur ke `0.0`.
-- Jika $\text{TP} + \text{FP} = 0$, Precision diatur ke `0.0`.
-- Jika $\text{FP} + \text{TN} = 0$, FPR diatur ke `0.0`.
-- Jika Precision + Recall = 0, F1-Score diatur ke `0.0`.
+- Jika $\text{TP} + \text{FN} = 0$, Recall dan Blocking Rate bernilai `null` (tidak terdefinisi).
+- Jika $\text{TP} + \text{FP} = 0$, Precision bernilai `null`.
+- Jika $\text{FP} + \text{TN} = 0$, FPR bernilai `null`.
+- Jika Recall atau Precision `null`, F1-Score juga `null`; jika keduanya 0, F1-Score bernilai `0.0`.
+
+Nilai `null` ditampilkan sebagai `n/a` pada laporan teks. Ini disengaja: melaporkan 0% untuk metrik yang tidak dapat dihitung akan terbaca sebagai hasil pengukuran.
 
 ---
 

@@ -56,7 +56,7 @@ Keduanya harus merespon dengan status HTTP 200.
 
 Sebelum pengujian dimulai, validasi bahwa modul validator URL, redirect handling, dan kalkulator metrik bekerja dengan benar:
 ```bash
-.venv/bin/pytest -v
+make check   # ruff + pytest dengan coverage (tidak membutuhkan Docker)
 ```
 Seluruh tes harus berstatus `PASSED`.
 
@@ -104,6 +104,8 @@ make experiment-tuned           # PL2 + exclusion sempit dari lab/tuning/; hasil
 ```bash
 make experiment-holdout         # 20 benign baru vs PL1, PL2, PL2 tuned; hasil di results/holdout/<skenario>/
 ```
+
+Set hold-out hanya berisi kasus benign, sehingga yang bermakna hanya FPR; recall, F1, dan blocking rate dilaporkan `n/a` (`null` di JSON).
 
 Ketiga target mengembalikan WAF ke PL1 setelah selesai. `experiment-matrix` dan `experiment-tuned` juga memperbarui `results/paranoia/paranoia_comparison.json` serta `paranoia_tradeoff.png`.
 
