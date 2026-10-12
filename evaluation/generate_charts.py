@@ -1,5 +1,6 @@
 """Generate academic charts and figures from experiment results."""
 from __future__ import annotations
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -118,8 +119,14 @@ def plot_category_breakdown(breakdown: dict, output_file: Path):
     print(f"[OK] Generated: {output_file}")
 
 
-def main():
-    summary_path = RESULTS_DIR / "summary_metrics.json"
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Generate thesis charts from summary_metrics.json.")
+    parser.add_argument("--summary", default=str(RESULTS_DIR / "summary_metrics.json"), help="Summary JSON path")
+    parser.add_argument("--output-dir", default=str(RESULTS_DIR), help="Directory for PNG output")
+    args = parser.parse_args(argv)
+    summary_path = Path(args.summary)
+    out_dir = Path(args.output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
     if not summary_path.exists():
         print(f"Error: {summary_path} not found. Run analyze_results.py first.", file=sys.stderr)
         sys.exit(1)
@@ -127,9 +134,9 @@ def main():
     with summary_path.open(encoding="utf-8") as f:
         metrics = json.load(f)
 
-    plot_confusion_matrix(metrics["confusion_matrix"], RESULTS_DIR / "confusion_matrix.png")
-    plot_latency_comparison(metrics, RESULTS_DIR / "latency_comparison.png")
-    plot_category_breakdown(metrics["category_breakdown"], RESULTS_DIR / "category_breakdown.png")
+    plot_confusion_matrix(metrics["confusion_matrix"], out_dir / "confusion_matrix.png")
+    plot_latency_comparison(metrics, out_dir / "latency_comparison.png")
+    plot_category_breakdown(metrics["category_breakdown"], out_dir / "category_breakdown.png")
     print("\n[OK] All evaluation charts generated successfully.")
 
 

@@ -1,7 +1,14 @@
-.PHONY: up down ps logs test-baseline test-waf analyze charts test-unit lint zap help
+.PHONY: up down ps logs test-baseline test-waf analyze charts test-unit lint zap help check
+.DEFAULT_GOAL := help
+
+REPEAT ?= 3
+# Prefer the project venv (make install) so every target uses the same interpreter and deps.
+PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 
 help:
 	@echo "WAF Research Lab - Command Shortcuts"
+	@echo "  make install       : Create .venv and install Python dependencies"
+	@echo "  make check         : Lint + unit tests (run before committing)"
 	@echo "  make up            : Start Juice Shop and ModSecurity WAF containers"
 	@echo "  make down          : Stop all containers"
 	@echo "  make ps            : Check status of running containers and health checks"
@@ -16,6 +23,7 @@ help:
 	@echo "  make experiment-holdout: Run hold-out benign set against PL1, PL2, PL2 tuned"
 	@echo "  make experiment-tuned  : Run WAF suite at PL2 with narrow CRS exclusions (lab/tuning)"
 	@echo "  make zap           : Run OWASP ZAP passive baseline scan"
+	@echo "  make prod-up|prod-down|prod-restart|prod-logs|prod-fp : Production profile (docs/PRODUCTION.md)"
 
 up:
 	docker compose up -d juice-shop waf
@@ -30,37 +38,37 @@ logs:
 	docker compose logs --tail=100 waf juice-shop
 
 test-unit:
-	.venv/bin/pytest -v --cov=simulator --cov=evaluation
+	$(PY) -m pytest -v --cov=simulator --cov=evaluation --cov-report=term-missing
 
 lint:
-	.venv/bin/ruff check .
+	$(PY) -m ruff check .
+
+check: lint test-unit
 
 test-baseline:
-	python3 simulator/run_tests.py --target http://127.0.0.1:3001 --mode baseline --repeat $(REPEAT)
+	$(PY) simulator/run_tests.py --target http://127.0.0.1:3001 --mode baseline --repeat $(REPEAT)
 
 test-waf:
-	python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT)
+	$(PY) simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT)
 
 analyze:
-	python3 evaluation/analyze_results.py
+	$(PY) evaluation/analyze_results.py
 
 charts:
-	.venv/bin/python evaluation/generate_charts.py
+	$(PY) evaluation/generate_charts.py
 
 zap:
 	docker compose --profile scan run --rm zap-baseline
 
 # Paranoia Level matrix: recreate the WAF per level, run the suite, then compare.
-REPEAT ?= 3
-PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 .PHONY: experiment-matrix
 experiment-matrix:
 	@for pl in 1 2 3 4; do \
 	  echo "=== Paranoia Level $$pl ==="; \
 	  PARANOIA=$$pl docker compose up -d --wait --force-recreate waf || exit 1; \
-	  PARANOIA=$$pl python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT) \
+	  PARANOIA=$$pl $(PY) simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT) \
 	    --output results/paranoia/pl$$pl/waf.csv || exit 1; \
-	  python3 evaluation/analyze_results.py --waf results/paranoia/pl$$pl/waf.csv \
+	  $(PY) evaluation/analyze_results.py --waf results/paranoia/pl$$pl/waf.csv \
 	    --baseline results/baseline.csv --output results/paranoia/pl$$pl/summary_metrics.json || exit 1; \
 	done
 	docker compose up -d --wait --force-recreate waf
@@ -95,9 +103,9 @@ TUNED = docker compose -f docker-compose.yml -f docker-compose.tuned.yml
 .PHONY: experiment-tuned
 experiment-tuned:
 	PARANOIA=2 $(TUNED) up -d --wait --force-recreate waf
-	PARANOIA=2 TUNED=1 python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT) \
+	PARANOIA=2 TUNED=1 $(PY) simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf --repeat $(REPEAT) \
 	  --output results/paranoia/pl2-tuned/waf.csv
-	python3 evaluation/analyze_results.py --waf results/paranoia/pl2-tuned/waf.csv \
+	$(PY) evaluation/analyze_results.py --waf results/paranoia/pl2-tuned/waf.csv \
 	  --baseline results/baseline.csv --output results/paranoia/pl2-tuned/summary_metrics.json
 	docker compose up -d --wait --force-recreate waf
 	$(PY) evaluation/compare_paranoia.py
@@ -112,9 +120,9 @@ experiment-holdout:
 	    pl2) PARANOIA=2 docker compose up -d --wait --force-recreate waf || exit 1; pl=2; t=0;; \
 	    pl2-tuned) PARANOIA=2 $(TUNED) up -d --wait --force-recreate waf || exit 1; pl=2; t=1;; \
 	  esac; \
-	  PARANOIA=$$pl TUNED=$$t python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf \
+	  PARANOIA=$$pl TUNED=$$t $(PY) simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf \
 	    --repeat $(REPEAT) --cases simulator/holdout_benign.json --output results/holdout/$$sc/waf.csv || exit 1; \
-	  python3 evaluation/analyze_results.py --waf results/holdout/$$sc/waf.csv --baseline /dev/null \
+	  $(PY) evaluation/analyze_results.py --waf results/holdout/$$sc/waf.csv --baseline /dev/null \
 	    --output results/holdout/$$sc/summary_metrics.json | grep -E "FP\\]|False Positive Rate|false_positive_rate" ; \
 	done
 	docker compose up -d --wait --force-recreate waf

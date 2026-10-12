@@ -66,6 +66,7 @@ Rule **949110** ("Inbound Anomaly Score Exceeded") adalah meta-rule CRS yang ter
 
 ## Interval Kepercayaan & Uji Statistik
 
+- **Metrik tak terdefinisi bernilai `null`**: bila penyebut nol (mis. set hold-out yang seluruhnya benign tidak punya kasus malicious), `detection_rate_recall`, `blocking_rate`, `f1_score`, dan `overall_mitigation_rate` ditulis `null` di JSON dan `n/a` di laporan — bukan 0%, yang akan terbaca sebagai "tidak mendeteksi apa pun".
 - **Wilson 95% CI** dilaporkan untuk Recall, Precision, FPR, dan Blocking Rate (`confidence_intervals_95` di `summary_metrics.json`). Dengan sampel kecil (mis. 0/12 benign), FPR 0% masih kompatibel dengan FPR sebenarnya hingga ±24% — selalu sertakan interval saat menulis kesimpulan.
 - **Pengulangan (`--repeat N`)**: deteksi dihitung sekali per kasus (`repeat_index = 0`), sedangkan seluruh pengulangan menjadi sampel latensi. Request warm-up (`--warmup`, default 5) tidak dicatat.
 - **Latensi**: dilaporkan mean, p50, p95, dan IQR; perbedaan baseline vs WAF diuji dengan **Mann-Whitney U** dua sisi (aproksimasi normal, koreksi ties) karena distribusi latensi tidak normal.
