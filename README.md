@@ -59,6 +59,7 @@ Laboratorium ini menguji kemampuan **ModSecurity v3** yang diperkuat oleh **OWAS
 ├── ruff.toml                   # Konfigurasi linter
 ├── simulator/                  # Simulator uji terkontrol + korelator audit log
 │   ├── attack_cases.json       # Dataset 70 kasus berlabel (42 benign, 28 malicious)
+│   ├── holdout_benign.json     # 20 kasus benign hold-out (tidak dipakai saat tuning)
 │   ├── run_tests.py            # CLI eksekusi eksperimen
 │   ├── runner.py               # Eksekutor request & pencatatan hasil
 │   ├── log_correlator.py       # Korelasi request ↔ audit log ModSecurity
@@ -72,6 +73,7 @@ Laboratorium ini menguji kemampuan **ModSecurity v3** yang diperkuat oleh **OWAS
 │   ├── caddy/Caddyfile         # TLS otomatis & security headers
 │   └── waf/                    # Rule exclusion CRS (tuning false positive)
 ├── docs/                       # Dokumentasi penelitian & operasional
+├── CHANGELOG.md                # Riwayat perubahan penting
 └── .github/workflows/ci.yml    # CI: lint, unit+integration test (coverage), validasi compose, smoke test + run simulator penuh
 ```
 
@@ -165,7 +167,9 @@ python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf \
 | `--delay` | `0.25` | Jeda antar request (detik, minimum 0.1) |
 | `--timeout` | `5.0` | Timeout HTTP (detik) |
 | `--cases` | `simulator/attack_cases.json` | Dataset kasus uji |
-| `--output` | `results/{mode}.csv` | Lokasi CSV hasil |
+| `--output` | `results/{mode}.csv` | Lokasi CSV hasil (metadata ditulis ke `.meta.json` di sampingnya) |
+| `--repeat` | `1` (`make`: `REPEAT=3`) | Ulangi seluruh suite N kali untuk statistik latensi |
+| `--warmup` | `5` | Request pemanasan yang tidak dicatat |
 | `--no-docker-logs` | nonaktif | Matikan korelasi audit log via Docker CLI |
 
 Setiap request diberi header unik `X-Lab-Trace-Id` sehingga baris CSV dapat dicocokkan secara pasti dengan transaksi audit log ModSecurity (kolom `trace_id` dan `log_match`). Lihat [Metodologi §4a](docs/METHODOLOGY.md).
@@ -175,9 +179,13 @@ Setiap request diberi header unik `X-Lab-Trace-Id` sehingga baris CSV dapat dico
 |---|---|
 | `make install` | Buat `.venv` dan instal `requirements.txt` |
 | `make up` / `make down` / `make ps` / `make logs` | Kelola container lab |
-| `make test-unit` | Jalankan pytest |
+| `make check` | Lint + unit test (jalankan sebelum commit) |
+| `make test-unit` / `make lint` | Jalankan pytest dengan coverage / ruff |
 | `make test-baseline` / `make test-waf` | Eksekusi eksperimen dua jalur |
 | `make analyze` / `make charts` | Hitung metrik & buat grafik |
+| `make experiment-matrix` | Jalankan suite WAF pada Paranoia Level 1–4 lalu bandingkan |
+| `make experiment-tuned` | Skenario PL2 dengan exclusion sempit (`lab/tuning/`) |
+| `make experiment-holdout` | Set hold-out benign terhadap PL1, PL2, PL2 tuned |
 | `make zap` | OWASP ZAP passive baseline scan |
 | `make prod-up` / `make prod-down` | Jalankan / hentikan stack produksi |
 | `make prod-restart` | Restart WAF setelah mengubah rule exclusion |
@@ -228,9 +236,14 @@ Grafik visualisasi tersimpan di:
 - [Batasan Keamanan & Containment](docs/SECURITY_SCOPE.md)
 - [Metodologi Penelitian](docs/METHODOLOGY.md)
 - [Formulasi Metrik Evaluasi](docs/METRICS.md)
+- [Dataset Kasus Uji](docs/DATASET.md)
+- [Format Berkas Hasil](docs/OUTPUT_FORMAT.md)
 - [Experiment Runbook](docs/EXPERIMENT_RUNBOOK.md)
 - [Panduan Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md)
-- [Initial Audit Report](docs/INITIAL_AUDIT.md)
+- [Deployment Produksi](docs/PRODUCTION.md)
+- [Panduan Pengembangan](docs/DEVELOPMENT.md)
+- [Changelog](CHANGELOG.md)
+- [Initial Audit Report](docs/INITIAL_AUDIT.md) (catatan historis kondisi awal repo)
 
 ---
 *Dikembangkan untuk keperluan penelitian skripsi akademik Teknik Informatika.*
