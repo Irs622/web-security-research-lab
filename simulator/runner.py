@@ -62,9 +62,14 @@ def _git_sha() -> str:
 
 
 def _git_dirty() -> Optional[bool]:
-    """True when tracked files differ from HEAD, i.e. git_sha alone does not identify the code."""
+    """True when tracked code/config differs from HEAD, i.e. git_sha alone does not identify it.
+
+    results/ is excluded: an experiment pipeline rewrites tracked result files from earlier
+    stages, which says nothing about the code that produced the current run.
+    """
     try:
-        out = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"],
+        out = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--", ".",
+                              ":(exclude)results"],
                              capture_output=True, text=True, timeout=5, check=False)
         return bool(out.stdout.strip()) if out.returncode == 0 else None
     except Exception:
