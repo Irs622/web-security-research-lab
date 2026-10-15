@@ -40,7 +40,7 @@ Alur data: dataset JSON → `runner` → CSV + `meta.json` → `analyze_results`
 | `tests/test_correlation.py` | Korelasi audit log dan atribusi blokir |
 | `tests/test_evaluation.py` | Rumus metrik dan edge case |
 | `tests/test_paranoia_compare.py`, `tests/test_cli.py` | CLI, grafik, perbandingan Paranoia Level |
-| `tests/test_dataset.py` | Skema dataset dan independensi hold-out |
+| `tests/test_dataset.py` | Skema kedua dataset, independensi hold-out, keunikan request, identitas kasus asli di dataset diperluas, well-formedness JSON/XML, host payload dalam lingkup lab |
 
 Unit test tidak membutuhkan Docker. Pengujian end-to-end terhadap container dijalankan oleh job `waf-smoke` di CI.
 

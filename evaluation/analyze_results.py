@@ -190,6 +190,9 @@ def evaluate_waf_performance(
     malicious_proxy_rejected = 0
     total_malicious = 0
     outbound_only_alerts = 0
+    # Request-phase view: a case only counts as detected when a request-inspection rule (not a
+    # RESPONSE-95x rule reacting to the application's answer) fired.
+    req_tp = req_fn = req_fp = req_tn = 0
 
     category_stats: Dict[str, Dict[str, Any]] = {}
     applicability_stats: Dict[str, Dict[str, Any]] = {}
@@ -214,6 +217,12 @@ def evaluate_waf_performance(
         has_attack_detection = len(attack_rules) > 0 or is_blocked
         if is_outbound_only(attack_rules):
             outbound_only_alerts += 1
+        has_request_detection = (any(not r.startswith(OUTBOUND_RULE_PREFIXES) for r in attack_rules)
+                                 or (is_blocked and not attack_rules))
+        if exp_class == "malicious":
+            req_tp, req_fn = req_tp + int(has_request_detection), req_fn + int(not has_request_detection)
+        elif exp_class == "benign":
+            req_fp, req_tn = req_fp + int(has_request_detection), req_tn + int(not has_request_detection)
 
         for b in buckets:
             b["total"] += 1
@@ -297,6 +306,13 @@ def evaluate_waf_performance(
         "malicious_blocked_unverified": malicious_blocked_unverified,
         "malicious_rejected_by_proxy": malicious_proxy_rejected,
         "alerts_outbound_only": outbound_only_alerts,
+        "request_phase": {
+            "confusion_matrix": {"TP": req_tp, "FP": req_fp, "TN": req_tn, "FN": req_fn},
+            "detection_rate_recall": _round(_ratio(req_tp, req_tp + req_fn)),
+            "false_positive_rate": _round(_ratio(req_fp, req_fp + req_tn)),
+            "recall_ci95": wilson_interval(req_tp, req_tp + req_fn),
+            "fpr_ci95": wilson_interval(req_fp, req_fp + req_tn),
+        },
         "overall_mitigation_rate": _round(_ratio(malicious_blocked + malicious_proxy_rejected, total_malicious)),
         "total_malicious": total_malicious,
         "latency_waf": {
@@ -357,6 +373,10 @@ def print_report(metrics: Dict[str, Any]):
     if metrics.get("alerts_outbound_only"):
         print(f"  Outbound-only alerts (95xxxx) : {metrics['alerts_outbound_only']} "
               "(response-phase rules only; counted as detection, request reached the app)")
+    rp = metrics.get("request_phase")
+    if rp:
+        print(f"  Request-phase only (no 95xxxx): Recall {_pct(rp['detection_rate_recall'])}, "
+              f"FPR {_pct(rp['false_positive_rate'])}")
     print(f"  Rejected by Nginx (pre-WAF)   : {metrics['malicious_rejected_by_proxy']} "
           f"-> overall mitigation {_pct(metrics['overall_mitigation_rate'])}")
 

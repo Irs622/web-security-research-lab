@@ -1,0 +1,886 @@
+{
+  "sample_count": 217,
+  "confusion_matrix": {
+    "TP": 111,
+    "FP": 1,
+    "TN": 64,
+    "FN": 41
+  },
+  "detection_rate_recall": 0.7303,
+  "precision": 0.9911,
+  "false_positive_rate": 0.0154,
+  "specificity": 0.9846,
+  "f1_score": 0.8409,
+  "blocking_rate": 0.7303,
+  "malicious_blocked": 111,
+  "malicious_blocked_unverified": 0,
+  "malicious_rejected_by_proxy": 5,
+  "alerts_outbound_only": 0,
+  "request_phase": {
+    "confusion_matrix": {
+      "TP": 111,
+      "FP": 1,
+      "TN": 64,
+      "FN": 41
+    },
+    "detection_rate_recall": 0.7303,
+    "false_positive_rate": 0.0154,
+    "recall_ci95": [
+      0.6547,
+      0.7945
+    ],
+    "fpr_ci95": [
+      0.0027,
+      0.0821
+    ]
+  },
+  "overall_mitigation_rate": 0.7632,
+  "total_malicious": 152,
+  "latency_waf": {
+    "mean_ms": 15.45,
+    "p50_ms": 11.96,
+    "p95_ms": 34.33
+  },
+  "latency_baseline": {
+    "mean_ms": 12.55,
+    "p50_ms": 9.42,
+    "p95_ms": 27.46
+  },
+  "latency_overhead_mean_ms": 2.9,
+  "latency_overhead_p50_ms": 2.54,
+  "latency_stats": {
+    "waf": {
+      "n": 651,
+      "mean_ms": 15.45,
+      "p50_ms": 11.96,
+      "p95_ms": 34.33,
+      "iqr_ms": 10.21
+    },
+    "baseline": {
+      "n": 651,
+      "mean_ms": 12.55,
+      "p50_ms": 9.42,
+      "p95_ms": 27.46,
+      "iqr_ms": 5.97
+    },
+    "mann_whitney_u": {
+      "u": 269236.5,
+      "z": 8.4521,
+      "p_value": 0.0
+    }
+  },
+  "confidence_intervals_95": {
+    "detection_rate_recall": [
+      0.6547,
+      0.7945
+    ],
+    "precision": [
+      0.9512,
+      0.9984
+    ],
+    "false_positive_rate": [
+      0.0027,
+      0.0821
+    ],
+    "specificity": [
+      0.9179,
+      0.9973
+    ],
+    "blocking_rate": [
+      0.6547,
+      0.7945
+    ]
+  },
+  "category_breakdown": {
+    "normal": {
+      "total": 65,
+      "detected": 1,
+      "blocked": 1,
+      "malicious": 0,
+      "benign": 65,
+      "tp": 0,
+      "fn": 0,
+      "fp": 1,
+      "tn": 64,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.0154,
+      "small_sample": false
+    },
+    "sqli": {
+      "total": 19,
+      "detected": 19,
+      "blocked": 19,
+      "malicious": 19,
+      "benign": 0,
+      "tp": 19,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 19,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.8318,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "xss": {
+      "total": 18,
+      "detected": 18,
+      "blocked": 18,
+      "malicious": 18,
+      "benign": 0,
+      "tp": 18,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 18,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.8241,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "path-traversal": {
+      "total": 12,
+      "detected": 5,
+      "blocked": 5,
+      "malicious": 12,
+      "benign": 0,
+      "tp": 5,
+      "fn": 7,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 5,
+      "recall": 0.4167,
+      "recall_ci95": [
+        0.1933,
+        0.6805
+      ],
+      "blocking_rate": 0.4167,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "cmdi": {
+      "total": 10,
+      "detected": 6,
+      "blocked": 6,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 6,
+      "fn": 4,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 6,
+      "recall": 0.6,
+      "recall_ci95": [
+        0.3127,
+        0.8318
+      ],
+      "blocking_rate": 0.6,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "lfi": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "rfi": {
+      "total": 10,
+      "detected": 3,
+      "blocked": 3,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 3,
+      "fn": 7,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 3,
+      "recall": 0.3,
+      "recall_ci95": [
+        0.1078,
+        0.6032
+      ],
+      "blocking_rate": 0.3,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "php-injection": {
+      "total": 10,
+      "detected": 9,
+      "blocked": 9,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 9,
+      "fn": 1,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 9,
+      "recall": 0.9,
+      "recall_ci95": [
+        0.5958,
+        0.9821
+      ],
+      "blocking_rate": 0.9,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "java-injection": {
+      "total": 12,
+      "detected": 9,
+      "blocked": 9,
+      "malicious": 12,
+      "benign": 0,
+      "tp": 9,
+      "fn": 3,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 9,
+      "recall": 0.75,
+      "recall_ci95": [
+        0.4677,
+        0.9111
+      ],
+      "blocking_rate": 0.75,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "nosqli": {
+      "total": 10,
+      "detected": 9,
+      "blocked": 9,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 9,
+      "fn": 1,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 9,
+      "recall": 0.9,
+      "recall_ci95": [
+        0.5958,
+        0.9821
+      ],
+      "blocking_rate": 0.9,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "ssrf": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "xxe": {
+      "total": 10,
+      "detected": 0,
+      "blocked": 0,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 0,
+      "fn": 10,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 0,
+      "recall": 0.0,
+      "recall_ci95": [
+        0.0,
+        0.2775
+      ],
+      "blocking_rate": 0.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "protocol-violation": {
+      "total": 9,
+      "detected": 7,
+      "blocked": 7,
+      "malicious": 9,
+      "benign": 0,
+      "tp": 7,
+      "fn": 2,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 7,
+      "recall": 0.7778,
+      "recall_ci95": [
+        0.4526,
+        0.9368
+      ],
+      "blocking_rate": 0.7778,
+      "false_positive_rate": null,
+      "small_sample": true
+    },
+    "scanner-detection": {
+      "total": 12,
+      "detected": 6,
+      "blocked": 6,
+      "malicious": 12,
+      "benign": 0,
+      "tp": 6,
+      "fn": 6,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 6,
+      "recall": 0.5,
+      "recall_ci95": [
+        0.2538,
+        0.7462
+      ],
+      "blocking_rate": 0.5,
+      "false_positive_rate": null,
+      "small_sample": false
+    }
+  },
+  "applicability_breakdown": {
+    "benign_control": {
+      "total": 65,
+      "detected": 1,
+      "blocked": 1,
+      "malicious": 0,
+      "benign": 65,
+      "tp": 0,
+      "fn": 0,
+      "fp": 1,
+      "tn": 64,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.0154,
+      "small_sample": false
+    },
+    "sink_present": {
+      "total": 33,
+      "detected": 26,
+      "blocked": 26,
+      "malicious": 33,
+      "benign": 0,
+      "tp": 26,
+      "fn": 7,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 26,
+      "recall": 0.7879,
+      "recall_ci95": [
+        0.6225,
+        0.8932
+      ],
+      "blocking_rate": 0.7879,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "pattern_only": {
+      "total": 119,
+      "detected": 85,
+      "blocked": 85,
+      "malicious": 119,
+      "benign": 0,
+      "tp": 85,
+      "fn": 34,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 85,
+      "recall": 0.7143,
+      "recall_ci95": [
+        0.6274,
+        0.7878
+      ],
+      "blocking_rate": 0.7143,
+      "false_positive_rate": null,
+      "small_sample": false
+    }
+  },
+  "misclassified": [
+    {
+      "type": "FN",
+      "test_id": "TRAV-001",
+      "category": "path-traversal",
+      "path": "/ftp/../../../../etc/passwd",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-002",
+      "category": "path-traversal",
+      "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-004",
+      "category": "path-traversal",
+      "path": "/ftp/eastere.gg%2500.md",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-005",
+      "category": "path-traversal",
+      "path": "/assets/public/images/../../../../windows/win.ini",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-007",
+      "category": "path-traversal",
+      "path": "/ftp/....//....//etc/passwd",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-008",
+      "category": "path-traversal",
+      "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-045",
+      "category": "normal",
+      "path": "/rest/products/search?q=test",
+      "rules": [
+        "920350",
+        "200002"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-010",
+      "category": "path-traversal",
+      "path": "/ftp/%2e%2e%2f..%2fREADME.md",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "CMDI-007",
+      "category": "cmdi",
+      "path": "/rest/products/search?q=test%3B+id",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "CMDI-008",
+      "category": "cmdi",
+      "path": "/rest/products/search?q=test%250Aecho%2520WAF_TEST",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "CMDI-009",
+      "category": "cmdi",
+      "path": "/rest/products/search?q=test%253B%2520echo%2520WAF_TEST",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "CMDI-010",
+      "category": "cmdi",
+      "path": "/rest/products/search?q=test%2526%2526echo%2520WAF_TEST",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "RFI-001",
+      "category": "rfi",
+      "path": "/rest/products/search?q=https%3A%2F%2Fexample.invalid%2Ftest.txt",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "RFI-002",
+      "category": "rfi",
+      "path": "/rest/products/search?q=http%3A%2F%2Fexample.invalid%2Fpayload.txt",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "RFI-003",
+      "category": "rfi",
+      "path": "/rest/products/search?q=%2F%2Fexample.invalid%2Fresource",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "RFI-004",
+      "category": "rfi",
+      "path": "/rest/products/search?q=https%253A%252F%252Fexample.invalid%252Ffile",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "RFI-006",
+      "category": "rfi",
+      "path": "/rest/products/search?q=ftp%3A%2F%2Fexample.invalid%2Ffile.txt",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "RFI-008",
+      "category": "rfi",
+      "path": "/rest/products/search?q=%5C%5Cexample.invalid%5Cshare%5Cfile",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "RFI-009",
+      "category": "rfi",
+      "path": "/rest/products/search?q=HtTp%3A%2F%2Fexample.invalid%2Fpayload.txt",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "PHP-006",
+      "category": "php-injection",
+      "path": "/rest/products/search?q=%253C%253Fphp%2520echo%25201%253B%2520%253F%253E",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "JAVA-005",
+      "category": "java-injection",
+      "path": "/rest/products/search?q=%23%7B7%2A7%7D",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "JAVA-007",
+      "category": "java-injection",
+      "path": "/rest/products/search?q=%2524%257B7%252A7%257D",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "JAVA-012",
+      "category": "java-injection",
+      "path": "/rest/products/search?q=rO0ABXNyABFqYXZhLnV0aWwuSGFzaE1hcA%3D%3D",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "NOSQLI-009",
+      "category": "nosqli",
+      "path": "/rest/user/login",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-002",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-003",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-004",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-005",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-006",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-007",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-008",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-009",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-010",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "XXE-011",
+      "category": "xxe",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "PROTO-002",
+      "category": "protocol-violation",
+      "path": "/rest/products/search?q=test",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "PROTO-004",
+      "category": "protocol-violation",
+      "path": "/rest/products/search?q=test",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-004",
+      "category": "scanner-detection",
+      "path": "/wp-admin/",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-005",
+      "category": "scanner-detection",
+      "path": "/phpmyadmin/",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-006",
+      "category": "scanner-detection",
+      "path": "/server-status",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-007",
+      "category": "scanner-detection",
+      "path": "/actuator/env",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-008",
+      "category": "scanner-detection",
+      "path": "/cgi-bin/",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-009",
+      "category": "scanner-detection",
+      "path": "/backup.zip",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    }
+  ]
+}

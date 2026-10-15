@@ -264,6 +264,16 @@ def test_outbound_only_alert_is_counted_separately():
     res = evaluate_waf_performance([_row("benign", "920350;950100", category="normal"),
                                     _row("benign", "950100;959100", True, category="normal")])
     assert res["confusion_matrix"]["FP"] == 2 and res["alerts_outbound_only"] == 2
+    # Neither request was flagged by a request-inspection rule.
+    assert res["request_phase"]["confusion_matrix"] == {"TP": 0, "FP": 0, "TN": 2, "FN": 0}
+
+
+def test_request_phase_excludes_response_only_detections():
+    rows = [_row("malicious", "950100;959100", True, category="xxe"), _row("malicious", "942100", True),
+            _row("malicious", "", True, evidence="status_heuristic")]
+    rp = evaluate_waf_performance(rows)["request_phase"]
+    assert rp["confusion_matrix"] == {"TP": 2, "FP": 0, "TN": 0, "FN": 1}
+    assert rp["detection_rate_recall"] == 0.6667
 
 
 def test_latency_overhead_p50():

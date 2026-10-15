@@ -58,7 +58,8 @@ Laboratorium ini menguji kemampuan **ModSecurity v3** yang diperkuat oleh **OWAS
 ├── requirements.txt            # Dependensi Python (pandas, matplotlib, pytest, ruff)
 ├── ruff.toml                   # Konfigurasi linter
 ├── simulator/                  # Simulator uji terkontrol + korelator audit log
-│   ├── attack_cases.json       # Dataset 70 kasus berlabel (42 benign, 28 malicious)
+│   ├── attack_cases.json       # Dataset asli: 70 kasus berlabel (42 benign, 28 malicious)
+│   ├── attack_cases_extended.json # Dataset diperluas: 217 kasus (65 benign, 152 malicious, 13 keluarga)
 │   ├── holdout_benign.json     # 20 kasus benign hold-out (tidak dipakai saat tuning)
 │   ├── run_tests.py            # CLI eksekusi eksperimen
 │   ├── runner.py               # Eksekutor request & pencatatan hasil
@@ -166,7 +167,7 @@ python3 simulator/run_tests.py --target http://127.0.0.1:8080 --mode waf \
 | `--mode` | (wajib) | `baseline` atau `waf` |
 | `--delay` | `0.25` | Jeda antar request (detik, minimum 0.1) |
 | `--timeout` | `5.0` | Timeout HTTP (detik) |
-| `--cases` | `simulator/attack_cases.json` | Dataset kasus uji |
+| `--cases` | `simulator/attack_cases.json` | Dataset kasus uji (`simulator/attack_cases_extended.json` untuk dataset diperluas) |
 | `--output` | `results/{mode}.csv` | Lokasi CSV hasil (metadata ditulis ke `.meta.json` di sampingnya) |
 | `--repeat` | `1` (`make`: `REPEAT=3`) | Ulangi seluruh suite N kali untuk statistik latensi |
 | `--warmup` | `5` | Request pemanasan yang tidak dicatat |
@@ -186,6 +187,10 @@ Setiap request diberi header unik `X-Lab-Trace-Id` sehingga baris CSV dapat dico
 | `make experiment-matrix` | Jalankan suite WAF pada Paranoia Level 1–4 lalu bandingkan |
 | `make experiment-tuned` | Skenario PL2 dengan exclusion sempit (`lab/tuning/`) |
 | `make experiment-holdout` | Set hold-out benign terhadap PL1, PL2, PL2 tuned |
+| `make experiment-extended` | Baseline, PL1–4, PL2 tuned, dan hold-out untuk dataset diperluas → `results/extended/` |
+| `make compose-check` | Validasi konfigurasi Docker Compose |
+
+Semua target eksperimen menerima `CASES=<dataset>` dan `OUT=<direktori hasil>`; default-nya dataset asli dan `results/`.
 | `make zap` | OWASP ZAP passive baseline scan |
 | `make prod-up` / `make prod-down` | Jalankan / hentikan stack produksi |
 | `make prod-restart` | Restart WAF setelah mengubah rule exclusion |
@@ -222,6 +227,20 @@ Konfigurasi: CRS 4.25.2, Paranoia Level 1, Anomaly Inbound 5. Interval kepercaya
 
 Tanpa tuning, PL1 memberikan F1 terbaik karena FPR naik tajam di level lebih tinggi. Dengan exclusion sempit ([`lab/tuning/`](lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf)), **PL2 tuned** mengungguli PL1 (F1 0.885): recall naik ke 82.14% dengan FPR hanya 2.38% (1 dari 42). Namun pada **set hold-out** (20 benign yang tidak dipakai saat tuning) FPR-nya 20% vs PL1 5% — tuning sebagian overfit; lihat validasi hold-out. Detail: [Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md).
 
+> **Catatan:** tabel Paranoia Level di atas dihasilkan saat `PARANOIA` hanya menaikkan *detection* paranoia (blocking tetap PL1); lihat [koreksi metodologi](docs/RESULTS_INTERPRETATION.md#2c-trade-off-paranoia-level).
+
+### Dataset Diperluas (N=217, 13 keluarga, blocking PL = detection PL)
+
+| Skenario | Recall | FPR | Precision | F1 |
+|---|---|---|---|---|
+| PL1 | 73.03% | 1.54% | 99.11% | 0.841 |
+| PL2 | 88.16% | 23.08% | 89.93% | 0.890 |
+| PL2 tuned | 88.16% | 12.31% | 94.37% | 0.912 |
+| PL3 | 90.13% | 27.69% | 88.39% | 0.893 |
+| PL4 | 92.11% | 58.46% | 78.65% | 0.849 |
+
+Sebagian besar keluarga baru hanya mengukur **deteksi pola** (rute Juice Shop tidak mengimplementasikan fungsi yang diserang). XXE tidak terdeteksi oleh inspeksi request di PL1–PL3; "deteksi" PL2–PL3 berasal dari rule outbound pada respons 500 aplikasi. Detail dan batas klaim: [Matriks Skenario](docs/SCENARIO_MATRIX.md) dan [Interpretasi Hasil §7](docs/RESULTS_INTERPRETATION.md#hasil-dataset-diperluas).
+
 Grafik visualisasi tersimpan di:
 - `results/confusion_matrix.png`
 - `results/latency_comparison.png`
@@ -237,6 +256,7 @@ Grafik visualisasi tersimpan di:
 - [Metodologi Penelitian](docs/METHODOLOGY.md)
 - [Formulasi Metrik Evaluasi](docs/METRICS.md)
 - [Dataset Kasus Uji](docs/DATASET.md)
+- [Matriks Skenario Dataset Diperluas](docs/SCENARIO_MATRIX.md)
 - [Format Berkas Hasil](docs/OUTPUT_FORMAT.md)
 - [Experiment Runbook](docs/EXPERIMENT_RUNBOOK.md)
 - [Panduan Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md)

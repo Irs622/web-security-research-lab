@@ -1,0 +1,805 @@
+{
+  "sample_count": 217,
+  "confusion_matrix": {
+    "TP": 137,
+    "FP": 18,
+    "TN": 47,
+    "FN": 15
+  },
+  "detection_rate_recall": 0.9013,
+  "precision": 0.8839,
+  "false_positive_rate": 0.2769,
+  "specificity": 0.7231,
+  "f1_score": 0.8925,
+  "blocking_rate": 0.9013,
+  "malicious_blocked": 137,
+  "malicious_blocked_unverified": 0,
+  "malicious_rejected_by_proxy": 5,
+  "alerts_outbound_only": 14,
+  "request_phase": {
+    "confusion_matrix": {
+      "TP": 128,
+      "FP": 13,
+      "TN": 52,
+      "FN": 24
+    },
+    "detection_rate_recall": 0.8421,
+    "false_positive_rate": 0.2,
+    "recall_ci95": [
+      0.7758,
+      0.8915
+    ],
+    "fpr_ci95": [
+      0.1208,
+      0.3127
+    ]
+  },
+  "overall_mitigation_rate": 0.9342,
+  "total_malicious": 152,
+  "latency_waf": {
+    "mean_ms": 24.17,
+    "p50_ms": 14.87,
+    "p95_ms": 63.33
+  },
+  "latency_baseline": {
+    "mean_ms": 12.55,
+    "p50_ms": 9.42,
+    "p95_ms": 27.46
+  },
+  "latency_overhead_mean_ms": 11.62,
+  "latency_overhead_p50_ms": 5.45,
+  "latency_stats": {
+    "waf": {
+      "n": 651,
+      "mean_ms": 24.17,
+      "p50_ms": 14.87,
+      "p95_ms": 63.33,
+      "iqr_ms": 11.65
+    },
+    "baseline": {
+      "n": 651,
+      "mean_ms": 12.55,
+      "p50_ms": 9.42,
+      "p95_ms": 27.46,
+      "iqr_ms": 5.97
+    },
+    "mann_whitney_u": {
+      "u": 315986.5,
+      "z": 15.3437,
+      "p_value": 0.0
+    }
+  },
+  "confidence_intervals_95": {
+    "detection_rate_recall": [
+      0.8436,
+      0.9393
+    ],
+    "precision": [
+      0.8239,
+      0.9253
+    ],
+    "false_positive_rate": [
+      0.1829,
+      0.3958
+    ],
+    "specificity": [
+      0.6042,
+      0.8171
+    ],
+    "blocking_rate": [
+      0.8436,
+      0.9393
+    ]
+  },
+  "category_breakdown": {
+    "normal": {
+      "total": 65,
+      "detected": 18,
+      "blocked": 18,
+      "malicious": 0,
+      "benign": 65,
+      "tp": 0,
+      "fn": 0,
+      "fp": 18,
+      "tn": 47,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.2769,
+      "small_sample": false
+    },
+    "sqli": {
+      "total": 19,
+      "detected": 19,
+      "blocked": 19,
+      "malicious": 19,
+      "benign": 0,
+      "tp": 19,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 19,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.8318,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "xss": {
+      "total": 18,
+      "detected": 18,
+      "blocked": 18,
+      "malicious": 18,
+      "benign": 0,
+      "tp": 18,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 18,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.8241,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "path-traversal": {
+      "total": 12,
+      "detected": 7,
+      "blocked": 7,
+      "malicious": 12,
+      "benign": 0,
+      "tp": 7,
+      "fn": 5,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 7,
+      "recall": 0.5833,
+      "recall_ci95": [
+        0.3195,
+        0.8067
+      ],
+      "blocking_rate": 0.5833,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "cmdi": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "lfi": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "rfi": {
+      "total": 10,
+      "detected": 9,
+      "blocked": 9,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 9,
+      "fn": 1,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 9,
+      "recall": 0.9,
+      "recall_ci95": [
+        0.5958,
+        0.9821
+      ],
+      "blocking_rate": 0.9,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "php-injection": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "java-injection": {
+      "total": 12,
+      "detected": 11,
+      "blocked": 11,
+      "malicious": 12,
+      "benign": 0,
+      "tp": 11,
+      "fn": 1,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 11,
+      "recall": 0.9167,
+      "recall_ci95": [
+        0.6461,
+        0.9851
+      ],
+      "blocking_rate": 0.9167,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "nosqli": {
+      "total": 10,
+      "detected": 9,
+      "blocked": 9,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 9,
+      "fn": 1,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 9,
+      "recall": 0.9,
+      "recall_ci95": [
+        0.5958,
+        0.9821
+      ],
+      "blocking_rate": 0.9,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "ssrf": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "xxe": {
+      "total": 10,
+      "detected": 10,
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "protocol-violation": {
+      "total": 9,
+      "detected": 7,
+      "blocked": 7,
+      "malicious": 9,
+      "benign": 0,
+      "tp": 7,
+      "fn": 2,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 7,
+      "recall": 0.7778,
+      "recall_ci95": [
+        0.4526,
+        0.9368
+      ],
+      "blocking_rate": 0.7778,
+      "false_positive_rate": null,
+      "small_sample": true
+    },
+    "scanner-detection": {
+      "total": 12,
+      "detected": 7,
+      "blocked": 7,
+      "malicious": 12,
+      "benign": 0,
+      "tp": 7,
+      "fn": 5,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 7,
+      "recall": 0.5833,
+      "recall_ci95": [
+        0.3195,
+        0.8067
+      ],
+      "blocking_rate": 0.5833,
+      "false_positive_rate": null,
+      "small_sample": false
+    }
+  },
+  "applicability_breakdown": {
+    "benign_control": {
+      "total": 65,
+      "detected": 18,
+      "blocked": 18,
+      "malicious": 0,
+      "benign": 65,
+      "tp": 0,
+      "fn": 0,
+      "fp": 18,
+      "tn": 47,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.2769,
+      "small_sample": false
+    },
+    "sink_present": {
+      "total": 33,
+      "detected": 28,
+      "blocked": 28,
+      "malicious": 33,
+      "benign": 0,
+      "tp": 28,
+      "fn": 5,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 28,
+      "recall": 0.8485,
+      "recall_ci95": [
+        0.6908,
+        0.9335
+      ],
+      "blocking_rate": 0.8485,
+      "false_positive_rate": null,
+      "small_sample": false
+    },
+    "pattern_only": {
+      "total": 119,
+      "detected": 109,
+      "blocked": 109,
+      "malicious": 119,
+      "benign": 0,
+      "tp": 109,
+      "fn": 10,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 109,
+      "recall": 0.916,
+      "recall_ci95": [
+        0.8522,
+        0.9537
+      ],
+      "blocking_rate": 0.916,
+      "false_positive_rate": null,
+      "small_sample": false
+    }
+  },
+  "misclassified": [
+    {
+      "type": "FP",
+      "test_id": "BENIGN-010",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-012",
+      "category": "normal",
+      "path": "/rest/products/search?q=100%25+natural+organic",
+      "rules": [
+        "920350",
+        "920272",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-013",
+      "category": "normal",
+      "path": "/rest/products/search?q=O%27Reilly",
+      "rules": [
+        "920350",
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-014",
+      "category": "normal",
+      "path": "/rest/products/search?q=juice+100%25+natural",
+      "rules": [
+        "920350",
+        "920272",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-015",
+      "category": "normal",
+      "path": "/rest/products/search?q=caf%C3%A9+cr%C3%A8me",
+      "rules": [
+        "920350",
+        "920272",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-018",
+      "category": "normal",
+      "path": "/rest/products/search?q=C%23+sticker",
+      "rules": [
+        "920350",
+        "942440",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-019",
+      "category": "normal",
+      "path": "/rest/products/search?q=1+or+2+bottles",
+      "rules": [
+        "920350",
+        "942390",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-038",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "932200",
+        "942200",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-039",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-040",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "942460",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-001",
+      "category": "path-traversal",
+      "path": "/ftp/../../../../etc/passwd",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-002",
+      "category": "path-traversal",
+      "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-005",
+      "category": "path-traversal",
+      "path": "/assets/public/images/../../../../windows/win.ini",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-008",
+      "category": "path-traversal",
+      "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-045",
+      "category": "normal",
+      "path": "/rest/products/search?q=test",
+      "rules": [
+        "920350",
+        "200002"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-050",
+      "category": "normal",
+      "path": "/rest/products/search",
+      "rules": [
+        "920350",
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-051",
+      "category": "normal",
+      "path": "/rest/products/search?q=echo+dot+speaker",
+      "rules": [
+        "920350",
+        "932236",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-053",
+      "category": "normal",
+      "path": "/rest/products/search?q=php+elephant+plush",
+      "rules": [
+        "920350",
+        "932236",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-054",
+      "category": "normal",
+      "path": "/rest/products/search?q=java+coffee+beans",
+      "rules": [
+        "920350",
+        "932236",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-057",
+      "category": "normal",
+      "path": "/rest/products/search?q=file+organizer",
+      "rules": [
+        "920350",
+        "932236",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-060",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "931130",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "BENIGN-061",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FN",
+      "test_id": "TRAV-010",
+      "category": "path-traversal",
+      "path": "/ftp/%2e%2e%2f..%2fREADME.md",
+      "rules": [],
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "sink_present"
+    },
+    {
+      "type": "FN",
+      "test_id": "RFI-003",
+      "category": "rfi",
+      "path": "/rest/products/search?q=%2F%2Fexample.invalid%2Fresource",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "JAVA-005",
+      "category": "java-injection",
+      "path": "/rest/products/search?q=%23%7B7%2A7%7D",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "NOSQLI-009",
+      "category": "nosqli",
+      "path": "/rest/user/login",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "PROTO-002",
+      "category": "protocol-violation",
+      "path": "/rest/products/search?q=test",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "PROTO-004",
+      "category": "protocol-violation",
+      "path": "/rest/products/search?q=test",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-004",
+      "category": "scanner-detection",
+      "path": "/wp-admin/",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-005",
+      "category": "scanner-detection",
+      "path": "/phpmyadmin/",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-006",
+      "category": "scanner-detection",
+      "path": "/server-status",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-008",
+      "category": "scanner-detection",
+      "path": "/cgi-bin/",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    },
+    {
+      "type": "FN",
+      "test_id": "SCAN-009",
+      "category": "scanner-detection",
+      "path": "/backup.zip",
+      "rules": [
+        "920350"
+      ],
+      "outcome": "passed_clean",
+      "scenario_applicability": "pattern_only"
+    }
+  ]
+}

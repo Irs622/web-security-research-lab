@@ -22,7 +22,26 @@ Penelitian ini menggunakan pendekatan **Controlled Experimental Benchmark** deng
 
 Setiap kasus uji diklasifikasikan ke dalam label kelas ground truth sebelum eksekusi:
 - **`benign`**: Request normal yang menyerupai lalu lintas pengguna yang sah (pencarian produk, login berformat benar, pembacaan halaman statis).
-- **`malicious`**: Request yang mengandung pola sintaks eksploitasi serangan siber terverifikasi (SQL Injection, Cross-Site Scripting, Directory/Path Traversal).
+- **`malicious`**: Request yang mengandung pola sintaks eksploitasi atau pengintaian (SQL Injection, Cross-Site Scripting, Path Traversal; pada dataset diperluas juga Command Injection, LFI, RFI, PHP, Java/JNDI, NoSQL, SSRF, XXE, pelanggaran protokol HTTP, dan scanner).
+
+Label adalah ground truth **input**, bukan ekspektasi terhadap WAF. Header yang lazim dikirim proxy atau klien sah (mis. `X-Forwarded-For`, `Accept: */*`) dilabel benign walaupun tampak "tidak biasa". Request pengintaian (`/.git/config`, User-Agent scanner) dilabel malicious karena pengguna sah aplikasi ini tidak pernah mengirimnya.
+
+### 2a. Variabel yang Dipisahkan
+
+| Variabel | Sumber | Arti |
+|---|---|---|
+| `expected_class` | Dataset | Ground truth input |
+| `waf_alert` | Audit log (rule serangan selain `920350`/`949110`) | WAF *mengenali* request |
+| `waf_intervention` + `intervention_evidence` | Audit log `is_interrupted` | WAF *memutus* request; hanya `audit_log` yang dihitung sebagai blokir terkonfirmasi |
+| `block_source` | Turunan | `waf`, `proxy` (Nginx 400 sebelum ModSecurity), `application` (401/403 dari Juice Shop sendiri), `none` |
+| `backend_outcome` | Status HTTP | `not_reached`, `reached_response_blocked`, `2xx`…`5xx`, `transport_error` — **bukan** bukti eksploitasi |
+| `scenario_applicability` | Dataset | `sink_present`, `pattern_only`, `benign_control` |
+
+### 2b. Tiga Klaim yang Tidak Boleh Dicampur
+
+1. **Deteksi pola** — diukur (recall, precision, FPR, F1).
+2. **Pencegahan** — diukur (blocking rate dari intervensi terkonfirmasi audit log).
+3. **Eksploitabilitas aplikasi** — **tidak diukur**. Harness tidak memverifikasi apakah payload berhasil. Untuk kasus `pattern_only` (mis. SSRF, XXE, RFI, LFI, PHP, CMDi, Java/JNDI, NoSQL ke rute yang tidak mengimplementasikan fungsi tersebut) hasil hanya bermakna sebagai deteksi signature WAF. Rincian per keluarga: [SCENARIO_MATRIX.md](SCENARIO_MATRIX.md).
 
 ---
 
@@ -65,7 +84,11 @@ Untuk memastikan setiap baris hasil dikaitkan dengan transaksi ModSecurity yang 
 
 ## 5. Parameter Pengendalian
 
-- **Ukuran Sampel:** N=70 kasus uji terkontrol (42 Benign, 10 SQLi, 10 XSS, 8 Path Traversal).
+- **Ukuran Sampel:**
+  - Dataset asli: N=70 kasus uji terkontrol (42 Benign, 10 SQLi, 10 XSS, 8 Path Traversal).
+  - Dataset diperluas: N=217 (65 benign, 152 malicious dalam 13 keluarga) — lihat [DATASET.md](DATASET.md).
+  - Hold-out benign: N=20, dijalankan terpisah dan tidak dipakai untuk menyusun exclusion.
+  - Pengulangan (`--repeat`) hanya menambah sampel latensi; setiap kasus dihitung satu kali untuk metrik deteksi.
 - **Concurrency & Rate:** Sequential execution dengan inter-request delay 0.25 detik.
 - **Hardware Environment:** Apple Silicon M3 (ARM64), 8 GB RAM, macOS Darwin.
 - **Software Pinning:**
@@ -73,3 +96,18 @@ Untuk memastikan setiap baris hasil dikaitkan dengan transaksi ModSecurity yang 
   - ModSecurity Engine: `v3.0.17`
   - OWASP CRS: `v4.25.2 LTS` (Paranoia Level: 1, Inbound Anomaly Threshold: 5)
   - OWASP ZAP: `v2.16.0`
+
+---
+
+## 6. Desain Eksperimen per Konfigurasi
+
+| # | Konfigurasi | Target Make | Keluaran (dataset asli / diperluas) |
+|---|---|---|---|
+| 1 | Baseline tanpa WAF | `test-baseline` | `results/baseline.csv` / `results/extended/baseline.csv` |
+| 2–5 | ModSecurity + CRS PL1–PL4 (`BLOCKING_PARANOIA` = `DETECTION_PARANOIA` = N), ambang inbound 5 | `experiment-matrix` | `results/paranoia/pl<N>/` / `results/extended/paranoia/pl<N>/` |
+| 6 | PL2 + exclusion sempit (`lab/tuning/`) | `experiment-tuned` | `results/paranoia/pl2-tuned/` / `results/extended/paranoia/pl2-tuned/` |
+| H | Hold-out benign vs PL1, PL2, PL2 tuned | `experiment-holdout` | `results/holdout/` / `results/extended/holdout/` |
+
+`make experiment-extended` menjalankan 1–6 dan H untuk dataset diperluas. Exclusion PL2 tuned **diturunkan dari dataset asli**; pada dataset diperluas, exclusion yang sama diterapkan tanpa penyesuaian sehingga hasilnya menguji generalisasi tuning, bukan tuning baru.
+
+Setiap run menulis `*.meta.json` (lihat [OUTPUT_FORMAT.md](OUTPUT_FORMAT.md)): path dan SHA-256 dataset, git SHA + status *dirty*, image beserta digest, environment dan mount container WAF yang benar-benar berjalan (Paranoia Level, ambang anomali, file exclusion), versi ModSecurity/CRS dari field `producer` audit log, jumlah request dicoba/berhasil, status korelasi audit log, dan stempel waktu.

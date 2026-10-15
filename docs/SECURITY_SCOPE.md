@@ -26,6 +26,19 @@ Laboratorium ini dirancang secara khusus untuk keperluan penelitian skripsi akad
 
 ---
 
+## 1a. Keamanan Payload Dataset Diperluas
+
+Dataset [`attack_cases_extended.json`](../simulator/attack_cases_extended.json) memuat pola SSRF, RFI, XXE, LFI, PHP, Java/JNDI, dan command injection. Seluruhnya adalah **teks inert**:
+
+1. **Harness tidak pernah mengambil URL di dalam payload.** Satu-satunya koneksi keluar adalah ke `base_url` yang sudah divalidasi; redirect tidak diikuti. Diuji di `tests/test_runner_integration.py::test_payload_urls_are_never_contacted`.
+2. **Host di dalam payload dibatasi** pada loopback, `::1`, link-local `169.254.169.254`, TEST-NET-1 `192.0.2.0/24`, dan nama cadangan (`.invalid`, `.test`, `.local`, `example.*`). Diuji di `tests/test_dataset.py`.
+3. **Tidak ada eksekusi perintah.** Payload CMDi/PHP hanya `echo WAF_TEST`, `id`, atau ekspresi aritmetika, dikirim sebagai string ke rute yang tidak mengeksekusinya. Harness tidak pernah mengevaluasi isi payload.
+4. **XML**: harness tidak mem-parse XML. Validasi well-formedness di unit test memakai expat tanpa resolusi entity eksternal/parameter. Satu-satunya parser di jalur request adalah libxml2 di ModSecurity (rule `200000`); referensi eksternal di payload hanya menunjuk berkas non-sensitif (`/etc/hostname`, `win.ini`), `expect://id`, atau loopback. Tidak ada payload *billion laughs*.
+5. **Sink nyata yang merusak tidak diuji**: NoSQL `$where` pada `/rest/track-order` (DoS), `PATCH` review produk (mengubah data), SSRF `/profile/image/url` (fetch keluar), dan upload XML `/file-upload`. Akibatnya keluarga tersebut hanya mengukur deteksi pola — lihat [SCENARIO_MATRIX.md](SCENARIO_MATRIX.md).
+6. **Tidak ada metode `PUT`/`DELETE`** dan tidak ada pengujian volume/DoS. Pembatasan jeda minimum 0,1 detik dan timeout tetap berlaku.
+
+---
+
 ## 2. Prosedur Deployment VPS yang Aman
 
 Jika penelitian dipindahkan atau direplikasi pada Virtual Private Server (VPS), ikuti prosedur berikut:

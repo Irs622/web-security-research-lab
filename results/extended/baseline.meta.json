@@ -1,0 +1,29 @@
+{
+  "run_id": "run_baseline_20261015_144216",
+  "mode": "baseline",
+  "target": "http://127.0.0.1:3001",
+  "started_utc": "2026-10-15T14:42:16.639125+00:00",
+  "git_sha": "771ce7b87b0e565a8fb53b2cea2d5b310d7dc5d8",
+  "git_dirty": false,
+  "dataset_path": "simulator/attack_cases_extended.json",
+  "dataset_file_sha256": "6433cacf7373fa52cf4d11beb3fcc8874687b25e55b2298d0c637d713434b177",
+  "dataset_sha256": "54e75c418747faeaad7f4299d39ca39bab21346db54778f25ae6b278f7acc496",
+  "case_count": 217,
+  "repeat": 3,
+  "warmup": 5,
+  "paranoia_level": "1",
+  "anomaly_inbound": "5",
+  "tuned_exclusions": false,
+  "exclusions_file": null,
+  "exclusions_sha256": null,
+  "images": {
+    "waf": "owasp/modsecurity-crs:4.25.2-nginx-alpine-lts@sha256:13ba8285eb8c73d1d83a0ac6f2a9e8a9273293fde419bbc46bfe2be6c379ca1b",
+    "juice_shop": "bkimminich/juice-shop:v17.1.1@sha256:9e437b456e444ff001d1663e4f6f05c796fe02f1058dd2651d6791a15b43dfeb"
+  },
+  "python": "3.9.6",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "finished_utc": "2026-10-15T14:45:11.404348+00:00",
+  "requests_attempted": 651,
+  "requests_completed": 651,
+  "transport_errors": 0
+}

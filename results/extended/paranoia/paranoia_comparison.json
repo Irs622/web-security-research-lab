@@ -1,0 +1,127 @@
+[
+  {
+    "scenario": "pl1",
+    "paranoia_level": 1,
+    "tuned": false,
+    "recall": 0.7303,
+    "recall_ci95": [
+      0.6547,
+      0.7945
+    ],
+    "false_positive_rate": 0.0154,
+    "fpr_ci95": [
+      0.0027,
+      0.0821
+    ],
+    "precision": 0.9911,
+    "f1_score": 0.8409,
+    "blocking_rate": 0.7303,
+    "waf_p50_ms": 11.96,
+    "confusion_matrix": {
+      "TP": 111,
+      "FP": 1,
+      "TN": 64,
+      "FN": 41
+    }
+  },
+  {
+    "scenario": "pl2",
+    "paranoia_level": 2,
+    "tuned": false,
+    "recall": 0.8816,
+    "recall_ci95": [
+      0.8206,
+      0.9238
+    ],
+    "false_positive_rate": 0.2308,
+    "fpr_ci95": [
+      0.1451,
+      0.3464
+    ],
+    "precision": 0.8993,
+    "f1_score": 0.8904,
+    "blocking_rate": 0.8816,
+    "waf_p50_ms": 14.59,
+    "confusion_matrix": {
+      "TP": 134,
+      "FP": 15,
+      "TN": 50,
+      "FN": 18
+    }
+  },
+  {
+    "scenario": "pl2-tuned",
+    "paranoia_level": 2,
+    "tuned": true,
+    "recall": 0.8816,
+    "recall_ci95": [
+      0.8206,
+      0.9238
+    ],
+    "false_positive_rate": 0.1231,
+    "fpr_ci95": [
+      0.0637,
+      0.2245
+    ],
+    "precision": 0.9437,
+    "f1_score": 0.9116,
+    "blocking_rate": 0.8816,
+    "waf_p50_ms": 16.84,
+    "confusion_matrix": {
+      "TP": 134,
+      "FP": 8,
+      "TN": 57,
+      "FN": 18
+    }
+  },
+  {
+    "scenario": "pl3",
+    "paranoia_level": 3,
+    "tuned": false,
+    "recall": 0.9013,
+    "recall_ci95": [
+      0.8436,
+      0.9393
+    ],
+    "false_positive_rate": 0.2769,
+    "fpr_ci95": [
+      0.1829,
+      0.3958
+    ],
+    "precision": 0.8839,
+    "f1_score": 0.8925,
+    "blocking_rate": 0.9013,
+    "waf_p50_ms": 14.87,
+    "confusion_matrix": {
+      "TP": 137,
+      "FP": 18,
+      "TN": 47,
+      "FN": 15
+    }
+  },
+  {
+    "scenario": "pl4",
+    "paranoia_level": 4,
+    "tuned": false,
+    "recall": 0.9211,
+    "recall_ci95": [
+      0.8671,
+      0.9543
+    ],
+    "false_positive_rate": 0.5846,
+    "fpr_ci95": [
+      0.4634,
+      0.6964
+    ],
+    "precision": 0.7865,
+    "f1_score": 0.8485,
+    "blocking_rate": 0.9211,
+    "waf_p50_ms": 15.3,
+    "confusion_matrix": {
+      "TP": 140,
+      "FP": 38,
+      "TN": 27,
+      "FN": 12
+    }
+  }
+]

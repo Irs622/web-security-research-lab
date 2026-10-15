@@ -88,7 +88,7 @@ Konfigurasi lingkungan WAF disetel melalui environment variables:
 * `BACKEND`: `http://juice-shop:3000` (target upstream internal)
 * `PORT`: `8080` (listening port reverse proxy)
 * `MODSEC_RULE_ENGINE`: `On` (enforcement mode aktif, request berbahaya diblokir dengan HTTP 403)
-* `PARANOIA`: `1` (Paranoia Level 1 - CRS baseline untuk minimalisir false positive)
+* `PARANOIA`: `1` (Paranoia Level 1 - CRS baseline untuk minimalisir false positive). Diteruskan juga ke `BLOCKING_PARANOIA` dan `DETECTION_PARANOIA`, karena image CRS 4 memakai `BLOCKING_PARANOIA` untuk pemblokiran
 * `ANOMALY_INBOUND`: `5` (Threshold skor anomali inbound untuk memicu pemblokiran)
 * `ANOMALY_OUTBOUND`: `4` (Threshold skor anomali outbound untuk kebocoran data)
 * `MODSEC_AUDIT_ENGINE`: `RelevantOnly` (pencatatan log audit untuk request yang memicu intervensi/peringatan)

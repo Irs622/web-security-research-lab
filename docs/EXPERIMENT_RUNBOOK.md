@@ -107,6 +107,18 @@ make experiment-holdout         # 20 benign baru vs PL1, PL2, PL2 tuned; hasil d
 
 Set hold-out hanya berisi kasus benign, sehingga yang bermakna hanya FPR; recall, F1, dan blocking rate dilaporkan `n/a` (`null` di JSON).
 
+### Tahap F: Dataset Diperluas (217 kasus, 13 keluarga)
+```bash
+make experiment-extended        # baseline + PL1 + PL1–4 + PL2 tuned + hold-out; hasil di results/extended/
+```
+Target ini menjalankan ulang **baseline** dengan dataset diperluas sehingga overhead latensi tidak dihitung terhadap baseline dataset asli. Target lain dapat diarahkan ke dataset mana pun:
+```bash
+make test-waf analyze CASES=simulator/attack_cases_extended.json OUT=results/extended
+```
+Dengan `REPEAT=3` dan delay 0,25 s, satu run WAF dataset diperluas berisi 651 request; seluruh `experiment-extended` memerlukan waktu sekitar satu jam.
+
+Sebelum melaporkan hasil, periksa `results/extended/**/*.meta.json`: `git_dirty` harus `false`, `waf_runtime.env.BLOCKING_PARANOIA` dan `DETECTION_PARANOIA` sesuai skenario, `requests_completed` sama dengan `requests_attempted`, dan `audit_log_correlation` didominasi `trace_id`.
+
 Ketiga target mengembalikan WAF ke PL1 setelah selesai. `experiment-matrix` dan `experiment-tuned` juga memperbarui `results/paranoia/paranoia_comparison.json` serta `paranoia_tradeoff.png`.
 
 ---
@@ -117,6 +129,7 @@ Ketiga target mengembalikan WAF ke PL1 setelah selesai. `experiment-matrix` dan 
 # Tampilkan ringkasan matriks konfusi, recall, precision, FPR, dan latensi
 python3 evaluation/analyze_results.py
 # opsional untuk file lain: --waf X.csv --baseline Y.csv --output Z.json
+# (ditolak bila kedua CSV berasal dari dataset berbeda menurut *.meta.json)
 
 # Hasilkan grafik visualisasi ilmiah untuk skripsi
 .venv/bin/python evaluation/generate_charts.py
