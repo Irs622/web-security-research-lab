@@ -9,30 +9,52 @@
   "detection_rate_recall": 0.8214,
   "precision": 0.9583,
   "false_positive_rate": 0.0238,
+  "specificity": 0.9762,
   "f1_score": 0.8846,
-  "blocking_rate": 0.7857,
-  "malicious_blocked": 22,
+  "blocking_rate": 0.8214,
+  "malicious_blocked": 23,
+  "malicious_blocked_unverified": 0,
   "malicious_rejected_by_proxy": 4,
-  "overall_mitigation_rate": 0.9286,
+  "alerts_outbound_only": 1,
+  "request_phase": {
+    "confusion_matrix": {
+      "TP": 23,
+      "FP": 0,
+      "TN": 42,
+      "FN": 5
+    },
+    "detection_rate_recall": 0.8214,
+    "false_positive_rate": 0.0,
+    "recall_ci95": [
+      0.6441,
+      0.9212
+    ],
+    "fpr_ci95": [
+      0.0,
+      0.0838
+    ]
+  },
+  "overall_mitigation_rate": 0.9643,
   "total_malicious": 28,
   "latency_waf": {
-    "mean_ms": 22.55,
-    "p50_ms": 20.35,
-    "p95_ms": 45.41
+    "mean_ms": 99.48,
+    "p50_ms": 34.66,
+    "p95_ms": 446.43
   },
   "latency_baseline": {
     "mean_ms": 22.02,
     "p50_ms": 11.31,
     "p95_ms": 33.56
   },
-  "latency_overhead_mean_ms": 0.53,
+  "latency_overhead_mean_ms": 77.46,
+  "latency_overhead_p50_ms": 23.35,
   "latency_stats": {
     "waf": {
       "n": 210,
-      "mean_ms": 22.55,
-      "p50_ms": 20.35,
-      "p95_ms": 45.41,
-      "iqr_ms": 11.17
+      "mean_ms": 99.48,
+      "p50_ms": 34.66,
+      "p95_ms": 446.43,
+      "iqr_ms": 63.19
     },
     "baseline": {
       "n": 210,
@@ -42,8 +64,8 @@
       "iqr_ms": 9.5
     },
     "mann_whitney_u": {
-      "u": 34179.5,
-      "z": 9.7515,
+      "u": 37339.5,
+      "z": 12.292,
       "p_value": 0.0
     }
   },
@@ -60,31 +82,114 @@
       0.0042,
       0.1232
     ],
+    "specificity": [
+      0.8768,
+      0.9958
+    ],
     "blocking_rate": [
-      0.6046,
-      0.8979
+      0.6441,
+      0.9212
     ]
   },
   "category_breakdown": {
     "normal": {
       "total": 42,
       "detected": 1,
-      "blocked": 0
+      "blocked": 1,
+      "malicious": 0,
+      "benign": 42,
+      "tp": 0,
+      "fn": 0,
+      "fp": 1,
+      "tn": 41,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.0238,
+      "small_sample": false
     },
     "sqli": {
       "total": 10,
       "detected": 10,
-      "blocked": 10
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
     },
     "xss": {
       "total": 10,
       "detected": 10,
-      "blocked": 10
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
     },
     "path-traversal": {
       "total": 8,
       "detected": 3,
-      "blocked": 2
+      "blocked": 3,
+      "malicious": 8,
+      "benign": 0,
+      "tp": 3,
+      "fn": 5,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 3,
+      "recall": 0.375,
+      "recall_ci95": [
+        0.1368,
+        0.6943
+      ],
+      "blocking_rate": 0.375,
+      "false_positive_rate": null,
+      "small_sample": true
+    }
+  },
+  "applicability_breakdown": {
+    "unspecified": {
+      "total": 70,
+      "detected": 24,
+      "blocked": 24,
+      "malicious": 28,
+      "benign": 42,
+      "tp": 23,
+      "fn": 5,
+      "fp": 1,
+      "tn": 41,
+      "blocked_confirmed": 23,
+      "recall": 0.8214,
+      "recall_ci95": [
+        0.6441,
+        0.9212
+      ],
+      "blocking_rate": 0.8214,
+      "false_positive_rate": 0.0238,
+      "small_sample": false
     }
   },
   "misclassified": [
@@ -95,8 +200,10 @@
       "path": "/rest/products/search?q=O%27Reilly",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FN",
@@ -104,7 +211,8 @@
       "category": "path-traversal",
       "path": "/ftp/../../../../etc/passwd",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -112,7 +220,8 @@
       "category": "path-traversal",
       "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -122,7 +231,8 @@
       "rules": [
         "920350"
       ],
-      "outcome": "passed_clean"
+      "outcome": "passed_clean",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -130,7 +240,8 @@
       "category": "path-traversal",
       "path": "/assets/public/images/../../../../windows/win.ini",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -138,7 +249,8 @@
       "category": "path-traversal",
       "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     }
   ]
 }

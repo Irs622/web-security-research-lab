@@ -9,16 +9,34 @@
   "detection_rate_recall": null,
   "precision": 0.0,
   "false_positive_rate": 0.4,
+  "specificity": 0.6,
   "f1_score": null,
   "blocking_rate": null,
   "malicious_blocked": 0,
+  "malicious_blocked_unverified": 0,
   "malicious_rejected_by_proxy": 0,
+  "alerts_outbound_only": 4,
+  "request_phase": {
+    "confusion_matrix": {
+      "TP": 0,
+      "FP": 4,
+      "TN": 16,
+      "FN": 0
+    },
+    "detection_rate_recall": null,
+    "false_positive_rate": 0.2,
+    "recall_ci95": null,
+    "fpr_ci95": [
+      0.0807,
+      0.416
+    ]
+  },
   "overall_mitigation_rate": null,
   "total_malicious": 0,
   "latency_waf": {
-    "mean_ms": 40.3,
-    "p50_ms": 23.29,
-    "p95_ms": 81.33
+    "mean_ms": 44.94,
+    "p50_ms": 21.61,
+    "p95_ms": 146.57
   },
   "latency_baseline": {
     "mean_ms": null,
@@ -26,13 +44,14 @@
     "p95_ms": null
   },
   "latency_overhead_mean_ms": null,
+  "latency_overhead_p50_ms": null,
   "latency_stats": {
     "waf": {
       "n": 60,
-      "mean_ms": 40.3,
-      "p50_ms": 23.29,
-      "p95_ms": 81.33,
-      "iqr_ms": 11.2
+      "mean_ms": 44.94,
+      "p50_ms": 21.61,
+      "p95_ms": 146.57,
+      "iqr_ms": 17.42
     },
     "baseline": {
       "n": 0,
@@ -53,13 +72,48 @@
       0.2188,
       0.6134
     ],
+    "specificity": [
+      0.3866,
+      0.7812
+    ],
     "blocking_rate": null
   },
   "category_breakdown": {
     "normal": {
       "total": 20,
       "detected": 8,
-      "blocked": 1
+      "blocked": 8,
+      "malicious": 0,
+      "benign": 20,
+      "tp": 0,
+      "fn": 0,
+      "fp": 8,
+      "tn": 12,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.4,
+      "small_sample": false
+    }
+  },
+  "applicability_breakdown": {
+    "unspecified": {
+      "total": 20,
+      "detected": 8,
+      "blocked": 8,
+      "malicious": 0,
+      "benign": 20,
+      "tp": 0,
+      "fn": 0,
+      "fp": 8,
+      "tn": 12,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.4,
+      "small_sample": false
     }
   },
   "misclassified": [
@@ -70,8 +124,10 @@
       "path": "/rest/products/search?q=Bob%27s+favourite",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -80,8 +136,10 @@
       "path": "/rest/products/search?q=don%27t+miss",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -90,8 +148,10 @@
       "path": "/rest/products/search?q=F%23+notes",
       "rules": [
         "920350",
-        "942440"
-      ]
+        "942440",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -103,7 +163,8 @@
         "942100",
         "942440",
         "949110"
-      ]
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -114,8 +175,9 @@
         "920350",
         "932200",
         "942200",
-        "950100"
-      ]
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -124,8 +186,10 @@
       "path": "/api/Feedbacks/",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -134,8 +198,10 @@
       "path": "/api/Feedbacks/",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -145,8 +211,9 @@
       "rules": [
         "920350",
         "942440",
-        "950100"
-      ]
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     }
   ]
 }

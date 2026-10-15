@@ -217,17 +217,19 @@ Konfigurasi: CRS 4.25.2, Paranoia Level 1, Anomaly Inbound 5. Interval kepercaya
 
 ### Perbandingan Paranoia Level
 
-| PL | Recall | FPR | Precision | F1 |
-|---|---|---|---|---|
-| 1 | 78.57% | 0.00% | 100.00% | 0.880 |
-| 2 | 82.14% | 16.67% | 76.67% | 0.793 |
-| 2 + tuning | 82.14% | 2.38% | 95.83% | **0.885** |
-| 3 | 85.71% | 23.81% | 70.59% | 0.774 |
-| 4 | 85.71% | 54.76% | 51.06% | 0.640 |
+Blocking PL = detection PL (`BLOCKING_PARANOIA` = `DETECTION_PARANOIA`). Blocking rate = blokir terkonfirmasi audit log.
+
+| PL | Recall | FPR | Precision | F1 | Blocking |
+|---|---|---|---|---|---|
+| 1 | 78.57% | 0.00% | 100.00% | 0.880 | 78.57% |
+| 2 | 82.14% | 16.67% | 76.67% | 0.793 | 82.14% |
+| 2 + tuning | 82.14% | 2.38% | 95.83% | **0.885** | 82.14% |
+| 3 | 85.71% | 23.81% | 70.59% | 0.774 | 85.71% |
+| 4 | 85.71% | 54.76% | 51.06% | 0.640 | 85.71% |
 
 Tanpa tuning, PL1 memberikan F1 terbaik karena FPR naik tajam di level lebih tinggi. Dengan exclusion sempit ([`lab/tuning/`](lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf)), **PL2 tuned** mengungguli PL1 (F1 0.885): recall naik ke 82.14% dengan FPR hanya 2.38% (1 dari 42). Namun pada **set hold-out** (20 benign yang tidak dipakai saat tuning) FPR-nya 20% vs PL1 5% — tuning sebagian overfit; lihat validasi hold-out. Detail: [Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md).
 
-> **Catatan:** tabel Paranoia Level di atas dihasilkan saat `PARANOIA` hanya menaikkan *detection* paranoia (blocking tetap PL1); lihat [koreksi metodologi](docs/RESULTS_INTERPRETATION.md#2c-trade-off-paranoia-level).
+> **Catatan:** tabel ini berasal dari run ulang dengan blocking PL yang benar. Run awal hanya menaikkan *detection* paranoia, sehingga blocking tetap PL1. Klasifikasi TP/FP/TN/FN identik dengan run awal. Yang berubah adalah blocking rate, yang kini sama dengan recall, dan FP PL2+ kini benar-benar diblokir. Lihat [koreksi metodologi](docs/RESULTS_INTERPRETATION.md#2c-trade-off-paranoia-level).
 
 ### Dataset Diperluas (N=217, 13 keluarga, blocking PL = detection PL)
 

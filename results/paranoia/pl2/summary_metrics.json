@@ -9,30 +9,52 @@
   "detection_rate_recall": 0.8214,
   "precision": 0.7667,
   "false_positive_rate": 0.1667,
+  "specificity": 0.8333,
   "f1_score": 0.7931,
-  "blocking_rate": 0.7857,
-  "malicious_blocked": 22,
+  "blocking_rate": 0.8214,
+  "malicious_blocked": 23,
+  "malicious_blocked_unverified": 0,
   "malicious_rejected_by_proxy": 4,
-  "overall_mitigation_rate": 0.9286,
+  "alerts_outbound_only": 4,
+  "request_phase": {
+    "confusion_matrix": {
+      "TP": 23,
+      "FP": 3,
+      "TN": 39,
+      "FN": 5
+    },
+    "detection_rate_recall": 0.8214,
+    "false_positive_rate": 0.0714,
+    "recall_ci95": [
+      0.6441,
+      0.9212
+    ],
+    "fpr_ci95": [
+      0.0246,
+      0.1901
+    ]
+  },
+  "overall_mitigation_rate": 0.9643,
   "total_malicious": 28,
   "latency_waf": {
-    "mean_ms": 20.1,
-    "p50_ms": 19.1,
-    "p95_ms": 37.6
+    "mean_ms": 21.85,
+    "p50_ms": 16.49,
+    "p95_ms": 56.19
   },
   "latency_baseline": {
     "mean_ms": 22.02,
     "p50_ms": 11.31,
     "p95_ms": 33.56
   },
-  "latency_overhead_mean_ms": -1.91,
+  "latency_overhead_mean_ms": -0.17,
+  "latency_overhead_p50_ms": 5.18,
   "latency_stats": {
     "waf": {
       "n": 210,
-      "mean_ms": 20.1,
-      "p50_ms": 19.1,
-      "p95_ms": 37.6,
-      "iqr_ms": 9.82
+      "mean_ms": 21.85,
+      "p50_ms": 16.49,
+      "p95_ms": 56.19,
+      "iqr_ms": 14.6
     },
     "baseline": {
       "n": 210,
@@ -42,8 +64,8 @@
       "iqr_ms": 9.5
     },
     "mann_whitney_u": {
-      "u": 32855.0,
-      "z": 8.6867,
+      "u": 31128.0,
+      "z": 7.2983,
       "p_value": 0.0
     }
   },
@@ -60,31 +82,114 @@
       0.0832,
       0.306
     ],
+    "specificity": [
+      0.694,
+      0.9168
+    ],
     "blocking_rate": [
-      0.6046,
-      0.8979
+      0.6441,
+      0.9212
     ]
   },
   "category_breakdown": {
     "normal": {
       "total": 42,
       "detected": 7,
-      "blocked": 0
+      "blocked": 7,
+      "malicious": 0,
+      "benign": 42,
+      "tp": 0,
+      "fn": 0,
+      "fp": 7,
+      "tn": 35,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.1667,
+      "small_sample": false
     },
     "sqli": {
       "total": 10,
       "detected": 10,
-      "blocked": 10
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
     },
     "xss": {
       "total": 10,
       "detected": 10,
-      "blocked": 10
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
     },
     "path-traversal": {
       "total": 8,
       "detected": 3,
-      "blocked": 2
+      "blocked": 3,
+      "malicious": 8,
+      "benign": 0,
+      "tp": 3,
+      "fn": 5,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 3,
+      "recall": 0.375,
+      "recall_ci95": [
+        0.1368,
+        0.6943
+      ],
+      "blocking_rate": 0.375,
+      "false_positive_rate": null,
+      "small_sample": true
+    }
+  },
+  "applicability_breakdown": {
+    "unspecified": {
+      "total": 70,
+      "detected": 30,
+      "blocked": 30,
+      "malicious": 28,
+      "benign": 42,
+      "tp": 23,
+      "fn": 5,
+      "fp": 7,
+      "tn": 35,
+      "blocked_confirmed": 23,
+      "recall": 0.8214,
+      "recall_ci95": [
+        0.6441,
+        0.9212
+      ],
+      "blocking_rate": 0.8214,
+      "false_positive_rate": 0.1667,
+      "small_sample": false
     }
   },
   "misclassified": [
@@ -95,8 +200,10 @@
       "path": "/api/Feedbacks/",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -105,8 +212,10 @@
       "path": "/rest/products/search?q=O%27Reilly",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -115,8 +224,10 @@
       "path": "/rest/products/search?q=C%23+sticker",
       "rules": [
         "920350",
-        "942440"
-      ]
+        "942440",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -125,8 +236,10 @@
       "path": "/rest/products/search?q=1+or+2+bottles",
       "rules": [
         "920350",
-        "942390"
-      ]
+        "942390",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -137,8 +250,9 @@
         "920350",
         "932200",
         "942200",
-        "950100"
-      ]
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -147,8 +261,10 @@
       "path": "/api/Feedbacks/",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -157,8 +273,10 @@
       "path": "/api/Feedbacks/",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FN",
@@ -166,7 +284,8 @@
       "category": "path-traversal",
       "path": "/ftp/../../../../etc/passwd",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -174,7 +293,8 @@
       "category": "path-traversal",
       "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -184,7 +304,8 @@
       "rules": [
         "920350"
       ],
-      "outcome": "passed_clean"
+      "outcome": "passed_clean",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -192,7 +313,8 @@
       "category": "path-traversal",
       "path": "/assets/public/images/../../../../windows/win.ini",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -200,7 +322,8 @@
       "category": "path-traversal",
       "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     }
   ]
 }

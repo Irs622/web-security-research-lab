@@ -39,15 +39,17 @@ Serangan ini **termitigasi**, tetapi bukan oleh rule engine WAF — maka tetap d
 
 ## 2c. Trade-off Paranoia Level
 
-| PL | Recall | FPR | Precision | F1 | Rule FP dominan |
-|---|---|---|---|---|---|
-| 1 | 78.57% | 0.00% | 100.00% | 0.880 | — |
-| 2 | 82.14% | 16.67% | 76.67% | 0.793 | `950100` (respons 5xx backend), `942xxx` |
-| **2 + tuning** | **82.14%** | **2.38%** | **95.83%** | **0.885** | `950100` pada pencarian `O'Reilly` (sengaja tidak dikecualikan) |
-| 3 | 85.71% | 23.81% | 70.59% | 0.774 | + `920272` (karakter di luar ASCII cetak) |
-| 4 | 85.71% | 54.76% | 51.06% | 0.640 | `920273` (karakter spesial ketat), `942432` |
+Sumber: `results/paranoia/` (`make experiment-matrix experiment-tuned` pada commit `9d10341`, `git_dirty: false`; setiap run 210/210 request selesai, 0 error transport). `BLOCKING_PARANOIA` = `DETECTION_PARANOIA` = PL skenario, tercatat di `waf_runtime.env` setiap `waf.meta.json`. Blocking rate = blokir terkonfirmasi audit log (tidak ada blokir berbasis status saja).
 
-> **Koreksi metodologi (2026-10-15) — tabel di atas mengukur *detection* paranoia, bukan *blocking* paranoia.** Image `owasp/modsecurity-crs` 4.x memperlakukan `PARANOIA` sebagai variabel usang: `BLOCKING_PARANOIA` (default image = 1) yang berlaku untuk pemblokiran, sehingga `PARANOIA=N` hanya menaikkan `tx.detection_paranoia_level`. Diverifikasi di container (`crs-setup.conf`: `blocking_paranoia_level=1`, `detection_paranoia_level=2` saat `PARANOIA=2`) dan terlihat pada data: blocking rate tetap 78,57% di PL1–PL4. Rule PL N tetap dievaluasi dan dicatat, jadi recall/FPR berbasis alert di tabel ini sah sebagai "rule PL N yang **terpicu**", tetapi rule PL ≥ 2 tidak menambah skor anomali dan **tidak memblokir** — FP pada PL2+ adalah alert, bukan request pengguna yang ditolak. `docker-compose.yml` kini menyetel `BLOCKING_PARANOIA` dan `DETECTION_PARANOIA` dari `PARANOIA`. Hasil dataset asli di `results/paranoia/` dan `results/holdout/` **belum** dijalankan ulang dengan konfigurasi yang diperbaiki; hasil dataset diperluas di `results/extended/` sudah memakai konfigurasi yang benar (lihat [§7](#hasil-dataset-diperluas)).
+| PL | TP/FP/TN/FN | Recall | FPR | Precision | F1 | Blocking | Recall / FPR fase request saja | Rule FP dominan |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 22/0/42/6 | 78.57% | 0.00% | 100.00% | 0.880 | 78.57% | 78.57% / 0.00% | — |
+| 2 | 23/7/35/5 | 82.14% | 16.67% | 76.67% | 0.793 | 82.14% | 82.14% / 7.14% | `950100` (respons 5xx backend), `942xxx` |
+| **2 + tuning** | 23/1/41/5 | **82.14%** | **2.38%** | **95.83%** | **0.885** | 82.14% | 82.14% / 0.00% | `950100` pada pencarian `O'Reilly` (sengaja tidak dikecualikan) |
+| 3 | 24/10/32/4 | 85.71% | 23.81% | 70.59% | 0.774 | 85.71% | 85.71% / 16.67% | + `920272` (karakter di luar ASCII cetak) |
+| 4 | 24/23/19/4 | 85.71% | 54.76% | 51.06% | 0.640 | 85.71% | 85.71% / 54.76% | `920273` (karakter spesial ketat), `942432` |
+
+> **Koreksi metodologi (2026-10-15).** Image `owasp/modsecurity-crs` 4.x memperlakukan `PARANOIA` sebagai variabel usang: `BLOCKING_PARANOIA` (default image = 1) yang berlaku untuk pemblokiran. Run awal tabel ini hanya menaikkan *detection* paranoia, sehingga blocking rate tetap 78,57% di PL1–PL4 dan FP PL2+ hanya berupa alert. Sejak commit `8d370c6`, `docker-compose.yml` menyetel `BLOCKING_PARANOIA` dan `DETECTION_PARANOIA` dari `PARANOIA`, dan tabel di atas berasal dari run ulang dengan konfigurasi tersebut. **Klasifikasi TP/FP/TN/FN identik dengan run awal**, karena metrik berbasis alert sudah menghitung rule PL N yang terpicu. Yang berubah adalah blocking rate, yang kini sama dengan recall di setiap PL. FP kini adalah request pengguna yang **benar-benar ditolak**. Pada PL2, 3 dari 7 FP diblokir di fase request (HTTP 403, `backend_outcome = not_reached`). 4 sisanya (`BENIGN-010/013/039/040`, rule `950100`) diblokir pada **respons** 5xx setelah request diproses aplikasi (`reached_response_blocked`). Pada PL3 komposisinya 7 request / 3 respons, dan pada PL4 seluruh 23 FP diblokir di fase request.
 
 Kesimpulan: tanpa tuning, PL1 optimal. Namun **PL2 dengan exclusion sempit memberikan F1 tertinggi (0.885)**.
 
@@ -66,13 +68,15 @@ Hasil: FP turun dari 7 menjadi 1 (FPR 16.67% → 2.38%, CI 95%: 0.4–12.3%), se
 
 ### Validasi Hold-out (20 kasus benign yang tidak dipakai saat tuning)
 
-Set terpisah [`simulator/holdout_benign.json`](../simulator/holdout_benign.json) (dijamin tidak beririsan dengan dataset utama oleh `tests/test_dataset.py`) dijalankan dengan `make experiment-holdout`:
+Set terpisah [`simulator/holdout_benign.json`](../simulator/holdout_benign.json) (dijamin tidak beririsan dengan dataset utama oleh `tests/test_dataset.py`) dijalankan dengan `make experiment-holdout` (`results/holdout/`, commit `9d10341`, `git_dirty: false`, 60/60 request per skenario, blocking PL = detection PL):
 
-| Skenario | FPR in-sample (42 benign) | **FPR hold-out (20 benign)** | 95% CI hold-out |
-|---|---|---|---|
-| PL1 | 0.00% | **5.00%** (1/20) | 0.9–23.6% |
-| PL2 | 16.67% | **40.00%** (8/20) | 21.9–61.3% |
-| PL2 tuned | 2.38% | **20.00%** (4/20) | 8.1–41.6% |
+| Skenario | FPR in-sample (42 benign) | **FPR hold-out (20 benign)** | 95% CI hold-out | FPR hold-out fase request saja |
+|---|---|---|---|---|
+| PL1 | 0.00% | **5.00%** (1/20) | 0.9–23.6% | 5.00% (1/20) |
+| PL2 | 16.67% | **40.00%** (8/20) | 21.9–61.3% | 20.00% (4/20) |
+| PL2 tuned | 2.38% | **20.00%** (4/20) | 8.1–41.6% | 10.00% (2/20) |
+
+Kasus FP sama dengan run awal (saat blocking masih PL1), tetapi kini semuanya benar-benar diblokir. FP fase request ditolak dengan 403 sebelum mencapai aplikasi. FP `950100` diblokir pada respons 5xx, setelah aplikasi memproses request.
 
 FP hold-out pada PL2 tuned:
 
@@ -82,7 +86,7 @@ FP hold-out pada PL2 tuned:
 | `HOLDOUT-009` (`50% off -- today`) | `942100` | **Diblokir (403) bahkan pada PL1** — libinjection membaca `--` sebagai komentar SQL. FP murni yang berdampak ke pengguna |
 | `HOLDOUT-018` (`Order #1234 ... (late)`) | `942440` | Rule ini hanya dikecualikan pada `q`, bukan pada `json.comment` → bukti exclusion **overfit** ke dataset tuning |
 
-**Kesimpulan yang jujur:** keunggulan PL2 tuned (FPR 2.38%) sebagian besar adalah efek *in-sample*. Pada data baru, FPR PL2 tuned (20%) tetap jauh lebih baik dari PL2 tanpa tuning (40%), tetapi lebih buruk dari PL1 (5%). Tuning per-endpoint membutuhkan iterasi pada trafik nyata (mode `DetectionOnly`) sebelum dapat mengalahkan PL1. Bila kasus 950100 (gejala kerentanan) dikeluarkan dari hitungan, FP yang berdampak ke pengguna pada PL2 tuned adalah 2/20 (10%).
+**Kesimpulan yang jujur:** keunggulan PL2 tuned (FPR 2.38%) sebagian besar adalah efek *in-sample*. Pada data baru, FPR PL2 tuned (20%) tetap jauh lebih baik dari PL2 tanpa tuning (40%), tetapi lebih buruk dari PL1 (5%). Tuning per-endpoint membutuhkan iterasi pada trafik nyata (mode `DetectionOnly`) sebelum dapat mengalahkan PL1. Bila kasus `950100` (gejala kerentanan, diblokir di fase respons) dikeluarkan dari hitungan, FP fase request pada PL2 tuned adalah 2/20 (10%): `HOLDOUT-009` dan `HOLDOUT-018`, keduanya ditolak 403.
 
 Catatan: `950100` adalah rule outbound yang menandai respons error 5xx dari aplikasi — FP ini mencerminkan perilaku Juice Shop, bukan input pengguna.
 
@@ -177,7 +181,7 @@ Per applicability (PL1): `sink_present` 26/33 (78.8%, CI 62.3–89.3%), `pattern
 5. **Satu FP di semua PL: `BENIGN-045`** (GET tanpa body dengan `Content-Type: application/xml`) diblokir oleh rule engine `200002` (gagal mem-parse body XML kosong) dari `modsecurity.conf`, bukan oleh CRS. Klien sah jarang mengirimnya, tetapi ini menunjukkan bahwa tidak semua blokir berasal dari CRS.
 6. **Atribusi 401/403 aplikasi**: di baseline, 17 kasus menerima 401/403 dari Juice Shop sendiri (mis. guard `/ftp`, login NoSQL `NOSQLI-002…010`). `NOSQLI-009` (`$nin`) lolos WAF dan ditolak aplikasi (401) — tercatat `block_source = application`, bukan blokir WAF.
 7. **Tuning tidak menggeneralisasi ke keluarga baru.** Exclusion PL2 tuned (dari dataset asli) menurunkan FPR 23.08% → 12.31%, tetapi FP baru dari kontrol benign keluarga baru tetap ada: `932236` pada kata `echo`, `php`, `java`, `$`, `file` (`BENIGN-051/053/054/057`) dan `931130` pada URL sah di feedback (`BENIGN-060`).
-8. **Hold-out** (`results/extended/holdout/`, 20 benign, kini dengan blocking PL yang benar): PL1 5% (1/20), PL2 40% (8/20), PL2 tuned 20% (4/20) — FP yang sama dengan hasil hold-out sebelumnya; kini benar-benar diblokir. Tanpa rule fase respons: 5% / 20% / 10%.
+8. **Hold-out** (`results/extended/holdout/`, 20 benign, kini dengan blocking PL yang benar): PL1 5% (1/20), PL2 40% (8/20), PL2 tuned 20% (4/20). FP-nya sama dengan run ulang hold-out dataset asli di `results/holdout/` (§2c). Tanpa rule fase respons: 5% / 20% / 10%.
 
 ### 7.4 Latensi
 

@@ -10,6 +10,7 @@ Perubahan penting pada lab ini, terbaru di atas.
 - **Tooling:** variabel `CASES`/`OUT` di semua target eksperimen, `make experiment-extended`, `make compose-check`, `compare_paranoia.py --matrix-dir`.
 - **Perbaikan lab:** `PARANOIA` kini juga menyetel `BLOCKING_PARANOIA` dan `DETECTION_PARANOIA`. Sebelumnya image CRS memakai blocking PL1 untuk semua skenario, sehingga hasil PL2–PL4 dataset asli hanya mengukur rule yang terpicu, bukan blokir (lihat koreksi di RESULTS_INTERPRETATION.md §2c).
 - **Atribusi:** blokir yang hanya berasal dari rule outbound (`950100` + `959100`) dicatat `backend_outcome = reached_response_blocked`; `959100` diperlakukan sebagai meta-rule seperti `949110`; metrik `request_phase` (recall/FPR tanpa rule `95xxxx`).
+- **Eksperimen (dataset asli, dijalankan ulang):** `results/paranoia/` (PL1–PL4, PL2 tuned) dan `results/holdout/` dijalankan ulang dengan blocking PL = detection PL. Klasifikasi identik dengan run awal. Blocking rate kini sama dengan recall (PL2 82.14%, PL3/PL4 85.71%; sebelumnya 78.57% di semua PL). FP PL2+ kini benar-benar diblokir.
 - **Eksperimen:** hasil dataset diperluas di `results/extended/` (baseline, PL1–PL4, PL2 tuned, hold-out), 3× pengulangan, 0 error transport.
 - **Test:** validasi dataset diperluas (keunikan request, identitas kasus asli, independensi hold-out ter-normalisasi, well-formedness JSON/XML, host payload dalam lingkup lab).
 

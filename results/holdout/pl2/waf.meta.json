@@ -1,8 +1,12 @@
 {
-  "run_id": "run_waf_20261011_144649",
+  "run_id": "run_waf_20261015_152853",
   "mode": "waf",
-  "started_utc": "2026-10-11T14:46:49.066924+00:00",
-  "git_sha": "01612fc818a25a7331f3e074560fc20f00826746",
+  "target": "http://127.0.0.1:8080",
+  "started_utc": "2026-10-15T15:28:53.656354+00:00",
+  "git_sha": "9d10341e7e3f058db62be2beb2050079e6816c0b",
+  "git_dirty": false,
+  "dataset_path": "simulator/holdout_benign.json",
+  "dataset_file_sha256": "51f41d0a17aa0a83e178ec4393f72ff3750a56b2421a7a568ddf917646642846",
   "dataset_sha256": "8bf0acd9263c7cee046714395e999bf05033beb68a24f0f06f46e51ae95a4771",
   "case_count": 20,
   "repeat": 3,
@@ -10,12 +14,38 @@
   "paranoia_level": "2",
   "anomaly_inbound": "5",
   "tuned_exclusions": false,
+  "exclusions_file": null,
+  "exclusions_sha256": null,
   "images": {
     "waf": "owasp/modsecurity-crs:4.25.2-nginx-alpine-lts@sha256:13ba8285eb8c73d1d83a0ac6f2a9e8a9273293fde419bbc46bfe2be6c379ca1b",
     "juice_shop": "bkimminich/juice-shop:v17.1.1@sha256:9e437b456e444ff001d1663e4f6f05c796fe02f1058dd2651d6791a15b43dfeb"
   },
   "python": "3.9.6",
   "platform": "macOS-27.0.1-arm64-arm-64bit",
-  "finished_utc": "2026-10-11T14:47:10.740320+00:00",
-  "transport_errors": 0
+  "waf_runtime": {
+    "env": {
+      "BLOCKING_PARANOIA": "2",
+      "ANOMALY_INBOUND": "5",
+      "ANOMALY_OUTBOUND": "4",
+      "MODSEC_RULE_ENGINE": "On",
+      "DETECTION_PARANOIA": "2",
+      "PARANOIA": "2"
+    },
+    "mounts": []
+  },
+  "finished_utc": "2026-10-15T15:29:15.942263+00:00",
+  "requests_attempted": 60,
+  "requests_completed": 60,
+  "transport_errors": 0,
+  "audit_log_correlation": {
+    "trace_id": 60
+  },
+  "waf_producer": {
+    "modsecurity": "ModSecurity v3.0.17 (Linux)",
+    "connector": "ModSecurity-nginx v1.0.4",
+    "secrules_engine": "Enabled",
+    "components": [
+      "OWASP_CRS/4.25.2\""
+    ]
+  }
 }

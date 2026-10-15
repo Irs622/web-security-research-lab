@@ -9,30 +9,52 @@
   "detection_rate_recall": 0.8571,
   "precision": 0.5106,
   "false_positive_rate": 0.5476,
+  "specificity": 0.4524,
   "f1_score": 0.64,
-  "blocking_rate": 0.7857,
-  "malicious_blocked": 22,
+  "blocking_rate": 0.8571,
+  "malicious_blocked": 24,
+  "malicious_blocked_unverified": 0,
   "malicious_rejected_by_proxy": 4,
-  "overall_mitigation_rate": 0.9286,
+  "alerts_outbound_only": 0,
+  "request_phase": {
+    "confusion_matrix": {
+      "TP": 24,
+      "FP": 23,
+      "TN": 19,
+      "FN": 4
+    },
+    "detection_rate_recall": 0.8571,
+    "false_positive_rate": 0.5476,
+    "recall_ci95": [
+      0.6851,
+      0.943
+    ],
+    "fpr_ci95": [
+      0.3995,
+      0.6878
+    ]
+  },
+  "overall_mitigation_rate": 1.0,
   "total_malicious": 28,
   "latency_waf": {
-    "mean_ms": 21.62,
-    "p50_ms": 20.34,
-    "p95_ms": 39.22
+    "mean_ms": 37.93,
+    "p50_ms": 17.16,
+    "p95_ms": 136.2
   },
   "latency_baseline": {
     "mean_ms": 22.02,
     "p50_ms": 11.31,
     "p95_ms": 33.56
   },
-  "latency_overhead_mean_ms": -0.4,
+  "latency_overhead_mean_ms": 15.91,
+  "latency_overhead_p50_ms": 5.85,
   "latency_stats": {
     "waf": {
       "n": 210,
-      "mean_ms": 21.62,
-      "p50_ms": 20.34,
-      "p95_ms": 39.22,
-      "iqr_ms": 12.83
+      "mean_ms": 37.93,
+      "p50_ms": 17.16,
+      "p95_ms": 136.2,
+      "iqr_ms": 21.33
     },
     "baseline": {
       "n": 210,
@@ -42,8 +64,8 @@
       "iqr_ms": 9.5
     },
     "mann_whitney_u": {
-      "u": 33796.0,
-      "z": 9.4432,
+      "u": 32161.5,
+      "z": 8.1292,
       "p_value": 0.0
     }
   },
@@ -60,31 +82,114 @@
       0.3995,
       0.6878
     ],
+    "specificity": [
+      0.3122,
+      0.6005
+    ],
     "blocking_rate": [
-      0.6046,
-      0.8979
+      0.6851,
+      0.943
     ]
   },
   "category_breakdown": {
     "normal": {
       "total": 42,
       "detected": 23,
-      "blocked": 0
+      "blocked": 23,
+      "malicious": 0,
+      "benign": 42,
+      "tp": 0,
+      "fn": 0,
+      "fp": 23,
+      "tn": 19,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.5476,
+      "small_sample": false
     },
     "sqli": {
       "total": 10,
       "detected": 10,
-      "blocked": 10
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
     },
     "xss": {
       "total": 10,
       "detected": 10,
-      "blocked": 10
+      "blocked": 10,
+      "malicious": 10,
+      "benign": 0,
+      "tp": 10,
+      "fn": 0,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 10,
+      "recall": 1.0,
+      "recall_ci95": [
+        0.7225,
+        1.0
+      ],
+      "blocking_rate": 1.0,
+      "false_positive_rate": null,
+      "small_sample": false
     },
     "path-traversal": {
       "total": 8,
       "detected": 4,
-      "blocked": 2
+      "blocked": 4,
+      "malicious": 8,
+      "benign": 0,
+      "tp": 4,
+      "fn": 4,
+      "fp": 0,
+      "tn": 0,
+      "blocked_confirmed": 4,
+      "recall": 0.5,
+      "recall_ci95": [
+        0.2152,
+        0.7848
+      ],
+      "blocking_rate": 0.5,
+      "false_positive_rate": null,
+      "small_sample": true
+    }
+  },
+  "applicability_breakdown": {
+    "unspecified": {
+      "total": 70,
+      "detected": 47,
+      "blocked": 47,
+      "malicious": 28,
+      "benign": 42,
+      "tp": 24,
+      "fn": 4,
+      "fp": 23,
+      "tn": 19,
+      "blocked_confirmed": 24,
+      "recall": 0.8571,
+      "recall_ci95": [
+        0.6851,
+        0.943
+      ],
+      "blocking_rate": 0.8571,
+      "false_positive_rate": 0.5476,
+      "small_sample": false
     }
   },
   "misclassified": [
@@ -95,8 +200,10 @@
       "path": "/rest/products/search?q=orange+juice",
       "rules": [
         "920350",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -105,8 +212,10 @@
       "path": "/rest/products/search?q=banana+%26+strawberry",
       "rules": [
         "920350",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -116,8 +225,10 @@
       "rules": [
         "920350",
         "920273",
-        "942432"
-      ]
+        "942432",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -127,8 +238,9 @@
       "rules": [
         "920350",
         "920273",
-        "950100"
-      ]
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -138,8 +250,10 @@
       "rules": [
         "920350",
         "920272",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -149,8 +263,9 @@
       "rules": [
         "920350",
         "920273",
-        "950100"
-      ]
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -160,8 +275,10 @@
       "rules": [
         "920350",
         "920272",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -171,8 +288,10 @@
       "rules": [
         "920350",
         "920272",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -181,8 +300,10 @@
       "path": "/rest/products/search?q=select+fruit",
       "rules": [
         "920350",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -191,8 +312,10 @@
       "path": "/rest/products/search?q=apple-banana+mix",
       "rules": [
         "920350",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -202,8 +325,10 @@
       "rules": [
         "920350",
         "920273",
-        "942440"
-      ]
+        "942440",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -213,8 +338,10 @@
       "rules": [
         "920350",
         "920273",
-        "942390"
-      ]
+        "942390",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -224,8 +351,10 @@
       "rules": [
         "920350",
         "920273",
-        "942432"
-      ]
+        "942432",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -235,8 +364,10 @@
       "rules": [
         "920350",
         "920273",
-        "942432"
-      ]
+        "942432",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -245,8 +376,10 @@
       "path": "/rest/products/search?q=price%3A+2.99%2Fl",
       "rules": [
         "920350",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -255,8 +388,10 @@
       "path": "/rest/products/search?q=melon%3B+kiwi",
       "rules": [
         "920350",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -265,8 +400,10 @@
       "path": "/rest/products/search?q=bestseller+2026",
       "rules": [
         "920350",
-        "920273"
-      ]
+        "920273",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -276,8 +413,10 @@
       "rules": [
         "920350",
         "920273",
-        "942432"
-      ]
+        "942432",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -287,8 +426,10 @@
       "rules": [
         "920350",
         "920273",
-        "942432"
-      ]
+        "942432",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -301,8 +442,9 @@
         "932200",
         "942200",
         "942432",
-        "950100"
-      ]
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -313,8 +455,9 @@
         "920350",
         "920273",
         "942432",
-        "950100"
-      ]
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -326,8 +469,9 @@
         "920273",
         "942460",
         "942432",
-        "950100"
-      ]
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -337,8 +481,10 @@
       "rules": [
         "920350",
         "920273",
-        "942432"
-      ]
+        "942432",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FN",
@@ -346,7 +492,8 @@
       "category": "path-traversal",
       "path": "/ftp/../../../../etc/passwd",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -354,7 +501,8 @@
       "category": "path-traversal",
       "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -362,7 +510,8 @@
       "category": "path-traversal",
       "path": "/assets/public/images/../../../../windows/win.ini",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     },
     {
       "type": "FN",
@@ -370,7 +519,8 @@
       "category": "path-traversal",
       "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
       "rules": [],
-      "outcome": "rejected_by_proxy"
+      "outcome": "rejected_by_proxy",
+      "scenario_applicability": "unspecified"
     }
   ]
 }

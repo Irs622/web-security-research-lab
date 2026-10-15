@@ -9,16 +9,34 @@
   "detection_rate_recall": null,
   "precision": 0.0,
   "false_positive_rate": 0.2,
+  "specificity": 0.8,
   "f1_score": null,
   "blocking_rate": null,
   "malicious_blocked": 0,
+  "malicious_blocked_unverified": 0,
   "malicious_rejected_by_proxy": 0,
+  "alerts_outbound_only": 2,
+  "request_phase": {
+    "confusion_matrix": {
+      "TP": 0,
+      "FP": 2,
+      "TN": 18,
+      "FN": 0
+    },
+    "detection_rate_recall": null,
+    "false_positive_rate": 0.1,
+    "recall_ci95": null,
+    "fpr_ci95": [
+      0.0279,
+      0.301
+    ]
+  },
   "overall_mitigation_rate": null,
   "total_malicious": 0,
   "latency_waf": {
-    "mean_ms": 38.62,
-    "p50_ms": 22.33,
-    "p95_ms": 93.83
+    "mean_ms": 22.42,
+    "p50_ms": 19.3,
+    "p95_ms": 46.52
   },
   "latency_baseline": {
     "mean_ms": null,
@@ -26,13 +44,14 @@
     "p95_ms": null
   },
   "latency_overhead_mean_ms": null,
+  "latency_overhead_p50_ms": null,
   "latency_stats": {
     "waf": {
       "n": 60,
-      "mean_ms": 38.62,
-      "p50_ms": 22.33,
-      "p95_ms": 93.83,
-      "iqr_ms": 12.75
+      "mean_ms": 22.42,
+      "p50_ms": 19.3,
+      "p95_ms": 46.52,
+      "iqr_ms": 11.23
     },
     "baseline": {
       "n": 0,
@@ -53,13 +72,48 @@
       0.0807,
       0.416
     ],
+    "specificity": [
+      0.584,
+      0.9193
+    ],
     "blocking_rate": null
   },
   "category_breakdown": {
     "normal": {
       "total": 20,
       "detected": 4,
-      "blocked": 1
+      "blocked": 4,
+      "malicious": 0,
+      "benign": 20,
+      "tp": 0,
+      "fn": 0,
+      "fp": 4,
+      "tn": 16,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.2,
+      "small_sample": false
+    }
+  },
+  "applicability_breakdown": {
+    "unspecified": {
+      "total": 20,
+      "detected": 4,
+      "blocked": 4,
+      "malicious": 0,
+      "benign": 20,
+      "tp": 0,
+      "fn": 0,
+      "fp": 4,
+      "tn": 16,
+      "blocked_confirmed": 0,
+      "recall": null,
+      "recall_ci95": null,
+      "blocking_rate": null,
+      "false_positive_rate": 0.2,
+      "small_sample": false
     }
   },
   "misclassified": [
@@ -70,8 +124,10 @@
       "path": "/rest/products/search?q=Bob%27s+favourite",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -80,8 +136,10 @@
       "path": "/rest/products/search?q=don%27t+miss",
       "rules": [
         "920350",
-        "950100"
-      ]
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -92,7 +150,8 @@
         "920350",
         "942100",
         "949110"
-      ]
+      ],
+      "outcome": "blocked_by_waf"
     },
     {
       "type": "FP",
@@ -101,8 +160,10 @@
       "path": "/api/Feedbacks/",
       "rules": [
         "920350",
-        "942440"
-      ]
+        "942440",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
     }
   ]
 }

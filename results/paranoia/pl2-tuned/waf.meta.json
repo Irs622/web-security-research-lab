@@ -1,8 +1,12 @@
 {
-  "run_id": "run_waf_20261011_144111",
+  "run_id": "run_waf_20261015_152606",
   "mode": "waf",
-  "started_utc": "2026-10-11T14:41:11.250215+00:00",
-  "git_sha": "f4302ec0cd7c5904e41f175150036e449ce1e665",
+  "target": "http://127.0.0.1:8080",
+  "started_utc": "2026-10-15T15:26:06.672856+00:00",
+  "git_sha": "9d10341e7e3f058db62be2beb2050079e6816c0b",
+  "git_dirty": false,
+  "dataset_path": "simulator/attack_cases.json",
+  "dataset_file_sha256": "bbc0ac0324ae46e60113d602623bb1db67d93a4ecb211da133246daa2afe00c5",
   "dataset_sha256": "40a7dba73cd9b382a8cd44e4e2915a5bd5b7dcf943af7457b10d84b10963e95c",
   "case_count": 70,
   "repeat": 3,
@@ -10,12 +14,41 @@
   "paranoia_level": "2",
   "anomaly_inbound": "5",
   "tuned_exclusions": true,
+  "exclusions_file": "lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf",
+  "exclusions_sha256": "87a2f5dc2ec69aee1e4db759d72a95e7bad753b644bfdbafc8816f0b254bd733",
   "images": {
     "waf": "owasp/modsecurity-crs:4.25.2-nginx-alpine-lts@sha256:13ba8285eb8c73d1d83a0ac6f2a9e8a9273293fde419bbc46bfe2be6c379ca1b",
     "juice_shop": "bkimminich/juice-shop:v17.1.1@sha256:9e437b456e444ff001d1663e4f6f05c796fe02f1058dd2651d6791a15b43dfeb"
   },
   "python": "3.9.6",
   "platform": "macOS-27.0.1-arm64-arm-64bit",
-  "finished_utc": "2026-10-11T14:42:28.009549+00:00",
-  "transport_errors": 0
+  "waf_runtime": {
+    "env": {
+      "ANOMALY_INBOUND": "5",
+      "DETECTION_PARANOIA": "2",
+      "PARANOIA": "2",
+      "MODSEC_RULE_ENGINE": "On",
+      "BLOCKING_PARANOIA": "2",
+      "ANOMALY_OUTBOUND": "4"
+    },
+    "mounts": [
+      "/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf"
+    ]
+  },
+  "finished_utc": "2026-10-15T15:27:53.705435+00:00",
+  "requests_attempted": 210,
+  "requests_completed": 210,
+  "transport_errors": 0,
+  "audit_log_correlation": {
+    "trace_id": 198,
+    "none": 12
+  },
+  "waf_producer": {
+    "modsecurity": "ModSecurity v3.0.17 (Linux)",
+    "connector": "ModSecurity-nginx v1.0.4",
+    "secrules_engine": "Enabled",
+    "components": [
+      "OWASP_CRS/4.25.2\""
+    ]
+  }
 }
