@@ -87,7 +87,7 @@ Untuk memastikan setiap baris hasil dikaitkan dengan transaksi ModSecurity yang 
 - **Ukuran Sampel:**
   - Dataset asli: N=70 kasus uji terkontrol (42 Benign, 10 SQLi, 10 XSS, 8 Path Traversal).
   - Dataset diperluas: N=217 (65 benign, 152 malicious dalam 13 keluarga) — lihat [DATASET.md](DATASET.md).
-  - Hold-out benign: N=20, dijalankan terpisah dan tidak dipakai untuk menyusun exclusion.
+  - Hold-out benign: N=80 (20 asli + 60 ditambahkan sebelum exclusion v2), dijalankan terpisah dan tidak dipakai untuk menyusun exclusion.
   - Pengulangan (`--repeat`) hanya menambah sampel latensi; setiap kasus dihitung satu kali untuk metrik deteksi.
 - **Concurrency & Rate:** Sequential execution dengan inter-request delay 0.25 detik.
 - **Hardware Environment:** Apple Silicon M3 (ARM64), 8 GB RAM, macOS Darwin.
@@ -107,7 +107,10 @@ Untuk memastikan setiap baris hasil dikaitkan dengan transaksi ModSecurity yang 
 | 2–5 | ModSecurity + CRS PL1–PL4 (`BLOCKING_PARANOIA` = `DETECTION_PARANOIA` = N), ambang inbound 5 | `experiment-matrix` | `results/paranoia/pl<N>/` / `results/extended/paranoia/pl<N>/` |
 | 6 | PL2 + exclusion sempit (`lab/tuning/`) | `experiment-tuned` | `results/paranoia/pl2-tuned/` / `results/extended/paranoia/pl2-tuned/` |
 | H | Hold-out benign vs PL1, PL2, PL2 tuned | `experiment-holdout` | `results/holdout/` / `results/extended/holdout/` |
+| L | Latensi: 5 ronde baseline/WAF PL1, urutan bergantian | `experiment-latency` | — / `results/extended/latency/` |
 
-`make experiment-extended` menjalankan 1–6 dan H untuk dataset diperluas. Exclusion PL2 tuned **diturunkan dari dataset asli**; pada dataset diperluas, exclusion yang sama diterapkan tanpa penyesuaian sehingga hasilnya menguji generalisasi tuning, bukan tuning baru.
+`make experiment-extended` menjalankan 1–6 dan H untuk dataset diperluas. Exclusion PL2 tuned terdiri atas dua versi: v1 (1101–1102) diturunkan dari FP PL2 dataset asli, v2 (1103–1104) dari FP PL2 dataset diperluas. FPR tuned pada dataset tuning-nya sendiri adalah angka *in-sample*; generalisasi dinilai **hanya** dari set hold-out, yang disusun sebelum v2 dan tidak pernah dipakai untuk tuning.
+
+Latensi diukur terpisah (L) karena run deteksi berurutan mencampur beban host dengan efek WAF. Setiap ronde menjalankan baseline dan WAF berurutan dengan urutan bergantian, dan overhead dilaporkan sebagai median antar-ronde dari Δp50 request benign beserta rentangnya ([METRICS.md](METRICS.md#latensi-multi-ronde)).
 
 Setiap run menulis `*.meta.json` (lihat [OUTPUT_FORMAT.md](OUTPUT_FORMAT.md)): path dan SHA-256 dataset, git SHA + status *dirty*, image beserta digest, environment dan mount container WAF yang benar-benar berjalan (Paranoia Level, ambang anomali, file exclusion), versi ModSecurity/CRS dari field `producer` audit log, jumlah request dicoba/berhasil, status korelasi audit log, dan stempel waktu.

@@ -10,7 +10,7 @@ Dokumen ini menjelaskan skema, komposisi, dan aturan penambahan kasus uji yang d
 |---|---|---|
 | [`simulator/attack_cases.json`](../simulator/attack_cases.json) | **Dataset asli (baseline reproducibility)**: 70 kasus berlabel, 42 benign, 28 malicious. Tidak diubah agar hash dan hasil di `results/` tetap valid | `make test-baseline`, `make test-waf`, `make experiment-matrix`, `make experiment-tuned` (default) |
 | [`simulator/attack_cases_extended.json`](../simulator/attack_cases_extended.json) | **Dataset diperluas**: 217 kasus, 65 benign, 152 malicious, 13 keluarga serangan. Superset dari dataset asli | `make experiment-extended`, atau target mana pun dengan `CASES=simulator/attack_cases_extended.json OUT=results/extended` |
-| [`simulator/holdout_benign.json`](../simulator/holdout_benign.json) | 20 kasus benign yang **tidak pernah** dipakai saat menyusun rule exclusion | `make experiment-holdout` |
+| [`simulator/holdout_benign.json`](../simulator/holdout_benign.json) | 80 kasus benign yang **tidak pernah** dipakai saat menyusun rule exclusion (`HOLDOUT-001…020` asli; `HOLDOUT-021…080` ditambahkan sebelum exclusion v2 disusun) | `make experiment-holdout` |
 
 Penyusunan, koreksi audit, dan batas klaim dataset diperluas dijelaskan di [SCENARIO_MATRIX.md](SCENARIO_MATRIX.md).
 
@@ -104,4 +104,6 @@ Dataset divalidasi di dua tempat:
 
 ### Kecukupan sampel benign
 
-Dengan 0 FP dari n benign, batas atas Wilson 95% FPR adalah ±8,4% (n = 42), ±5,6% (n = 65), dan ±16,1% (n = 20, hold-out). Jadi hold-out 20 kasus hanya dapat menunjukkan regresi FPR yang besar; klaim FPR "mendekati nol" membutuhkan set hold-out yang lebih besar. Set hold-out sengaja tidak diperbesar dalam perubahan ini agar hasil hold-out yang sudah dilaporkan tetap valid; memperbesarnya adalah pekerjaan lanjutan yang harus dilakukan **sebelum** tuning baru disusun.
+Dengan 0 FP dari n benign, batas atas Wilson 95% FPR adalah 8,4% (n = 42), 5,6% (n = 65), 16,1% (n = 20), dan 4,6% (n = 80). Karena itu set hold-out diperbesar dari 20 menjadi 80 kasus. Kasus baru (`HOLDOUT-021…080`) mencakup permukaan FP yang muncul dari keluarga serangan baru: kata kunci SQL dan perintah shell dalam teks wajar, simbol, Unicode dan bahasa Indonesia, URL di feedback, kata sandi bersimbol, dan header browser.
+
+Urutan commit menjadi bukti independensi: hold-out 80 kasus di-commit (`2a1d5ca`) **sebelum** exclusion v2 ditulis (`7d48dcf`), dan v2 hanya diturunkan dari FP dataset diperluas. Kasus hold-out yang masih FP setelah tuning (lihat [RESULTS_INTERPRETATION.md §2c](RESULTS_INTERPRETATION.md#2c-trade-off-paranoia-level)) sengaja **tidak** dikecualikan; mengecualikannya akan menjadikan hold-out data tuning. Iterasi tuning berikutnya memerlukan set hold-out baru.

@@ -102,7 +102,7 @@ make experiment-tuned           # PL2 + exclusion sempit dari lab/tuning/; hasil
 ```
 ### Tahap E: Validasi Hold-out
 ```bash
-make experiment-holdout         # 20 benign baru vs PL1, PL2, PL2 tuned; hasil di results/holdout/<skenario>/
+make experiment-holdout         # 80 benign hold-out vs PL1, PL2, PL2 tuned; hasil di results/holdout/<skenario>/
 ```
 
 Set hold-out hanya berisi kasus benign, sehingga yang bermakna hanya FPR; recall, F1, dan blocking rate dilaporkan `n/a` (`null` di JSON).
@@ -118,6 +118,12 @@ make test-waf analyze CASES=simulator/attack_cases_extended.json OUT=results/ext
 Dengan `REPEAT=3` dan delay 0,25 s, satu run WAF dataset diperluas berisi 651 request; seluruh `experiment-extended` memerlukan waktu sekitar satu jam.
 
 Sebelum melaporkan hasil, periksa `results/extended/**/*.meta.json`: `git_dirty` harus `false`, `waf_runtime.env.BLOCKING_PARANOIA` dan `DETECTION_PARANOIA` sesuai skenario, `requests_completed` sama dengan `requests_attempted`, dan `audit_log_correlation` didominasi `trace_id`.
+
+### Tahap G: Latensi Multi-ronde
+```bash
+make experiment-latency CASES=simulator/attack_cases_extended.json OUT=results/extended ROUNDS=5
+```
+Lima ronde baseline/WAF (PL1) dengan urutan bergantian; ringkasan di `results/extended/latency/latency_summary.json`. Jalankan saat host **idle**: tutup aplikasi berat, hentikan container lain, dan periksa `host_load_avg_start` di metadata. Laporkan median antar-ronde Δp50 benign beserta rentangnya, bukan mean satu run.
 
 Ketiga target mengembalikan WAF ke PL1 setelah selesai. `experiment-matrix` dan `experiment-tuned` juga memperbarui `results/paranoia/paranoia_comparison.json` serta `paranoia_tradeoff.png`.
 

@@ -39,7 +39,7 @@ Serangan ini **termitigasi**, tetapi bukan oleh rule engine WAF — maka tetap d
 
 ## 2c. Trade-off Paranoia Level
 
-Sumber: `results/paranoia/` (`make experiment-matrix experiment-tuned` pada commit `9d10341`, `git_dirty: false`; setiap run 210/210 request selesai, 0 error transport). `BLOCKING_PARANOIA` = `DETECTION_PARANOIA` = PL skenario, tercatat di `waf_runtime.env` setiap `waf.meta.json`. Blocking rate = blokir terkonfirmasi audit log (tidak ada blokir berbasis status saja).
+Sumber: `results/paranoia/` (`make experiment-matrix` pada commit `9d10341`; baris PL2 tuned dari `make experiment-tuned` dengan exclusion v2 pada commit `dc2bbe7`; semua `git_dirty: false`, setiap run 210/210 request selesai, 0 error transport). `BLOCKING_PARANOIA` = `DETECTION_PARANOIA` = PL skenario, tercatat di `waf_runtime.env` setiap `waf.meta.json`. Blocking rate = blokir terkonfirmasi audit log (tidak ada blokir berbasis status saja).
 
 | PL | TP/FP/TN/FN | Recall | FPR | Precision | F1 | Blocking | Recall / FPR fase request saja | Rule FP dominan |
 |---|---|---|---|---|---|---|---|---|
@@ -61,32 +61,40 @@ Exclusion di [`lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf`](../lab/t
 |---|---|---|---|
 | 1101 | `/api/Feedbacks` | `950100` (seluruh request); `932200`, `942200` pada `json.comment` | 500 karena captcha kosong adalah error aplikasi; komentar bebas memuat `I'd`, `5/5` |
 | 1102 | `/rest/products/search` | `942440`, `942390` pada `q` | Istilah natural (`C# sticker`, `1 or 2 bottles`); rule SQLi lain (mis. `942100` libinjection) tetap aktif |
+| 1103 (v2) | `/rest/products/search` | `932236` pada `q` | Kata sehari-hari yang juga perintah Unix (`echo`, `php`, `java`, `file`, `$`); CMDi tetap tertangkap `932235` (PL1) |
+| 1104 (v2) | `/api/Feedbacks` | `931130` pada `json.comment` | Tautan biasa di komentar; SSRF/XSS di komentar tetap tertangkap `934110`/`941xxx` |
+
+Exclusion 1101–1102 (v1) diturunkan dari FP PL2 dataset asli. Exclusion 1103–1104 (v2) diturunkan **hanya** dari FP PL2 dataset diperluas (`results/extended/paranoia/pl2`), setelah set hold-out 80 kasus di-commit (`2a1d5ca` sebelum `7d48dcf`) dan tanpa melihat hasil hold-out. Pada dataset asli, v2 tidak mengubah hasil: PL2 tuned tetap 23/1/41/5.
 
 Hasil: FP turun dari 7 menjadi 1 (FPR 16.67% → 2.38%, CI 95%: 0.4–12.3%), sementara SQLi tetap 10/10 dan XSS 10/10 — exclusion tidak membuka celah pada payload uji. Satu FP tersisa (`BENIGN-013`, pencarian `O'Reilly`) **sengaja dipertahankan**: respons 500-nya adalah gejala nyata kerentanan SQL injection Juice Shop, sehingga rule outbound `950100` memberikan sinyal yang benar secara keamanan meskipun inputnya sah.
 
 > Keterbatasan: exclusion disusun dari dataset yang sama dengan yang dievaluasi, sehingga FPR tuned cenderung optimistis. Validasi yang lebih kuat memerlukan set benign terpisah (hold-out) yang tidak dipakai saat tuning.
 
-### Validasi Hold-out (20 kasus benign yang tidak dipakai saat tuning)
+### Validasi Hold-out (80 kasus benign yang tidak dipakai saat tuning)
 
-Set terpisah [`simulator/holdout_benign.json`](../simulator/holdout_benign.json) (dijamin tidak beririsan dengan dataset utama oleh `tests/test_dataset.py`) dijalankan dengan `make experiment-holdout` (`results/holdout/`, commit `9d10341`, `git_dirty: false`, 60/60 request per skenario, blocking PL = detection PL):
+Set terpisah [`simulator/holdout_benign.json`](../simulator/holdout_benign.json) diperbesar dari 20 menjadi 80 kasus (`HOLDOUT-021…080`) **sebelum** exclusion v2 disusun. `tests/test_dataset.py` menjamin set ini tidak beririsan dengan kedua dataset tuning. Dijalankan dengan `make experiment-holdout` (`results/holdout/`, commit `dc2bbe7`, `git_dirty: false`, 240/240 request per skenario, blocking PL = detection PL). Run identik di `results/extended/holdout/` memberi hasil yang sama persis.
 
-| Skenario | FPR in-sample (42 benign) | **FPR hold-out (20 benign)** | 95% CI hold-out | FPR hold-out fase request saja |
+| Skenario | FPR in-sample (asli, 42 benign) | **FPR hold-out (80 benign)** | 95% CI hold-out | FPR hold-out fase request saja |
 |---|---|---|---|---|
-| PL1 | 0.00% | **5.00%** (1/20) | 0.9–23.6% | 5.00% (1/20) |
-| PL2 | 16.67% | **40.00%** (8/20) | 21.9–61.3% | 20.00% (4/20) |
-| PL2 tuned | 2.38% | **20.00%** (4/20) | 8.1–41.6% | 10.00% (2/20) |
+| PL1 | 0.00% | **2.50%** (2/80) | 0.7–8.7% | 2.50% (2/80) |
+| PL2 | 16.67% | **40.00%** (32/80) | 30.0–50.9% | 25.00% (20/80) |
+| PL2 tuned (v1+v2) | 2.38% | **15.00%** (12/80) | 8.8–24.4% | 11.25% (9/80) |
 
-Kasus FP sama dengan run awal (saat blocking masih PL1), tetapi kini semuanya benar-benar diblokir. FP fase request ditolak dengan 403 sebelum mencapai aplikasi. FP `950100` diblokir pada respons 5xx, setelah aplikasi memproses request.
+Pada 20 kasus hold-out lama, FP-nya sama dengan sebelumnya (PL1 1, PL2 8, PL2 tuned 4). 60 kasus baru menambah 1 / 24 / 8 FP.
 
-FP hold-out pada PL2 tuned:
+**Exclusion v2 menggeneralisasi.** Pada PL2 tanpa tuning, hold-out memicu `932236` di 9 kasus (`join the juice club`, `echo chamber poster`, `ping pong paddle`, `cat toy with bell`, `perl necklace`, `file cabinet magnet`, `php conference tote`, `java chip cookie`, `red apple` dengan UA Firefox) dan `931130` di 1 feedback berisi URL (`HOLDOUT-059`). Pada PL2 tuned kedua rule itu tidak lagi terpicu di kasus mana pun, padahal kasus-kasus ini tidak pernah dilihat saat tuning. Sembilan dari sepuluh kasus lolos sepenuhnya; `HOLDOUT-041` tetap diblokir oleh rule lain (`932260`, yang juga memblokirnya di PL1). Recall dataset diperluas tidak berubah (88.16%).
+
+FP hold-out yang tersisa pada PL2 tuned:
 
 | Kasus | Rule | Penjelasan |
 |---|---|---|
-| `HOLDOUT-001/002` (`Bob's`, `don't`) | `950100` | Apostrof memicu error SQL Juice Shop (500) — gejala kerentanan nyata, sama seperti `O'Reilly`; sengaja tidak dikecualikan |
-| `HOLDOUT-009` (`50% off -- today`) | `942100` | **Diblokir (403) bahkan pada PL1** — libinjection membaca `--` sebagai komentar SQL. FP murni yang berdampak ke pengguna |
-| `HOLDOUT-018` (`Order #1234 ... (late)`) | `942440` | Rule ini hanya dikecualikan pada `q`, bukan pada `json.comment` → bukti exclusion **overfit** ke dataset tuning |
+| `HOLDOUT-001/002/026` (`Bob's`, `don't`, `kid's`) | `950100` | Apostrof memicu error SQL Juice Shop (500); diblokir di fase respons. Gejala kerentanan nyata, sengaja tidak dikecualikan |
+| `HOLDOUT-009` (`50% off -- today`) | `942100` | **Diblokir (403) bahkan pada PL1**: libinjection membaca `--` sebagai komentar SQL |
+| `HOLDOUT-041` (`perl necklace`) | `932260` | **Diblokir pada PL1** juga: nama interpreter dianggap perintah |
+| `HOLDOUT-018` (`Order #1234 … (late)`), `HOLDOUT-063` (`Juice > soda`), `HOLDOUT-065` (`(or 2L)`) | `942440`, `942131`, `942390` | Heuristik SQLi PL2 pada `json.comment`; v1 hanya mengecualikan rule ini pada `q` |
+| `HOLDOUT-023` (`order by tomorrow`), `HOLDOUT-056` (`smoothie, no ice`), `HOLDOUT-053` (`O'Neil's orchard`), `HOLDOUT-036` (`~200 ml bottle`) | `942380`, `942200`, `932240`, `932271` | Rule PL2 lain yang belum pernah muncul di data tuning |
 
-**Kesimpulan yang jujur:** keunggulan PL2 tuned (FPR 2.38%) sebagian besar adalah efek *in-sample*. Pada data baru, FPR PL2 tuned (20%) tetap jauh lebih baik dari PL2 tanpa tuning (40%), tetapi lebih buruk dari PL1 (5%). Tuning per-endpoint membutuhkan iterasi pada trafik nyata (mode `DetectionOnly`) sebelum dapat mengalahkan PL1. Bila kasus `950100` (gejala kerentanan, diblokir di fase respons) dikeluarkan dari hitungan, FP fase request pada PL2 tuned adalah 2/20 (10%): `HOLDOUT-009` dan `HOLDOUT-018`, keduanya ditolak 403.
+**Kesimpulan yang jujur:** PL1 tetap memberi FPR terendah pada data baru (2.5%). PL2 tuned memangkas FPR PL2 dari 40% menjadi 15% dengan recall yang sama dengan PL2, tetapi masih jauh di atas angka in-sample (2.38% asli, 4.62% diperluas). Selisih ini adalah ukuran *overfit* tuning. Dengan 80 kasus, interval FPR PL2 tuned (8.8–24.4%) tidak tumpang tindih dengan PL1 (0.7–8.7%), jadi perbedaannya dapat diklaim. Tuning per-endpoint perlu diiterasi pada trafik nyata (mode `DetectionOnly`) sebelum mengalahkan PL1.
 
 Catatan: `950100` adalah rule outbound yang menandai respons error 5xx dari aplikasi — FP ini mencerminkan perilaku Juice Shop, bukan input pengguna.
 
@@ -123,6 +131,8 @@ TRAV-007 (`GET /ftp/....//....//etc/passwd`) mengembalikan HTTP 403 berukuran sa
 
 ## 5. Evaluasi Kinerja Latensi & Overhead
 
+> Angka di bagian ini berasal dari satu run berurutan dan mencampur request benign dengan request malicious yang diblokir. Untuk klaim latensi gunakan eksperimen multi-ronde di [§7.4](#74-latensi).
+
 70 kasus × 3 pengulangan = 210 sampel per mode, dengan 5 request warm-up yang tidak dicatat.
 
 - **Baseline Latency:** Mean = 22.02 ms | p50 = 11.31 ms | p95 = 33.56 ms
@@ -146,11 +156,12 @@ Interval Wilson 95% dalam kurung. Blocking rate = intervensi terkonfirmasi audit
 |---|---|---|---|---|---|---|---|
 | PL1 | 111/1/64/41 | 73.03% (65.5–79.5) | 1.54% (0.3–8.2) | 99.11% | 0.841 | 73.03% | 73.03% / 1.54% |
 | PL2 | 134/15/50/18 | 88.16% (82.1–92.4) | 23.08% (14.5–34.6) | 89.93% | 0.890 | 88.16% | 81.58% / 13.85% |
-| PL2 tuned | 134/8/57/18 | 88.16% (82.1–92.4) | 12.31% (6.4–22.5) | 94.37% | **0.912** | 88.16% | 81.58% / 9.23% |
+| PL2 tuned v1 | 134/8/57/18 | 88.16% (82.1–92.4) | 12.31% (6.4–22.5) | 94.37% | 0.912 | 88.16% | 81.58% / 9.23% |
+| PL2 tuned v1+v2 | 134/3/62/18 | 88.16% (82.1–92.4) | 4.62% (1.6–12.7) | 97.81% | **0.927** | 88.16% | 81.58% / 1.54% |
 | PL3 | 137/18/47/15 | 90.13% (84.4–93.9) | 27.69% (18.3–39.6) | 88.39% | 0.893 | 90.13% | 84.21% / 20.00% |
 | PL4 | 140/38/27/12 | 92.11% (86.7–95.4) | 58.46% (46.3–69.6) | 78.65% | 0.849 | 92.11% | 92.11% / 58.46% |
 
-"Fase request saja" tidak menghitung kasus yang hanya memicu rule `95xxxx` (respons 5xx Juice Shop). Pada PL2 seluruh 10 "deteksi" XXE (PL3: 9 dari 10) berasal dari `950100`, bukan dari inspeksi body XML — lihat §7.3.
+Baris "PL2 tuned v1" berasal dari run commit `771ce7b`, sebelum exclusion v2 ada; baris v1+v2 dari `dc2bbe7` (`results/extended/paranoia/pl2-tuned/`). FPR v1+v2 adalah angka **in-sample** karena v2 disusun dari FP dataset ini; angka hold-out ada di §2c. "Fase request saja" tidak menghitung kasus yang hanya memicu rule `95xxxx` (respons 5xx Juice Shop). Pada PL2 seluruh 10 "deteksi" XXE (PL3: 9 dari 10) berasal dari `950100`, bukan dari inspeksi body XML — lihat §7.3.
 
 ### 7.2 Per keluarga (PL1 → PL4, deteksi = blokir terkonfirmasi)
 
@@ -180,12 +191,25 @@ Per applicability (PL1): `sink_present` 26/33 (78.8%, CI 62.3–89.3%), `pattern
 4. **Path discovery umum** (`/wp-admin/`, `/phpmyadmin/`, `/server-status`, `/cgi-bin/`, `/backup.zip`) dan header override (`X-Original-URL`, `X-Forwarded-Host`) tidak terdeteksi di PL mana pun. Ini sesuai desain CRS (tidak ada signature path generik); deteksi scanner CRS berbasis User-Agent (`913100`) dan berkas terlarang (`930130`).
 5. **Satu FP di semua PL: `BENIGN-045`** (GET tanpa body dengan `Content-Type: application/xml`) diblokir oleh rule engine `200002` (gagal mem-parse body XML kosong) dari `modsecurity.conf`, bukan oleh CRS. Klien sah jarang mengirimnya, tetapi ini menunjukkan bahwa tidak semua blokir berasal dari CRS.
 6. **Atribusi 401/403 aplikasi**: di baseline, 17 kasus menerima 401/403 dari Juice Shop sendiri (mis. guard `/ftp`, login NoSQL `NOSQLI-002…010`). `NOSQLI-009` (`$nin`) lolos WAF dan ditolak aplikasi (401) — tercatat `block_source = application`, bukan blokir WAF.
-7. **Tuning tidak menggeneralisasi ke keluarga baru.** Exclusion PL2 tuned (dari dataset asli) menurunkan FPR 23.08% → 12.31%, tetapi FP baru dari kontrol benign keluarga baru tetap ada: `932236` pada kata `echo`, `php`, `java`, `$`, `file` (`BENIGN-051/053/054/057`) dan `931130` pada URL sah di feedback (`BENIGN-060`).
-8. **Hold-out** (`results/extended/holdout/`, 20 benign, kini dengan blocking PL yang benar): PL1 5% (1/20), PL2 40% (8/20), PL2 tuned 20% (4/20). FP-nya sama dengan run ulang hold-out dataset asli di `results/holdout/` (§2c). Tanpa rule fase respons: 5% / 20% / 10%.
+7. **Tuning v1 tidak menggeneralisasi ke keluarga baru; v2 menutupnya tanpa kehilangan recall.** Exclusion v1 (dari dataset asli) menurunkan FPR 23.08% → 12.31%, tetapi FP dari kontrol benign keluarga baru tetap ada: `932236` pada kata `echo`, `php`, `java`, `$`, `file` (`BENIGN-051/053/054/057`) dan `931130` pada URL sah di feedback (`BENIGN-060`). Exclusion v2 (1103, 1104) menurunkan FPR menjadi 4.62% (in-sample) dengan recall tetap 88.16%. Pada hold-out, v2 menghilangkan 9 dari 10 FP sejenis (§2c). Tiga FP tersisa: `BENIGN-013` dan `BENIGN-050` (`950100`, respons 500 aplikasi) dan `BENIGN-045` (`200002`, rule engine).
+8. **Hold-out** (`results/extended/holdout/`, 80 benign): PL1 2.5% (2/80), PL2 40% (32/80), PL2 tuned v1+v2 15% (12/80). Identik dengan `results/holdout/` (§2c). Tanpa rule fase respons: 2.5% / 25% / 11.25%.
 
 ### 7.4 Latensi
 
-PL1 (`results/extended/summary_metrics.json`, 651 sampel per mode): p50 baseline 9.42 ms vs WAF 12.19 ms (Δp50 +2.77 ms), mean +3.56 ms, Mann-Whitney U p < 0.001. Run PL1 kedua dalam matriks memberi Δp50 +2.54 ms. Rata-rata dan p95 pada PL2–PL4 bervariasi besar antar-run karena beban host (macOS Docker Desktop, run berurutan); **gunakan p50** dan jangan membandingkan mean antar-PL tanpa run berulang.
+**Eksperimen utama: `make experiment-latency`** (`results/extended/latency/`, commit `dc2bbe7`, `git_dirty: false`). Lima ronde baseline/WAF PL1 dengan dataset diperluas, 3× pengulangan per run (651 request per mode per ronde, 0 error). Urutan mode bergantian: ronde ganjil baseline dulu, ronde genap WAF dulu. Korelasi audit log dimatikan karena run ini hanya untuk latensi.
+
+| Ronde | Mode pertama | Δp50 benign (ms) | Δp50 semua request (ms) |
+|---|---|---|---|
+| 1 | baseline | 14.10 | 5.28 |
+| 2 | WAF | 5.84 | 0.51 |
+| 3 | baseline | 6.36 | 1.51 |
+| 4 | WAF | 7.69 | 2.71 |
+| 5 | baseline | 7.98 | −1.36 |
+
+- **Overhead WAF untuk request sah (benign saja):** median antar-ronde **+7.69 ms** (rentang 5.84–14.10 ms). Gabungan 975 sampel per mode: p50 baseline 11.58 ms vs WAF 20.44 ms, Δp50 **+8.86 ms** (bootstrap 95% CI 7.81–9.77 ms, 2000 resample, seed tetap).
+- **Semua request:** Δp50 gabungan hanya +2.08 ms (CI 1.58–2.61) dan bisa negatif per ronde. Penyebabnya, request malicious yang diblokir dijawab WAF tanpa menyentuh backend. Angka overhead "+2–3 ms" di §5 dan pada run PL1 tunggal **meremehkan** biaya WAF bagi pengguna sah karena mencampur kedua kelompok.
+- **Host tidak idle.** Load average 1 menit saat run 4,8–8,3 pada 8 CPU, dengan lonjakan 35,6 di awal run WAF ronde 5. Ada container lain di host. Ronde 1 (14.10 ms) adalah outlier; tanpa ronde itu rentangnya 5.84–7.98 ms. Arah dan orde besaran overhead konsisten di kelima ronde, tetapi nilai absolutnya bergantung pada host. Untuk angka final skripsi, ulangi `make experiment-latency` di host yang idle (atau VPS khusus) dan laporkan median antar-ronde beserta rentangnya.
+- Rata-rata dan p95 tidak dipakai untuk klaim karena sangat dipengaruhi ekor distribusi dari beban host.
 
 ### 7.5 Yang Tidak Dapat Disimpulkan
 

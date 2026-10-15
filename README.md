@@ -60,7 +60,7 @@ Laboratorium ini menguji kemampuan **ModSecurity v3** yang diperkuat oleh **OWAS
 ├── simulator/                  # Simulator uji terkontrol + korelator audit log
 │   ├── attack_cases.json       # Dataset asli: 70 kasus berlabel (42 benign, 28 malicious)
 │   ├── attack_cases_extended.json # Dataset diperluas: 217 kasus (65 benign, 152 malicious, 13 keluarga)
-│   ├── holdout_benign.json     # 20 kasus benign hold-out (tidak dipakai saat tuning)
+│   ├── holdout_benign.json     # 80 kasus benign hold-out (tidak dipakai saat tuning)
 │   ├── run_tests.py            # CLI eksekusi eksperimen
 │   ├── runner.py               # Eksekutor request & pencatatan hasil
 │   ├── log_correlator.py       # Korelasi request ↔ audit log ModSecurity
@@ -188,6 +188,7 @@ Setiap request diberi header unik `X-Lab-Trace-Id` sehingga baris CSV dapat dico
 | `make experiment-tuned` | Skenario PL2 dengan exclusion sempit (`lab/tuning/`) |
 | `make experiment-holdout` | Set hold-out benign terhadap PL1, PL2, PL2 tuned |
 | `make experiment-extended` | Baseline, PL1–4, PL2 tuned, dan hold-out untuk dataset diperluas → `results/extended/` |
+| `make experiment-latency` | `ROUNDS` ronde baseline/WAF PL1 dengan urutan bergantian → `<OUT>/latency/` |
 | `make compose-check` | Validasi konfigurasi Docker Compose |
 
 Semua target eksperimen menerima `CASES=<dataset>` dan `OUT=<direktori hasil>`; default-nya dataset asli dan `results/`.
@@ -213,7 +214,7 @@ Konfigurasi: CRS 4.25.2, Paranoia Level 1, Anomaly Inbound 5. Interval kepercaya
 | **Ditolak Nginx sebelum WAF** | 4 | URI yang keluar dari root (`../`) → HTTP 400 dari Nginx |
 | **Mitigasi total** | **92.86%** | WAF + normalisasi Nginx |
 | **Latensi p50 (Baseline / WAF)** | 11.31 / 11.75 ms | 210 sampel per mode |
-| **Overhead rata-rata** | **+2.16 ms** | Mann-Whitney U: p = 0.032 (signifikan, α = 0.05) |
+| **Overhead rata-rata** | **+2.16 ms** | Mann-Whitney U: p = 0.032 (signifikan, α = 0.05); mencampur request benign dan request yang diblokir — lihat eksperimen latensi multi-ronde di bawah |
 
 ### Perbandingan Paranoia Level
 
@@ -227,7 +228,7 @@ Blocking PL = detection PL (`BLOCKING_PARANOIA` = `DETECTION_PARANOIA`). Blockin
 | 3 | 85.71% | 23.81% | 70.59% | 0.774 | 85.71% |
 | 4 | 85.71% | 54.76% | 51.06% | 0.640 | 85.71% |
 
-Tanpa tuning, PL1 memberikan F1 terbaik karena FPR naik tajam di level lebih tinggi. Dengan exclusion sempit ([`lab/tuning/`](lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf)), **PL2 tuned** mengungguli PL1 (F1 0.885): recall naik ke 82.14% dengan FPR hanya 2.38% (1 dari 42). Namun pada **set hold-out** (20 benign yang tidak dipakai saat tuning) FPR-nya 20% vs PL1 5% — tuning sebagian overfit; lihat validasi hold-out. Detail: [Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md).
+Tanpa tuning, PL1 memberikan F1 terbaik karena FPR naik tajam di level lebih tinggi. Dengan exclusion sempit ([`lab/tuning/`](lab/tuning/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf)), **PL2 tuned** mengungguli PL1 (F1 0.885): recall naik ke 82.14% dengan FPR hanya 2.38% (1 dari 42). Namun pada **set hold-out** (80 benign yang tidak dipakai saat tuning) FPR PL2 tuned 15% vs PL1 2.5% (PL2 tanpa tuning 40%) — tuning sebagian overfit; lihat validasi hold-out. Detail: [Interpretasi Hasil](docs/RESULTS_INTERPRETATION.md).
 
 > **Catatan:** tabel ini berasal dari run ulang dengan blocking PL yang benar. Run awal hanya menaikkan *detection* paranoia, sehingga blocking tetap PL1. Klasifikasi TP/FP/TN/FN identik dengan run awal. Yang berubah adalah blocking rate, yang kini sama dengan recall, dan FP PL2+ kini benar-benar diblokir. Lihat [koreksi metodologi](docs/RESULTS_INTERPRETATION.md#2c-trade-off-paranoia-level).
 
@@ -237,11 +238,16 @@ Tanpa tuning, PL1 memberikan F1 terbaik karena FPR naik tajam di level lebih tin
 |---|---|---|---|---|
 | PL1 | 73.03% | 1.54% | 99.11% | 0.841 |
 | PL2 | 88.16% | 23.08% | 89.93% | 0.890 |
-| PL2 tuned | 88.16% | 12.31% | 94.37% | 0.912 |
+| PL2 tuned v1 | 88.16% | 12.31% | 94.37% | 0.912 |
+| PL2 tuned v1+v2 | 88.16% | 4.62% (in-sample) | 97.81% | 0.927 |
 | PL3 | 90.13% | 27.69% | 88.39% | 0.893 |
 | PL4 | 92.11% | 58.46% | 78.65% | 0.849 |
 
 Sebagian besar keluarga baru hanya mengukur **deteksi pola** (rute Juice Shop tidak mengimplementasikan fungsi yang diserang). XXE tidak terdeteksi oleh inspeksi request di PL1–PL3; "deteksi" PL2–PL3 berasal dari rule outbound pada respons 500 aplikasi. Detail dan batas klaim: [Matriks Skenario](docs/SCENARIO_MATRIX.md) dan [Interpretasi Hasil §7](docs/RESULTS_INTERPRETATION.md#hasil-dataset-diperluas).
+
+**Hold-out 80 benign** (tidak dipakai saat tuning): FPR PL1 2.5%, PL2 40%, PL2 tuned v1+v2 15%. Exclusion v2 menghilangkan 9 dari 10 FP hold-out pada rule yang dikecualikannya, tetapi FPR tuned di data baru tetap jauh di atas angka in-sample.
+
+**Latensi (5 ronde, urutan bergantian, request benign):** overhead WAF PL1 median antar-ronde **+7.69 ms** p50 (rentang 5.84–14.10 ms; gabungan +8.86 ms, bootstrap 95% CI 7.81–9.77 ms). Jika request yang diblokir ikut dihitung, overhead tampak hanya +2.08 ms. Host tidak idle saat pengukuran (load average sekitar 5–8 pada 8 CPU), jadi ulangi di host idle untuk angka final.
 
 Grafik visualisasi tersimpan di:
 - `results/confusion_matrix.png`

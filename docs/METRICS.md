@@ -91,6 +91,17 @@ Rule **949110** ("Inbound Anomaly Score Exceeded") adalah meta-rule CRS yang ter
 
 Setiap run menulis `<output>.meta.json` di samping CSV: `run_id`, git SHA, SHA-256 dataset, jumlah kasus, `repeat`/`warmup`, Paranoia Level & threshold, digest image container yang sedang berjalan (`docker inspect`), serta versi Python/platform. Lampirkan file ini bersama hasil saat menulis laporan.
 
+## Latensi Multi-ronde
+
+`evaluation/latency_rounds.py` (dipanggil `make experiment-latency`) membaca `round<N>/{baseline,waf}.csv` dan melaporkan:
+
+- **Δp50 per ronde** = $p_{50,\text{WAF}} - p_{50,\text{Baseline}}$ dalam ronde yang sama, serta median dan rentangnya antar-ronde. Median antar-ronde adalah angka utama karena tahan terhadap satu ronde yang terganggu beban host.
+- **Δp50 gabungan** dengan interval kepercayaan 95% *percentile bootstrap* (2000 resample, seed tetap sehingga laporan dapat direproduksi).
+- Dua populasi: **benign saja** (angka utama, mewakili biaya bagi pengguna sah) dan **semua request**. Request malicious yang diblokir dijawab WAF tanpa menyentuh backend, sehingga mencampurnya membuat WAF tampak lebih cepat.
+- Load average host di awal setiap run (`host_load_avg_start`), sebagai indikator gangguan.
+
+Ronde yang datasetnya berbeda antara baseline dan WAF ditolak.
+
 ## Metrik per Kategori dan per Applicability
 
 `category_breakdown` dan `applicability_breakdown` di `summary_metrics.json` memuat, per kelompok: `total`, `malicious`, `benign`, `tp`, `fn`, `fp`, `tn`, `detected`, `blocked` (semua intervensi), `blocked_confirmed`, `recall` + `recall_ci95`, `blocking_rate` (terkonfirmasi), `false_positive_rate`, dan `small_sample` (`true` bila 0 < malicious < 10). Rumus sama dengan metrik keseluruhan, dibatasi ke baris kelompok tersebut; rasio dengan penyebut nol bernilai `null`.

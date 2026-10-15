@@ -53,7 +53,7 @@ Ditulis di samping setiap CSV untuk reproducibility:
 | Field | Keterangan |
 |---|---|
 | `run_id`, `mode`, `target`, `started_utc`, `finished_utc` | Identitas dan waktu run |
-| `git_sha`, `git_dirty` | Commit kode; `git_dirty: true` berarti ada perubahan file ter-track yang belum di-commit saat run |
+| `git_sha`, `git_dirty` | Commit kode; `git_dirty: true` berarti ada perubahan file ter-track di luar `results/` yang belum di-commit saat run |
 | `dataset_path`, `dataset_file_sha256` | Berkas dataset dan hash byte-nya |
 | `dataset_sha256`, `case_count` | Hash kanonik isi dataset (dipakai untuk mencegah pencampuran hasil) dan jumlah kasus |
 | `repeat`, `warmup` | Parameter pengulangan |
@@ -64,7 +64,8 @@ Ditulis di samping setiap CSV untuk reproducibility:
 | `audit_log_correlation` | (mode `waf`) Jumlah baris per nilai `log_match` |
 | `requests_attempted`, `requests_completed`, `transport_errors` | Jumlah request terjadwal, yang mendapat respons HTTP, dan yang gagal di level jaringan |
 | `images` | Referensi image beserta digest |
-| `python`, `platform` | Lingkungan eksekusi |
+| `python`, `platform`, `cpu_count` | Lingkungan eksekusi |
+| `host_load_avg_start`, `host_load_avg_end` | Load average host 1/5/15 menit di awal dan akhir run |
 
 ---
 
@@ -96,6 +97,8 @@ Ditulis oleh [`evaluation/analyze_results.py`](../evaluation/analyze_results.py)
 - `paranoia_tradeoff.png` — grafik recall/FPR/F1 per level.
 
 Hasil hold-out disimpan dengan struktur yang sama di `results/holdout/{pl1,pl2,pl2-tuned}/`.
+
+Eksperimen latensi menulis `results/extended/latency/round<N>/{baseline,waf}.csv` (+ `.meta.json`) dan `latency_summary.json`: `rounds`, `per_round` (urutan mode, load average, statistik per mode dan Δp50 untuk `benign` dan `all`), serta untuk `benign` dan `all`: `overhead_p50_ms_per_round`, `overhead_p50_ms_median_of_rounds`, `overhead_p50_ms_range`, `pooled`, `pooled_overhead_p50_ms`, `pooled_overhead_p50_ci95_bootstrap`. Run ini memakai `--no-docker-logs`, jadi kolom deteksinya tidak boleh dipakai untuk metrik deteksi.
 
 Hasil dataset diperluas memakai struktur yang sama di bawah `results/extended/` (`baseline.csv`, `waf.csv`, `summary_metrics.json`, grafik, `paranoia/`, `holdout/`). Jangan menyalin atau membandingkan CSV antar-direktori tanpa memeriksa `dataset_sha256` di `*.meta.json`.
 

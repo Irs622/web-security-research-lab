@@ -2,15 +2,15 @@
   "sample_count": 217,
   "confusion_matrix": {
     "TP": 134,
-    "FP": 8,
-    "TN": 57,
+    "FP": 3,
+    "TN": 62,
     "FN": 18
   },
   "detection_rate_recall": 0.8816,
-  "precision": 0.9437,
-  "false_positive_rate": 0.1231,
-  "specificity": 0.8769,
-  "f1_score": 0.9116,
+  "precision": 0.9781,
+  "false_positive_rate": 0.0462,
+  "specificity": 0.9538,
+  "f1_score": 0.9273,
   "blocking_rate": 0.8816,
   "malicious_blocked": 134,
   "malicious_blocked_unverified": 0,
@@ -19,42 +19,42 @@
   "request_phase": {
     "confusion_matrix": {
       "TP": 124,
-      "FP": 6,
-      "TN": 59,
+      "FP": 1,
+      "TN": 64,
       "FN": 28
     },
     "detection_rate_recall": 0.8158,
-    "false_positive_rate": 0.0923,
+    "false_positive_rate": 0.0154,
     "recall_ci95": [
       0.7466,
       0.8694
     ],
     "fpr_ci95": [
-      0.043,
-      0.1871
+      0.0027,
+      0.0821
     ]
   },
   "overall_mitigation_rate": 0.9145,
   "total_malicious": 152,
   "latency_waf": {
-    "mean_ms": 34.14,
-    "p50_ms": 16.84,
-    "p95_ms": 81.97
+    "mean_ms": 18.72,
+    "p50_ms": 14.28,
+    "p95_ms": 42.1
   },
   "latency_baseline": {
     "mean_ms": 12.55,
     "p50_ms": 9.42,
     "p95_ms": 27.46
   },
-  "latency_overhead_mean_ms": 21.59,
-  "latency_overhead_p50_ms": 7.42,
+  "latency_overhead_mean_ms": 6.17,
+  "latency_overhead_p50_ms": 4.86,
   "latency_stats": {
     "waf": {
       "n": 651,
-      "mean_ms": 34.14,
-      "p50_ms": 16.84,
-      "p95_ms": 81.97,
-      "iqr_ms": 15.59
+      "mean_ms": 18.72,
+      "p50_ms": 14.28,
+      "p95_ms": 42.1,
+      "iqr_ms": 9.3
     },
     "baseline": {
       "n": 651,
@@ -64,8 +64,8 @@
       "iqr_ms": 5.97
     },
     "mann_whitney_u": {
-      "u": 325851.0,
-      "z": 16.7979,
+      "u": 306354.5,
+      "z": 13.9238,
       "p_value": 0.0
     }
   },
@@ -75,16 +75,16 @@
       0.9238
     ],
     "precision": [
-      0.8928,
-      0.9712
+      0.9376,
+      0.9925
     ],
     "false_positive_rate": [
-      0.0637,
-      0.2245
+      0.0158,
+      0.1271
     ],
     "specificity": [
-      0.7755,
-      0.9363
+      0.8729,
+      0.9842
     ],
     "blocking_rate": [
       0.8206,
@@ -94,19 +94,19 @@
   "category_breakdown": {
     "normal": {
       "total": 65,
-      "detected": 8,
-      "blocked": 8,
+      "detected": 3,
+      "blocked": 3,
       "malicious": 0,
       "benign": 65,
       "tp": 0,
       "fn": 0,
-      "fp": 8,
-      "tn": 57,
+      "fp": 3,
+      "tn": 62,
       "blocked_confirmed": 0,
       "recall": null,
       "recall_ci95": null,
       "blocking_rate": null,
-      "false_positive_rate": 0.1231,
+      "false_positive_rate": 0.0462,
       "small_sample": false
     },
     "sqli": {
@@ -373,19 +373,19 @@
   "applicability_breakdown": {
     "benign_control": {
       "total": 65,
-      "detected": 8,
-      "blocked": 8,
+      "detected": 3,
+      "blocked": 3,
       "malicious": 0,
       "benign": 65,
       "tp": 0,
       "fn": 0,
-      "fp": 8,
-      "tn": 57,
+      "fp": 3,
+      "tn": 62,
       "blocked_confirmed": 0,
       "recall": null,
       "recall_ci95": null,
       "blocking_rate": null,
-      "false_positive_rate": 0.1231,
+      "false_positive_rate": 0.0462,
       "small_sample": false
     },
     "sink_present": {
@@ -509,66 +509,6 @@
         "920350",
         "950100",
         "959100"
-      ],
-      "outcome": "blocked_by_waf"
-    },
-    {
-      "type": "FP",
-      "test_id": "BENIGN-051",
-      "category": "normal",
-      "path": "/rest/products/search?q=echo+dot+speaker",
-      "rules": [
-        "920350",
-        "932236",
-        "949110"
-      ],
-      "outcome": "blocked_by_waf"
-    },
-    {
-      "type": "FP",
-      "test_id": "BENIGN-053",
-      "category": "normal",
-      "path": "/rest/products/search?q=php+elephant+plush",
-      "rules": [
-        "920350",
-        "932236",
-        "949110"
-      ],
-      "outcome": "blocked_by_waf"
-    },
-    {
-      "type": "FP",
-      "test_id": "BENIGN-054",
-      "category": "normal",
-      "path": "/rest/products/search?q=java+coffee+beans",
-      "rules": [
-        "920350",
-        "932236",
-        "949110"
-      ],
-      "outcome": "blocked_by_waf"
-    },
-    {
-      "type": "FP",
-      "test_id": "BENIGN-057",
-      "category": "normal",
-      "path": "/rest/products/search?q=file+organizer",
-      "rules": [
-        "920350",
-        "932236",
-        "949110"
-      ],
-      "outcome": "blocked_by_waf"
-    },
-    {
-      "type": "FP",
-      "test_id": "BENIGN-060",
-      "category": "normal",
-      "path": "/api/Feedbacks/",
-      "rules": [
-        "920350",
-        "931130",
-        "949110"
       ],
       "outcome": "blocked_by_waf"
     },

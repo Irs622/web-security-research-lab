@@ -1,42 +1,42 @@
 {
-  "sample_count": 20,
+  "sample_count": 80,
   "confusion_matrix": {
     "TP": 0,
-    "FP": 4,
-    "TN": 16,
+    "FP": 12,
+    "TN": 68,
     "FN": 0
   },
   "detection_rate_recall": null,
   "precision": 0.0,
-  "false_positive_rate": 0.2,
-  "specificity": 0.8,
+  "false_positive_rate": 0.15,
+  "specificity": 0.85,
   "f1_score": null,
   "blocking_rate": null,
   "malicious_blocked": 0,
   "malicious_blocked_unverified": 0,
   "malicious_rejected_by_proxy": 0,
-  "alerts_outbound_only": 2,
+  "alerts_outbound_only": 3,
   "request_phase": {
     "confusion_matrix": {
       "TP": 0,
-      "FP": 2,
-      "TN": 18,
+      "FP": 9,
+      "TN": 71,
       "FN": 0
     },
     "detection_rate_recall": null,
-    "false_positive_rate": 0.1,
+    "false_positive_rate": 0.1125,
     "recall_ci95": null,
     "fpr_ci95": [
-      0.0279,
-      0.301
+      0.0603,
+      0.2002
     ]
   },
   "overall_mitigation_rate": null,
   "total_malicious": 0,
   "latency_waf": {
-    "mean_ms": 22.42,
-    "p50_ms": 19.3,
-    "p95_ms": 46.52
+    "mean_ms": 21.6,
+    "p50_ms": 19.09,
+    "p95_ms": 41.44
   },
   "latency_baseline": {
     "mean_ms": null,
@@ -47,11 +47,11 @@
   "latency_overhead_p50_ms": null,
   "latency_stats": {
     "waf": {
-      "n": 60,
-      "mean_ms": 22.42,
-      "p50_ms": 19.3,
-      "p95_ms": 46.52,
-      "iqr_ms": 11.23
+      "n": 240,
+      "mean_ms": 21.6,
+      "p50_ms": 19.09,
+      "p95_ms": 41.44,
+      "iqr_ms": 10.85
     },
     "baseline": {
       "n": 0,
@@ -66,53 +66,53 @@
     "detection_rate_recall": null,
     "precision": [
       0.0,
-      0.4899
+      0.2425
     ],
     "false_positive_rate": [
-      0.0807,
-      0.416
+      0.0879,
+      0.2441
     ],
     "specificity": [
-      0.584,
-      0.9193
+      0.7559,
+      0.9121
     ],
     "blocking_rate": null
   },
   "category_breakdown": {
     "normal": {
-      "total": 20,
-      "detected": 4,
-      "blocked": 4,
+      "total": 80,
+      "detected": 12,
+      "blocked": 12,
       "malicious": 0,
-      "benign": 20,
+      "benign": 80,
       "tp": 0,
       "fn": 0,
-      "fp": 4,
-      "tn": 16,
+      "fp": 12,
+      "tn": 68,
       "blocked_confirmed": 0,
       "recall": null,
       "recall_ci95": null,
       "blocking_rate": null,
-      "false_positive_rate": 0.2,
+      "false_positive_rate": 0.15,
       "small_sample": false
     }
   },
   "applicability_breakdown": {
     "unspecified": {
-      "total": 20,
-      "detected": 4,
-      "blocked": 4,
+      "total": 80,
+      "detected": 12,
+      "blocked": 12,
       "malicious": 0,
-      "benign": 20,
+      "benign": 80,
       "tp": 0,
       "fn": 0,
-      "fp": 4,
-      "tn": 16,
+      "fp": 12,
+      "tn": 68,
       "blocked_confirmed": 0,
       "recall": null,
       "recall_ci95": null,
       "blocking_rate": null,
-      "false_positive_rate": 0.2,
+      "false_positive_rate": 0.15,
       "small_sample": false
     }
   },
@@ -161,6 +161,102 @@
       "rules": [
         "920350",
         "942440",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-023",
+      "category": "normal",
+      "path": "/rest/products/search?q=order+by+tomorrow",
+      "rules": [
+        "920350",
+        "942380",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-026",
+      "category": "normal",
+      "path": "/rest/products/search?q=kid%27s+juice+box",
+      "rules": [
+        "920350",
+        "950100",
+        "959100"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-036",
+      "category": "normal",
+      "path": "/rest/products/search?q=~200+ml+bottle",
+      "rules": [
+        "920350",
+        "932271",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-041",
+      "category": "normal",
+      "path": "/rest/products/search?q=perl+necklace",
+      "rules": [
+        "920350",
+        "932260",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-053",
+      "category": "normal",
+      "path": "/rest/products/search?q=O%27Neil%27s+orchard",
+      "rules": [
+        "920350",
+        "932240",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-056",
+      "category": "normal",
+      "path": "/rest/products/search?q=smoothie%2C+no+ice",
+      "rules": [
+        "920350",
+        "942200",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-063",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "942131",
+        "949110"
+      ],
+      "outcome": "blocked_by_waf"
+    },
+    {
+      "type": "FP",
+      "test_id": "HOLDOUT-065",
+      "category": "normal",
+      "path": "/api/Feedbacks/",
+      "rules": [
+        "920350",
+        "942390",
         "949110"
       ],
       "outcome": "blocked_by_waf"

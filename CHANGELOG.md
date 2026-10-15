@@ -2,6 +2,13 @@
 
 Perubahan penting pada lab ini, terbaru di atas.
 
+## 2026-10-16
+- **Hold-out diperbesar** dari 20 menjadi 80 kasus benign (`HOLDOUT-021…080`), di-commit sebelum tuning baru. Batas atas Wilson FPR saat 0 FP turun dari 16,1% ke 4,6%.
+- **Tuning v2** (`lab/tuning/`, id 1103–1104): `932236` dikecualikan pada `q` pencarian dan `931130` pada `json.comment` feedback. Diturunkan hanya dari FP PL2 dataset diperluas. FPR PL2 tuned dataset diperluas 12.31% → 4.62% (in-sample), recall tetap 88.16%; FPR hold-out PL2 tuned 15% (12/80) vs PL1 2.5%.
+- **Latensi multi-ronde:** `make experiment-latency` dan `evaluation/latency_rounds.py` (median antar-ronde Δp50, rentang, bootstrap CI; populasi benign saja vs semua). Hasil: overhead benign median +7.69 ms; mencampur request yang diblokir menyembunyikan sebagian besar overhead (+2.08 ms).
+- **Metadata:** load average host dan jumlah CPU; `git_dirty` kini mengabaikan `results/`, sehingga tahap pipeline berikutnya tidak lagi tercatat "dirty" hanya karena berkas hasil ditulis ulang.
+- **Hasil:** `results/paranoia/pl2-tuned`, `results/holdout/`, `results/extended/paranoia/pl2-tuned`, `results/extended/holdout/`, dan `results/extended/latency/` dijalankan ulang pada commit `dc2bbe7`.
+
 ## 2026-10-15
 - **Dataset diperluas** `simulator/attack_cases_extended.json`: 217 kasus (65 benign, 152 malicious, 13 keluarga), superset dari dataset asli. Paket skenario eksternal diaudit lebih dulu: ID yang bertabrakan dengan dataset asli, kebocoran hold-out, label keliru, dan request duplikat lintas kategori dikoreksi ([SCENARIO_MATRIX.md](docs/SCENARIO_MATRIX.md)).
 - **Ground truth vs observasi:** field `scenario_applicability` (`sink_present`/`pattern_only`/`benign_control`); kolom CSV baru `waf_alert`, `intervention_evidence`, `block_source`, `backend_outcome`, `scenario_applicability`.

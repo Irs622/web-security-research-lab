@@ -37,24 +37,24 @@
   "overall_mitigation_rate": 0.9643,
   "total_malicious": 28,
   "latency_waf": {
-    "mean_ms": 99.48,
-    "p50_ms": 34.66,
-    "p95_ms": 446.43
+    "mean_ms": 23.3,
+    "p50_ms": 16.85,
+    "p95_ms": 55.63
   },
   "latency_baseline": {
     "mean_ms": 22.02,
     "p50_ms": 11.31,
     "p95_ms": 33.56
   },
-  "latency_overhead_mean_ms": 77.46,
-  "latency_overhead_p50_ms": 23.35,
+  "latency_overhead_mean_ms": 1.28,
+  "latency_overhead_p50_ms": 5.54,
   "latency_stats": {
     "waf": {
       "n": 210,
-      "mean_ms": 99.48,
-      "p50_ms": 34.66,
-      "p95_ms": 446.43,
-      "iqr_ms": 63.19
+      "mean_ms": 23.3,
+      "p50_ms": 16.85,
+      "p95_ms": 55.63,
+      "iqr_ms": 13.03
     },
     "baseline": {
       "n": 210,
@@ -64,8 +64,8 @@
       "iqr_ms": 9.5
     },
     "mann_whitney_u": {
-      "u": 37339.5,
-      "z": 12.292,
+      "u": 30886.5,
+      "z": 7.1041,
       "p_value": 0.0
     }
   },
