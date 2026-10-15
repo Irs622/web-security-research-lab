@@ -147,7 +147,8 @@ def build_run_metadata(run_id: str, mode: str, cases: List[Dict[str, Any]], repe
         # The environment variables above describe what the operator *intended*; the running
         # container is what was actually measured. Record both so a mismatch is visible.
         metadata["waf_runtime"] = {
-            "env": _container_env("waflab-modsecurity", ("PARANOIA", "BLOCKING_PARANOIA", "ANOMALY_INBOUND",
+            "env": _container_env("waflab-modsecurity", ("PARANOIA", "BLOCKING_PARANOIA", "DETECTION_PARANOIA",
+                                                         "ANOMALY_INBOUND",
                                                          "ANOMALY_OUTBOUND", "MODSEC_RULE_ENGINE")),
             "mounts": _container_mounts("waflab-modsecurity"),
         }

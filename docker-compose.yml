@@ -43,7 +43,12 @@ services:
       BACKEND: "http://juice-shop:3000"
       PORT: "8080"
       MODSEC_RULE_ENGINE: "On"
+      # The image treats PARANOIA as deprecated: BLOCKING_PARANOIA (image default 1) takes precedence
+      # for blocking, so PARANOIA alone only raises the *detection* level. Set both explicitly so
+      # "Paranoia Level N" means rules up to PL N are both evaluated and counted towards blocking.
       PARANOIA: "${PARANOIA:-1}"
+      BLOCKING_PARANOIA: "${PARANOIA:-1}"
+      DETECTION_PARANOIA: "${PARANOIA:-1}"
       ANOMALY_INBOUND: "${ANOMALY_INBOUND:-5}"
       ANOMALY_OUTBOUND: "4"
       MODSEC_AUDIT_ENGINE: "RelevantOnly"
