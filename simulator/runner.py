@@ -105,6 +105,14 @@ def _container_mounts(name: str) -> List[str]:
         return []
 
 
+def _load_average() -> Optional[List[float]]:
+    """1/5/15-minute host load average; a busy host inflates latency tails."""
+    try:
+        return [round(v, 2) for v in os.getloadavg()]
+    except (AttributeError, OSError):
+        return None
+
+
 def _file_sha256(path: Optional[Path]) -> Optional[str]:
     try:
         return hashlib.sha256(Path(path).read_bytes()).hexdigest() if path else None
@@ -142,6 +150,8 @@ def build_run_metadata(run_id: str, mode: str, cases: List[Dict[str, Any]], repe
         },
         "python": platform.python_version(),
         "platform": platform.platform(),
+        "cpu_count": os.cpu_count(),
+        "host_load_avg_start": _load_average(),
     }
     if mode == "waf":
         # The environment variables above describe what the operator *intended*; the running
@@ -373,6 +383,7 @@ class ExperimentRunner:
                 time.sleep(self.delay)
 
         metadata["finished_utc"] = datetime.now(timezone.utc).isoformat()
+        metadata["host_load_avg_end"] = _load_average()
         metadata["requests_attempted"] = len(schedule)
         metadata["requests_completed"] = sum(1 for r in results if not r["transport_error"])
         metadata["transport_errors"] = sum(1 for r in results if r["transport_error"])

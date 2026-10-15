@@ -31,6 +31,7 @@ help:
 	@echo "  make experiment-holdout: Run hold-out benign set against PL1, PL2, PL2 tuned"
 	@echo "  make experiment-tuned  : Run WAF suite at PL2 with narrow CRS exclusions (lab/tuning)"
 	@echo "  make experiment-extended: Baseline, PL1-4, PL2 tuned and hold-out on the extended dataset -> results/extended"
+	@echo "  make experiment-latency: ROUNDS (default 5) order-alternated baseline/WAF PL1 runs -> <OUT>/latency"
 	@echo "  make compose-check : Validate Docker Compose files"
 	@echo "  Variables: CASES=<dataset.json> OUT=<results dir> REPEAT=<n> (default: original dataset, results/)"
 	@echo "  make zap           : Run OWASP ZAP passive baseline scan"
@@ -153,3 +154,22 @@ experiment-extended:
 	docker compose up -d --wait juice-shop waf
 	$(MAKE) test-baseline test-waf analyze charts experiment-matrix experiment-tuned CASES=$(EXT_CASES) OUT=$(EXT_OUT)
 	$(MAKE) experiment-holdout HOLDOUT_OUT=$(EXT_OUT)/holdout
+
+# Latency: ROUNDS order-alternated baseline/WAF (PL1) runs, summarized across rounds. Audit-log
+# correlation is disabled (--no-docker-logs) because these runs are for latency only, never for
+# detection metrics; it also keeps the request pacing identical in both modes.
+ROUNDS ?= 5
+LAT_OUT ?= $(OUT)/latency
+.PHONY: experiment-latency
+experiment-latency:
+	docker compose up -d --wait juice-shop waf
+	@for i in $$(seq 1 $(ROUNDS)); do \
+	  if [ $$((i % 2)) -eq 1 ]; then order="baseline waf"; else order="waf baseline"; fi; \
+	  for m in $$order; do \
+	    if [ $$m = baseline ]; then t=http://127.0.0.1:3001; else t=http://127.0.0.1:8080; fi; \
+	    echo "=== Latency round $$i: $$m ==="; \
+	    $(PY) simulator/run_tests.py --target $$t --mode $$m --repeat $(REPEAT) --cases $(CASES) \
+	      --no-docker-logs --output $(LAT_OUT)/round$$i/$$m.csv > /dev/null || exit 1; \
+	  done; \
+	done
+	$(PY) evaluation/latency_rounds.py --rounds-dir $(LAT_OUT)
