@@ -238,3 +238,10 @@ def test_extended_payload_hosts_stay_in_lab_scope(extended):
 
 def test_extended_has_no_destructive_methods(extended):
     assert not [c["test_id"] for c in extended if c["method"] in {"PUT", "DELETE"}]
+
+
+def test_holdout_is_large_enough_for_fpr_claims():
+    """0 FP out of n benign gives a Wilson 95% upper bound of ~4.6% at n=80 (16% at n=20)."""
+    holdout = _load(HOLDOUT_FILE)
+    assert len(holdout) >= 80
+    assert len({request_key(c) for c in holdout}) == len(holdout), "hold-out requests must be unique"

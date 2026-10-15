@@ -278,5 +278,858 @@
     "body": null,
     "description": "Another review listing (hold-out, not used for tuning)",
     "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-021",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "apples from spain"
+    },
+    "headers": {},
+    "body": null,
+    "description": "SQL keyword 'from' in natural text (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-022",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "where to buy kiwi"
+    },
+    "headers": {},
+    "body": null,
+    "description": "SQL keyword 'where' in natural text (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-023",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "order by tomorrow"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Phrase 'order by' in natural text (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-024",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "join the juice club"
+    },
+    "headers": {},
+    "body": null,
+    "description": "SQL keyword 'join' in natural text (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-025",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "update: new flavors"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Keyword 'update' with colon (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-026",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "kid's juice box"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Possessive apostrophe (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-027",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "50/50 blend"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Slash between numbers (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-028",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "#1 bestseller"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Leading hash sign (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-029",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "fruit & nut bar"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Ampersand in product name (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-030",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "half-price (today only)"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Hyphen and parentheses (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-031",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "100% juice; no sugar"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Percent and semicolon (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-032",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "2+1 offer"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Plus sign between numbers (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-033",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "lemon/lime soda"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Slash between words (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-034",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "juice @ home"
+    },
+    "headers": {},
+    "body": null,
+    "description": "At sign in natural text (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-035",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "q&a with the farmer"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Ampersand inside a word (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-036",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "~200 ml bottle"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Tilde and unit (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-037",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "echo chamber poster"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Shell word 'echo' (new-family FP surface) (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-038",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "ping pong paddle"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Network command word 'ping' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-039",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "cat toy with bell"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Shell command word 'cat' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-040",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "python mug"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Language name 'python' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-041",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "perl necklace"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Language name 'perl' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-042",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "shell earrings"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'shell' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-043",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "root beer float"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'root' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-044",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "system update sticker"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'system' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-045",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "include a gift note"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'include' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-046",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "file cabinet magnet"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'file' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-047",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "admin assistant mug"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'admin' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-048",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "php conference tote"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'php' (new-family FP surface) (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-049",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "java chip cookie"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'java' (new-family FP surface) (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-050",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "price $3-$5"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Dollar signs and range (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-051",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "url shortener shirt"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'url' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-052",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "home server sticker"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Words 'home server' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-053",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "O'Neil's orchard"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Two apostrophes (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-054",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "crème brûlée"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Accented Unicode characters (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-055",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "jus jeruk segar"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Indonesian search phrase (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-056",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "smoothie, no ice"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Comma in search (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-057",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "is it vegan?"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Question mark in search (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-058",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "best seller!!"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Repeated exclamation marks (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-059",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Love it! Saw the review at https://example.com/review",
+      "rating": 5
+    },
+    "description": "Feedback with https URL (new-family FP surface) (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-060",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Recipe ideas on www.example.net are great",
+      "rating": 4
+    },
+    "description": "Feedback with www host (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-061",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Tried it at 7:30; tasted great :)",
+      "rating": 5
+    },
+    "description": "Feedback with time, semicolon and emoticon (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-062",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Rate: 4/5 - would buy again",
+      "rating": 4
+    },
+    "description": "Feedback with rating fraction (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-063",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Juice > soda, every time!",
+      "rating": 5
+    },
+    "description": "Feedback with greater-than sign (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-064",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "The 'apple' one is the best",
+      "rating": 5
+    },
+    "description": "Feedback with single-quoted word (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-065",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Please add a 1L size (or 2L)",
+      "rating": 3
+    },
+    "description": "Feedback with parentheses (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-066",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "echo: my kids loved it too",
+      "rating": 5
+    },
+    "description": "Feedback starting with 'echo' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-067",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Ordered via the app, file a bug: images load slowly",
+      "rating": 3
+    },
+    "description": "Feedback with words 'file' and 'bug' (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-068",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Sangat segar dan enak, terima kasih!",
+      "rating": 5
+    },
+    "description": "Indonesian feedback text (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-069",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {},
+    "body": {
+      "email": "o.brien+shop@example.com",
+      "password": "Blue-Mango-2026"
+    },
+    "description": "Login with plus-addressed email (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-070",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {},
+    "body": {
+      "email": "ana@example.org",
+      "password": "P@ss w0rd!#2026"
+    },
+    "description": "Login with symbols and a space in the password (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-071",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/Products/4",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Another product detail (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-072",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/Products/6",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Another product detail (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-073",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/3/reviews",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Review listing for another product (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-074",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/assets/i18n/de_DE.json",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "German translation bundle (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-075",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/assets/i18n/id_ID.json",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Indonesian translation bundle (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-076",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "red apple"
+    },
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0",
+      "Referer": "http://127.0.0.1:8080/"
+    },
+    "body": null,
+    "description": "Search with Firefox User-Agent and Referer (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-077",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "orange"
+    },
+    "headers": {
+      "X-Requested-With": "XMLHttpRequest",
+      "Cache-Control": "no-cache"
+    },
+    "body": null,
+    "description": "Search with XHR and cache headers (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-078",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "banana"
+    },
+    "headers": {
+      "DNT": "1",
+      "Accept-Encoding": "gzip, deflate, br"
+    },
+    "body": null,
+    "description": "Search with DNT and Accept-Encoding headers (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-079",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "lemon"
+    },
+    "headers": {
+      "Accept-Language": "id-ID,id;q=0.9,en;q=0.5"
+    },
+    "body": null,
+    "description": "Search with Indonesian Accept-Language (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
+  },
+  {
+    "test_id": "HOLDOUT-080",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/",
+    "params": {},
+    "headers": {
+      "Accept": "application/json, text/plain, */*"
+    },
+    "body": null,
+    "description": "Home page with a JSON Accept header (hold-out, not used for tuning)",
+    "expected_waf_behavior": "allow"
   }
 ]
