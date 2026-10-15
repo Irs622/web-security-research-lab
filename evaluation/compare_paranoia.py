@@ -1,10 +1,11 @@
 """Compare detection/false-positive trade-offs across CRS Paranoia Levels."""
 from __future__ import annotations
+import argparse
 import json
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parents[1]
 MATRIX_DIR = ROOT / "results" / "paranoia"
@@ -67,7 +68,12 @@ def plot(rows: List[Dict[str, Any]], output_file: Path) -> None:
     plt.close(fig)
 
 
-def main(matrix_dir: Path = MATRIX_DIR):
+def main(matrix_dir: Optional[Path] = None, argv: Optional[List[str]] = None):
+    if matrix_dir is None:
+        parser = argparse.ArgumentParser(description="Compare Paranoia Level results.")
+        parser.add_argument("--matrix-dir", default=str(MATRIX_DIR),
+                            help="Directory holding pl<N>[-tuned]/summary_metrics.json (default: results/paranoia)")
+        matrix_dir = Path(parser.parse_args(argv).matrix_dir)
     rows = collect(matrix_dir)
     if not rows:
         print(f"Error: no pl*/summary_metrics.json under {matrix_dir}. Run `make experiment-matrix` first.",

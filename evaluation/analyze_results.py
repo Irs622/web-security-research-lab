@@ -24,6 +24,15 @@ LAB_ENVIRONMENT_PROTOCOL_RULES = {"920350"}
 SCORING_META_RULES = {"949110"}
 
 
+# Categories with fewer malicious cases than this get a "small sample" flag in the report:
+# a Wilson interval at n < 10 is too wide to support a per-category claim.
+MIN_CATEGORY_SAMPLE = 10
+
+# Response-phase CRS rules (RESPONSE-95x). They react to what the application answered (e.g. 950100 on an
+# HTTP 5xx), not to the request payload, and are reported separately so readers can tell them apart.
+OUTBOUND_RULE_PREFIXES = ("95",)
+
+
 def filter_attack_rules(rule_ids: List[str]) -> List[str]:
     """Returns only attack-relevant rule IDs (drops lab protocol artifacts and scoring meta-rules)."""
     return [
@@ -64,6 +73,32 @@ def wilson_interval(successes: int, total: int, z: float = 1.96) -> Optional[Lis
     centre = (p + z * z / (2 * total)) / denom
     margin = z * ((p * (1 - p) / total + z * z / (4 * total * total)) ** 0.5) / denom
     return [round(max(0.0, centre - margin), 4), round(min(1.0, centre + margin), 4)]
+
+
+def _intervention_evidence(row: Dict[str, Any]) -> str:
+    """'audit_log' when the block decision came from ModSecurity's audit record.
+
+    CSVs written before the column existed are classified from ``log_match`` the same way the
+    runner does it, so old and new result files are evaluated identically.
+    """
+    evidence = row.get("intervention_evidence")
+    if evidence:
+        return evidence
+    return "audit_log" if row.get("log_match") in {"trace_id", "uri"} else "status_heuristic"
+
+
+def _new_bucket() -> Dict[str, Any]:
+    return {"total": 0, "detected": 0, "blocked": 0, "malicious": 0, "benign": 0,
+            "tp": 0, "fn": 0, "fp": 0, "tn": 0, "blocked_confirmed": 0}
+
+
+def _finish_bucket(b: Dict[str, Any]) -> Dict[str, Any]:
+    b["recall"] = _round(_ratio(b["tp"], b["tp"] + b["fn"]))
+    b["recall_ci95"] = wilson_interval(b["tp"], b["tp"] + b["fn"])
+    b["blocking_rate"] = _round(_ratio(b["blocked_confirmed"], b["malicious"]))
+    b["false_positive_rate"] = _round(_ratio(b["fp"], b["fp"] + b["tn"]))
+    b["small_sample"] = 0 < b["malicious"] < MIN_CATEGORY_SAMPLE
+    return b
 
 
 def _is_primary(row: Dict[str, Any]) -> bool:
@@ -145,50 +180,71 @@ def evaluate_waf_performance(
     fp = 0  # Expected benign, attack rule fired or blocked
 
     malicious_blocked = 0
+    malicious_blocked_unverified = 0
     malicious_proxy_rejected = 0
     total_malicious = 0
+    outbound_only_alerts = 0
 
-    category_stats: Dict[str, Dict[str, int]] = {}
+    category_stats: Dict[str, Dict[str, Any]] = {}
+    applicability_stats: Dict[str, Dict[str, Any]] = {}
     misclassified: List[Dict[str, Any]] = []
 
     for row in valid_waf:
         exp_class = row.get("expected_class", "").lower()
         test_id = row.get("test_id", "")
         cat = (row.get("category") or "").strip() or (test_id.split("-")[0] if "-" in test_id else "OTHER")
-        if cat not in category_stats:
-            category_stats[cat] = {"total": 0, "detected": 0, "blocked": 0}
-        category_stats[cat]["total"] += 1
+        applicability = (row.get("scenario_applicability") or "").strip() or "unspecified"
+        buckets = [category_stats.setdefault(cat, _new_bucket()),
+                   applicability_stats.setdefault(applicability, _new_bucket())]
 
         all_rules = [r.strip() for r in row.get("waf_rule_ids", "").split(";") if r.strip()]
         attack_rules = filter_attack_rules(all_rules)
         # waf_intervention is decided by the runner from the audit log (is_interrupted).
         # A raw HTTP 403 is not used here because the backend can return 403 on its own.
         is_blocked = str(row.get("waf_intervention", "")).lower() == "true"
+        # Only an audit-log-backed interruption counts as a confirmed block; a status-code
+        # fallback (no audit record) is reported separately as unverified.
+        is_confirmed_block = is_blocked and _intervention_evidence(row) == "audit_log"
         has_attack_detection = len(attack_rules) > 0 or is_blocked
+        if attack_rules and all(r.startswith(OUTBOUND_RULE_PREFIXES) for r in attack_rules) and not is_blocked:
+            outbound_only_alerts += 1
 
-        if is_blocked:
-            category_stats[cat]["blocked"] += 1
-        if has_attack_detection:
-            category_stats[cat]["detected"] += 1
+        for b in buckets:
+            b["total"] += 1
+            b["blocked"] += int(is_blocked)
+            b["detected"] += int(has_attack_detection)
 
         if exp_class == "malicious":
             total_malicious += 1
-            if is_blocked:
+            if is_confirmed_block:
                 malicious_blocked += 1
+            elif is_blocked:
+                malicious_blocked_unverified += 1
             elif row.get("observed_outcome") == "rejected_by_proxy":
                 malicious_proxy_rejected += 1
+            outcome = "tp" if has_attack_detection else "fn"
+            for b in buckets:
+                b["malicious"] += 1
+                b[outcome] += 1
+                b["blocked_confirmed"] += int(is_confirmed_block)
             if has_attack_detection:
                 tp += 1
             else:
                 fn += 1
                 misclassified.append({"type": "FN", "test_id": test_id, "category": cat,
                                       "path": row.get("path", ""), "rules": all_rules,
-                                      "outcome": row.get("observed_outcome", "")})
+                                      "outcome": row.get("observed_outcome", ""),
+                                      "scenario_applicability": applicability})
         elif exp_class == "benign":
+            outcome = "fp" if has_attack_detection else "tn"
+            for b in buckets:
+                b["benign"] += 1
+                b[outcome] += 1
             if has_attack_detection:
                 fp += 1
                 misclassified.append({"type": "FP", "test_id": test_id, "category": cat,
-                                      "path": row.get("path", ""), "rules": all_rules})
+                                      "path": row.get("path", ""), "rules": all_rules,
+                                      "outcome": row.get("observed_outcome", "")})
             else:
                 tn += 1
 
@@ -197,6 +253,7 @@ def evaluate_waf_performance(
     recall = _ratio(tp, tp + fn)
     precision = _ratio(tp, tp + fp)
     fpr = _ratio(fp, fp + tn)
+    specificity = _ratio(tn, tn + fp)
     if recall is None or precision is None:
         f1 = None
     else:
@@ -219,6 +276,7 @@ def evaluate_waf_performance(
             base_mean = statistics.mean(base_latencies)
             if waf_mean is not None:
                 latency_overhead = round(waf_mean - base_mean, 2)
+    latency_overhead_p50 = round(waf_p50 - base_p50, 2) if waf_p50 is not None and base_p50 is not None else None
 
     return {
         "sample_count": len(valid_waf),
@@ -226,10 +284,13 @@ def evaluate_waf_performance(
         "detection_rate_recall": _round(recall),
         "precision": _round(precision),
         "false_positive_rate": _round(fpr),
+        "specificity": _round(specificity),
         "f1_score": _round(f1),
         "blocking_rate": _round(blocking_rate),
         "malicious_blocked": malicious_blocked,
+        "malicious_blocked_unverified": malicious_blocked_unverified,
         "malicious_rejected_by_proxy": malicious_proxy_rejected,
+        "alerts_outbound_only": outbound_only_alerts,
         "overall_mitigation_rate": _round(_ratio(malicious_blocked + malicious_proxy_rejected, total_malicious)),
         "total_malicious": total_malicious,
         "latency_waf": {
@@ -243,6 +304,7 @@ def evaluate_waf_performance(
             "p95_ms": round(base_p95, 2) if base_p95 is not None else None,
         },
         "latency_overhead_mean_ms": latency_overhead,
+        "latency_overhead_p50_ms": latency_overhead_p50,
         "latency_stats": {
             "waf": latency_summary(waf_latencies),
             "baseline": latency_summary(base_latencies),
@@ -252,9 +314,11 @@ def evaluate_waf_performance(
             "detection_rate_recall": wilson_interval(tp, tp + fn),
             "precision": wilson_interval(tp, tp + fp),
             "false_positive_rate": wilson_interval(fp, fp + tn),
+            "specificity": wilson_interval(tn, tn + fp),
             "blocking_rate": wilson_interval(malicious_blocked, total_malicious),
         },
-        "category_breakdown": category_stats,
+        "category_breakdown": {k: _finish_bucket(v) for k, v in category_stats.items()},
+        "applicability_breakdown": {k: _finish_bucket(v) for k, v in applicability_stats.items()},
         "misclassified": misclassified,
     }
 
@@ -277,9 +341,16 @@ def print_report(metrics: Dict[str, Any]):
     print(f"  Detection Rate / Recall (TPR) : {_pct(metrics['detection_rate_recall'])}")
     print(f"  Precision                     : {_pct(metrics['precision'])}")
     print(f"  False Positive Rate (FPR)     : {_pct(metrics['false_positive_rate'])}")
+    print(f"  Specificity (TNR)             : {_pct(metrics.get('specificity'))}")
     print(f"  F1-Score                      : {f'{f1:.4f}' if f1 is not None else 'n/a'}")
     print(f"  Enforcement / Blocking Rate   : {_pct(metrics['blocking_rate'])} "
-          f"({metrics['malicious_blocked']}/{metrics['total_malicious']})")
+          f"({metrics['malicious_blocked']}/{metrics['total_malicious']}, audit-log confirmed)")
+    if metrics.get("malicious_blocked_unverified"):
+        print(f"  Unverified blocks (status only): {metrics['malicious_blocked_unverified']} "
+              "(no audit record; NOT counted in the blocking rate)")
+    if metrics.get("alerts_outbound_only"):
+        print(f"  Outbound-only alerts (95xxxx) : {metrics['alerts_outbound_only']} "
+              "(response-phase rule only; counted as detection)")
     print(f"  Rejected by Nginx (pre-WAF)   : {metrics['malicious_rejected_by_proxy']} "
           f"-> overall mitigation {_pct(metrics['overall_mitigation_rate'])}")
 
@@ -296,7 +367,8 @@ def print_report(metrics: Dict[str, Any]):
         print(f"  Baseline Latency  : Mean={b_lat['mean_ms']} ms | p50={b_lat['p50_ms']} ms | p95={b_lat['p95_ms']} ms")
     print(f"  WAF Latency       : Mean={w_lat['mean_ms']} ms | p50={w_lat['p50_ms']} ms | p95={w_lat['p95_ms']} ms")
     if metrics["latency_overhead_mean_ms"] is not None:
-        print(f"  Inspection Overhead: +{metrics['latency_overhead_mean_ms']} ms mean latency per request")
+        print(f"  Inspection Overhead: {metrics['latency_overhead_mean_ms']:+} ms mean, "
+              f"{metrics.get('latency_overhead_p50_ms')} ms p50 per request")
     stats = metrics.get("latency_stats", {})
     print(f"  Samples (WAF/Base): {stats.get('waf', {}).get('n')} / {stats.get('baseline', {}).get('n')} "
           f"| IQR WAF={stats.get('waf', {}).get('iqr_ms')} ms, Base={stats.get('baseline', {}).get('iqr_ms')} ms")
@@ -305,11 +377,17 @@ def print_report(metrics: Dict[str, Any]):
         verdict = "significant" if mw["p_value"] < 0.05 else "not significant"
         print(f"  Mann-Whitney U    : U={mw['u']} z={mw['z']} p={mw['p_value']} ({verdict} at a=0.05)")
 
-    print("\n--- BREAKDOWN BY ATTACK CATEGORY ---")
-    print(f"  {'Category':<16} | {'Total':<6} | {'Detected':<9} | {'Blocked':<8}")
-    print("  " + "-" * 48)
-    for cat, data in metrics["category_breakdown"].items():
-        print(f"  {cat:<16} | {data['total']:<6} | {data['detected']:<9} | {data['blocked']:<8}")
+    groups = (("ATTACK CATEGORY", "category_breakdown"), ("SCENARIO APPLICABILITY", "applicability_breakdown"))
+    for title, key in groups:
+        print(f"\n--- BREAKDOWN BY {title} ---")
+        print(f"  {'Group':<20} | {'n':<4} | {'Detected':<8} | {'Blocked':<7} | {'Recall':<8} | "
+              f"{'Block rate':<10} | {'FPR':<8}")
+        print("  " + "-" * 82)
+        for name, d in metrics.get(key, {}).items():
+            flag = "  (n<%d)" % MIN_CATEGORY_SAMPLE if d.get("small_sample") else ""
+            print(f"  {name:<20} | {d['total']:<4} | {d['detected']:<8} | {d['blocked']:<7} | "
+                  f"{_pct(d.get('recall')):<8} | {_pct(d.get('blocking_rate')):<10} | "
+                  f"{_pct(d.get('false_positive_rate')):<8}{flag}")
 
     if metrics.get("misclassified"):
         print("\n--- MISCLASSIFIED CASES (FN / FP) ---")
@@ -318,6 +396,30 @@ def print_report(metrics: Dict[str, Any]):
             note = "  (rejected by nginx before WAF)" if m.get("outcome") == "rejected_by_proxy" else ""
             print(f"  [{m['type']}] {m['test_id']:<12} {m['path']}  rules={rules}{note}")
     print("=" * 65)
+
+
+def _read_meta(csv_path: Path) -> Optional[Dict[str, Any]]:
+    meta = csv_path.with_suffix(".meta.json")
+    try:
+        return json.loads(meta.read_text(encoding="utf-8")) if meta.is_file() else None
+    except (OSError, ValueError):
+        return None
+
+
+def dataset_mismatch(waf_csv: Path, baseline_csv: Path) -> Optional[str]:
+    """Explains why a WAF and a baseline CSV must not be combined, or returns None.
+
+    Latency overhead is only meaningful when both runs sent the same requests; comparing a
+    WAF run on the extended dataset with a stale baseline from the original one is a silent error.
+    """
+    waf_meta, base_meta = _read_meta(waf_csv), _read_meta(baseline_csv)
+    if not waf_meta or not base_meta:
+        return None
+    if waf_meta.get("dataset_sha256") != base_meta.get("dataset_sha256"):
+        return (f"{waf_csv} and {baseline_csv} were produced from different datasets "
+                f"({waf_meta.get('case_count')} vs {base_meta.get('case_count')} cases). "
+                "Re-run the baseline with the same --cases file.")
+    return None
 
 
 def main():
@@ -331,6 +433,11 @@ def main():
 
     if not waf_file.exists():
         print(f"Error: {waf_file} does not exist. Run WAF simulator first.", file=sys.stderr)
+        sys.exit(1)
+
+    mismatch = dataset_mismatch(waf_file, baseline_file)
+    if mismatch:
+        print(f"Error: {mismatch}", file=sys.stderr)
         sys.exit(1)
 
     waf_data = load_csv(waf_file)

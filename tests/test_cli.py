@@ -66,3 +66,27 @@ def test_compare_paranoia_main_writes_outputs(tmp_path):
 def test_compare_paranoia_main_fails_without_results(tmp_path):
     with pytest.raises(SystemExit):
         compare_paranoia.main(tmp_path)
+
+
+def test_analyzer_refuses_baseline_from_another_dataset(tmp_path, monkeypatch, capsys):
+    from evaluation import analyze_results
+    waf, base = tmp_path / "waf.csv", tmp_path / "baseline.csv"
+    header = "test_id,expected_class,waf_rule_ids,waf_intervention,latency_ms\nA,benign,,False,5\n"
+    for path, sha in ((waf, "a" * 64), (base, "b" * 64)):
+        path.write_text(header, encoding="utf-8")
+        path.with_suffix(".meta.json").write_text(json.dumps({"dataset_sha256": sha, "case_count": 1}))
+    monkeypatch.setattr("sys.argv", ["analyze", "--waf", str(waf), "--baseline", str(base),
+                                     "--output", str(tmp_path / "s.json")])
+    with pytest.raises(SystemExit):
+        analyze_results.main()
+    assert "different datasets" in capsys.readouterr().err
+    # Same dataset hash: the pair is accepted.
+    base.with_suffix(".meta.json").write_text(json.dumps({"dataset_sha256": "a" * 64}))
+    analyze_results.main()
+    assert (tmp_path / "s.json").exists()
+
+
+def test_load_cases_accepts_extended_dataset():
+    from simulator.run_tests import ROOT
+    cases = load_cases(ROOT / "simulator" / "attack_cases_extended.json")
+    assert len(cases) > len(load_cases(CASES_FILE))

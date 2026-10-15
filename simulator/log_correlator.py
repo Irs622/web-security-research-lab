@@ -25,6 +25,8 @@ class WafLogCorrelator:
 
     def __init__(self, container_name: str = "waflab-modsecurity"):
         self.container_name = container_name
+        # Engine/CRS identification from the most recent matched transaction (audit "producer").
+        self.last_producer: Optional[Dict] = None
 
     def fetch_recent_logs(self, tail_lines: int = 200) -> List[Dict]:
         """Fetches the latest JSON audit log transactions from the ModSecurity container."""
@@ -84,6 +86,7 @@ class WafLogCorrelator:
             for tx in reversed(transactions):
                 headers = tx.get("request", {}).get("headers", {})
                 if _header_value(headers, TRACE_HEADER) == trace_id:
+                    self.last_producer = tx.get("producer") or self.last_producer
                     return (*self._extract(tx), "trace_id")
             if attempt < attempts - 1:
                 time.sleep(poll_interval)

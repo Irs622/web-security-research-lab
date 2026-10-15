@@ -22,3 +22,12 @@ def test_collect_sorts_levels_and_ignores_other_dirs(tmp_path):
     assert [r["scenario"] for r in rows] == ["pl1", "pl2", "pl2-tuned"]
     assert rows[1]["recall"] == 0.98 and rows[2]["tuned"] is True
     assert rows[0]["recall_ci95"] == [0.5, 1.0]
+
+
+def test_main_accepts_matrix_dir_argument(tmp_path):
+    from evaluation import compare_paranoia
+    d = tmp_path / "pl1"
+    d.mkdir()
+    (d / "summary_metrics.json").write_text(json.dumps(_summary(0.9, 0.1)))
+    compare_paranoia.main(argv=["--matrix-dir", str(tmp_path)])
+    assert (tmp_path / "paranoia_comparison.json").exists()

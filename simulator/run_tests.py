@@ -136,7 +136,8 @@ def main():
             timeout_seconds=args.timeout,
             enable_log_correlation=not args.no_docker_logs,
         )
-        runner.run_suite(cases=cases, output_path=output_path, repeat=args.repeat, warmup=args.warmup)
+        runner.run_suite(cases=cases, output_path=output_path, repeat=args.repeat, warmup=args.warmup,
+                         dataset_path=cases_path)
     except Exception as exc:
         print(f"\nExecution Aborted: {exc}", file=sys.stderr)
         sys.exit(1)

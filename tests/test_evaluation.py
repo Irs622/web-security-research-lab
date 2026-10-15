@@ -19,12 +19,13 @@ def test_percentile_calculation():
 
 def test_evaluation_confusion_matrix_perfect():
     waf_rows = [
-        {"expected_class": "malicious", "waf_rule_ids": "942100", "waf_intervention": "True", "http_status": "403", "latency_ms": "12.0"},
-        {"expected_class": "malicious", "waf_rule_ids": "941100", "waf_intervention": "True", "http_status": "403", "latency_ms": "14.0"},
+        {"expected_class": "malicious", "waf_rule_ids": "942100", "waf_intervention": "True", "http_status": "403", "latency_ms": "12.0", "log_match": "trace_id"},
+        {"expected_class": "malicious", "waf_rule_ids": "941100", "waf_intervention": "True", "http_status": "403", "latency_ms": "14.0", "log_match": "trace_id"},
         {"expected_class": "benign", "waf_rule_ids": "", "waf_intervention": "False", "http_status": "200", "latency_ms": "10.0"},
         {"expected_class": "benign", "waf_rule_ids": "", "waf_intervention": "False", "http_status": "200", "latency_ms": "8.0"},
     ]
     res = evaluate_waf_performance(waf_rows)
+    assert res["specificity"] == 1.0
     assert res["confusion_matrix"] == {"TP": 2, "FP": 0, "TN": 2, "FN": 0}
     assert res["detection_rate_recall"] == 1.0
     assert res["precision"] == 1.0
@@ -215,3 +216,57 @@ def test_print_report_handles_undefined_metrics(capsys):
     rows = [{"expected_class": "benign", "waf_rule_ids": "", "waf_intervention": "False", "latency_ms": "5"}]
     print_report(evaluate_waf_performance(rows))
     assert "n/a" in capsys.readouterr().out
+
+
+def _row(cls, rules="", blocked=False, evidence="audit_log", category="sqli", applicability="pattern_only"):
+    return {"expected_class": cls, "category": category, "waf_rule_ids": rules,
+            "waf_intervention": str(blocked), "intervention_evidence": evidence,
+            "scenario_applicability": applicability, "latency_ms": "10"}
+
+
+def test_blocking_rate_counts_only_audit_confirmed_interventions():
+    rows = [_row("malicious", "942100", True), _row("malicious", "", True, evidence="status_heuristic")]
+    res = evaluate_waf_performance(rows)
+    # Both are detections, but only the audit-log-backed one is a confirmed block.
+    assert res["confusion_matrix"]["TP"] == 2
+    assert res["malicious_blocked"] == 1 and res["malicious_blocked_unverified"] == 1
+    assert res["blocking_rate"] == 0.5
+
+
+def test_legacy_rows_derive_evidence_from_log_match():
+    rows = [
+        {"expected_class": "malicious", "waf_rule_ids": "942100", "waf_intervention": "True", "log_match": "uri"},
+        {"expected_class": "malicious", "waf_rule_ids": "", "waf_intervention": "True", "log_match": "none"},
+    ]
+    res = evaluate_waf_performance(rows)
+    assert res["malicious_blocked"] == 1 and res["malicious_blocked_unverified"] == 1
+    assert "unspecified" in res["applicability_breakdown"]
+
+
+def test_category_and_applicability_breakdown():
+    rows = ([_row("malicious", "932100", True, category="cmdi")] * 3
+            + [_row("malicious", category="cmdi")]
+            + [_row("malicious", "942100", True, category="sqli", applicability="sink_present")]
+            + [_row("benign", "942100", category="normal", applicability="benign_control"),
+               _row("benign", category="normal", applicability="benign_control")])
+    res = evaluate_waf_performance(rows)
+    cmdi = res["category_breakdown"]["cmdi"]
+    assert (cmdi["tp"], cmdi["fn"], cmdi["recall"], cmdi["blocking_rate"]) == (3, 1, 0.75, 0.75)
+    assert cmdi["small_sample"] is True and cmdi["recall_ci95"] is not None
+    normal = res["category_breakdown"]["normal"]
+    assert normal["false_positive_rate"] == 0.5 and normal["recall"] is None and normal["small_sample"] is False
+    assert res["applicability_breakdown"]["sink_present"]["recall"] == 1.0
+    assert res["applicability_breakdown"]["pattern_only"]["malicious"] == 4
+    assert res["specificity"] == 0.5
+
+
+def test_outbound_only_alert_is_counted_separately():
+    res = evaluate_waf_performance([_row("benign", "920350;950100", category="normal")])
+    assert res["confusion_matrix"]["FP"] == 1 and res["alerts_outbound_only"] == 1
+
+
+def test_latency_overhead_p50():
+    waf = [{"expected_class": "benign", "latency_ms": v} for v in ("20", "30", "40")]
+    base = [{"latency_ms": v} for v in ("10", "12", "14")]
+    res = evaluate_waf_performance(waf, base)
+    assert res["latency_overhead_p50_ms"] == 18.0
