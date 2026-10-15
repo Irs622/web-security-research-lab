@@ -261,8 +261,9 @@ def test_category_and_applicability_breakdown():
 
 
 def test_outbound_only_alert_is_counted_separately():
-    res = evaluate_waf_performance([_row("benign", "920350;950100", category="normal")])
-    assert res["confusion_matrix"]["FP"] == 1 and res["alerts_outbound_only"] == 1
+    res = evaluate_waf_performance([_row("benign", "920350;950100", category="normal"),
+                                    _row("benign", "950100;959100", True, category="normal")])
+    assert res["confusion_matrix"]["FP"] == 2 and res["alerts_outbound_only"] == 2
 
 
 def test_latency_overhead_p50():

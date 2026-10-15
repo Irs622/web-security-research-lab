@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from simulator.target_validator import StrictNoRedirectHandler, validate_target_url
 from simulator.log_correlator import TRACE_HEADER, WafLogCorrelator
-from evaluation.analyze_results import filter_attack_rules
+from evaluation.analyze_results import filter_attack_rules, is_outbound_only
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -289,6 +289,10 @@ class ExperimentRunner:
 
         if transport_error:
             backend_outcome = "transport_error"
+        elif block_source == "waf" and is_outbound_only(attack_rules):
+            # Outbound anomaly blocking (e.g. 950100 on an HTTP 5xx): the application already
+            # processed the request; only its response was replaced by the WAF.
+            backend_outcome = "reached_response_blocked"
         elif block_source in {"waf", "proxy"}:
             backend_outcome = "not_reached"
         else:

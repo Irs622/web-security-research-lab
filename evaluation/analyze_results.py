@@ -21,7 +21,8 @@ LAB_ENVIRONMENT_PROTOCOL_RULES = {"920350"}
 # accumulated anomaly score reaches the blocking threshold. It reflects the sum of scores from
 # other attack rules already counted above; including it would double-count every TP that was
 # blocked. Excluded from has_attack_detection to avoid that double-count.
-SCORING_META_RULES = {"949110"}
+# 959100 is the outbound (response) counterpart of 949110 and is excluded for the same reason.
+SCORING_META_RULES = {"949110", "959100"}
 
 
 # Categories with fewer malicious cases than this get a "small sample" flag in the report:
@@ -39,6 +40,11 @@ def filter_attack_rules(rule_ids: List[str]) -> List[str]:
         r for r in rule_ids
         if r not in LAB_ENVIRONMENT_PROTOCOL_RULES and r not in SCORING_META_RULES
     ]
+
+
+def is_outbound_only(attack_rules: List[str]) -> bool:
+    """True when every attack rule is response-phase: the request itself reached the application."""
+    return bool(attack_rules) and all(r.startswith(OUTBOUND_RULE_PREFIXES) for r in attack_rules)
 
 
 def load_csv(path: Path) -> List[Dict[str, Any]]:
@@ -206,7 +212,7 @@ def evaluate_waf_performance(
         # fallback (no audit record) is reported separately as unverified.
         is_confirmed_block = is_blocked and _intervention_evidence(row) == "audit_log"
         has_attack_detection = len(attack_rules) > 0 or is_blocked
-        if attack_rules and all(r.startswith(OUTBOUND_RULE_PREFIXES) for r in attack_rules) and not is_blocked:
+        if is_outbound_only(attack_rules):
             outbound_only_alerts += 1
 
         for b in buckets:
@@ -350,7 +356,7 @@ def print_report(metrics: Dict[str, Any]):
               "(no audit record; NOT counted in the blocking rate)")
     if metrics.get("alerts_outbound_only"):
         print(f"  Outbound-only alerts (95xxxx) : {metrics['alerts_outbound_only']} "
-              "(response-phase rule only; counted as detection)")
+              "(response-phase rules only; counted as detection, request reached the app)")
     print(f"  Rejected by Nginx (pre-WAF)   : {metrics['malicious_rejected_by_proxy']} "
           f"-> overall mitigation {_pct(metrics['overall_mitigation_rate'])}")
 

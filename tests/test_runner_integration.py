@@ -176,3 +176,17 @@ def test_waf_metadata_records_runtime_and_producer(server, tmp_path, monkeypatch
     assert meta["waf_producer"]["components"] == ["OWASP_CRS/4.25.2"]
     assert meta["audit_log_correlation"] == {"trace_id": 1}
     assert meta["tuned_exclusions"] is True and len(meta["exclusions_sha256"]) == 64
+
+
+def test_outbound_only_block_marks_backend_as_reached(server):
+    runner = _runner(server, "waf")
+
+    class _Correlator:
+        last_producer = None
+
+        def correlate_request(self, *args, **kwargs):
+            return ["920350", "950100", "959100"], True, 403, "trace_id"
+
+    runner.correlator = _Correlator()
+    row = runner.execute_test({"test_id": "O-1", "path": "/", "expected_class": "benign"}, "r")
+    assert row["block_source"] == "waf" and row["backend_outcome"] == "reached_response_blocked"
